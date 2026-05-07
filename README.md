@@ -15,6 +15,20 @@ OvseSpec 是基于 OpenSpec 二次开发的团队版 spec-driven development 工
 
 要求 Node.js `20.19.0` 或更高版本。
 
+当前可直接从 GitHub 安装：
+
+```bash
+npm install -g github:jnlzw/ovsespec
+```
+
+也可以固定到 `main` 分支：
+
+```bash
+npm install -g github:jnlzw/ovsespec#main
+```
+
+发布到 npm registry 后，可使用 npm 包名安装：
+
 ```bash
 npm install -g @jn-lzw/ovsespec@latest
 ```
@@ -166,7 +180,7 @@ npm login
 npm publish --access public
 ```
 
-`@jn-lzw/ovsespec` 是 scoped public package，发布账号需要拥有 `@jn-lzw` organization/scope 的发布权限。
+`@jn-lzw/ovsespec` 是 scoped public package，发布账号需要拥有 `@jn-lzw` organization/scope 的发布权限。若 npm 账号开启了 2FA，发布还需要 Authenticator OTP 或带 bypass 2FA 的 granular access token。
 
 ## Telemetry
 

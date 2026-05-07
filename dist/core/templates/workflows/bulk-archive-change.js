@@ -1,0 +1,116 @@
+const BULK_ARCHIVE_INSTRUCTIONS = `批量归档多个 OvseSpec 变更。
+
+保留原命令意图：一次选择多个 active changes，逐个检查状态、处理 delta specs，同步主 specs，并把可以归档的变更移动到 archive。批量归档必须清楚记录成功、跳过和失败结果。
+
+**输入**：不需要参数。始终提示用户选择要归档的变更。
+
+**步骤**
+
+1. **获取 active changes**
+
+   \`\`\`bash
+   ovsespec list --json
+   \`\`\`
+
+   如果没有 active changes，告知用户并停止。
+
+2. **让用户选择变更**
+
+   使用 **AskUserQuestion tool** 的多选形式，让用户选择一个或多个变更。可以提供 “All changes” 选项，但不要自动选择。
+
+3. **批量收集状态**
+
+   对每个选中变更：
+   - 运行 \`ovsespec status --change "<name>" --json\`，记录 schema 和产物状态。
+   - 读取 \`ovsespec/changes/<name>/tasks.md\`，统计完成/未完成任务。
+   - 检查 \`ovsespec/changes/<name>/specs/\`，列出 touched capabilities 和 requirements。
+
+4. **检测 spec 冲突**
+
+   建立 \`capability -> changes\` 映射。多个变更同时修改同一个 capability 时，标记冲突。
+
+5. **解决冲突**
+
+   对每个冲突：
+   - 读取相关 delta specs。
+   - 搜索代码库，判断哪个变更实际已实现。
+   - 如果只有一个已实现，同步该变更的 specs。
+   - 如果多个都已实现，按时间顺序同步，较新的变更可以覆盖较旧结果。
+   - 如果都没有实现，跳过 spec sync 并 warning。
+
+6. **展示确认表**
+
+   用中文表格展示每个变更：
+   - 产物状态
+   - 任务进度
+   - delta specs
+   - 冲突和处理方式
+   - 建议动作：archive / skip / needs confirmation
+
+   获得用户一次性确认后继续。
+
+7. **同步 specs**
+
+   对需要同步的 delta specs，使用 \`/ovsx:sync\` 的 agent-driven 合并方式。保持幂等，避免重复 requirement 或 scenario。
+
+8. **执行归档**
+
+   对每个确认归档的变更：
+
+   \`\`\`bash
+   mkdir -p ovsespec/changes/archive
+   mv ovsespec/changes/<name> ovsespec/changes/archive/YYYY-MM-DD-<name>
+   \`\`\`
+
+   如果目标目录已存在，该变更标记失败，但继续处理其他变更。
+
+**输出**
+
+用中文总结：
+
+\`\`\`
+## 批量归档完成
+
+已归档:
+- <change-1> -> archive/YYYY-MM-DD-<change-1>/
+
+已跳过:
+- <change-2>（原因）
+
+失败:
+- <change-3>: archive 目录已存在
+
+Spec sync:
+- N 个 delta specs 已同步
+- M 个冲突已处理
+\`\`\`
+
+**护栏**
+
+- 始终让用户选择，不要自动选择。
+- 批量前先展示状态表并获得确认。
+- 冲突要尽早识别，并通过读取 delta specs 和代码证据解决。
+- 未实现的 delta specs 不要强行同步。
+- 每个变更的成功、跳过、失败都要记录。
+- 归档移动目录时保留 \`.ovsespec.yaml\`。
+- 单个变更失败不应中断整个批量操作。`;
+export function getBulkArchiveChangeSkillTemplate() {
+    return {
+        name: 'ovsespec-bulk-archive-change',
+        description: '批量归档多个 OvseSpec 变更，并处理 spec 冲突、跳过项和失败项。',
+        instructions: BULK_ARCHIVE_INSTRUCTIONS,
+        license: 'MIT',
+        compatibility: 'Requires ovsespec CLI.',
+        metadata: { author: 'ovsespec', version: '1.0' },
+    };
+}
+export function getOvsxBulkArchiveCommandTemplate() {
+    return {
+        name: 'OVSX: Bulk Archive',
+        description: '批量归档多个变更，并输出同步、冲突、跳过和失败摘要',
+        category: 'Workflow',
+        tags: ['workflow', 'archive', 'bulk'],
+        content: BULK_ARCHIVE_INSTRUCTIONS,
+    };
+}
+//# sourceMappingURL=bulk-archive-change.js.map

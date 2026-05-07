@@ -48,7 +48,6 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:postinstall": "node scripts/postinstall.js",
-    "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "postinstall": "node scripts/postinstall.js",
     "check:pack-version": "node scripts/pack-version-check.mjs",

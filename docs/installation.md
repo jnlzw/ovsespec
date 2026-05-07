@@ -4,7 +4,23 @@
 
 - **Node.js 20.19.0 or higher** — Check your version: `node --version`
 
+## GitHub Install
+
+OvseSpec can be installed directly from the GitHub repository:
+
+```bash
+npm install -g github:jnlzw/ovsespec
+```
+
+To pin the current main branch explicitly:
+
+```bash
+npm install -g github:jnlzw/ovsespec#main
+```
+
 ## Package Managers
+
+The npm package name is `@jn-lzw/ovsespec`. Use these commands after the package has been published to the npm registry.
 
 ### npm
 
@@ -38,13 +54,13 @@ bun add -g @jn-lzw/ovsespec@latest
 Run OvseSpec directly without installation:
 
 ```bash
-nix run github:Fission-AI/OvseSpec -- init
+nix run github:jnlzw/ovsespec -- init
 ```
 
 Or install to your profile:
 
 ```bash
-nix profile install github:Fission-AI/OvseSpec
+nix profile install github:jnlzw/ovsespec
 ```
 
 Or add to your development environment in `flake.nix`:
@@ -53,7 +69,7 @@ Or add to your development environment in `flake.nix`:
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    ovsespec.url = "github:Fission-AI/OvseSpec";
+    ovsespec.url = "github:jnlzw/ovsespec";
   };
 
   outputs = { nixpkgs, ovsespec, ... }: {
