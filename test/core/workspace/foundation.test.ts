@@ -54,7 +54,7 @@ describe('workspace foundation', () => {
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openspec-workspace-foundation-'));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ovsespec-workspace-foundation-'));
     originalEnv = { ...process.env };
   });
 
@@ -90,7 +90,7 @@ paths: {}
 
   describe('path helpers', () => {
     it('exposes the workspace constants', () => {
-      expect(WORKSPACE_METADATA_DIR_NAME).toBe('.openspec-workspace');
+      expect(WORKSPACE_METADATA_DIR_NAME).toBe('.ovsespec-workspace');
       expect(WORKSPACE_SHARED_STATE_FILE_NAME).toBe('workspace.yaml');
       expect(WORKSPACE_LOCAL_STATE_FILE_NAME).toBe('local.yaml');
       expect(WORKSPACE_CHANGES_DIR_NAME).toBe('changes');
@@ -102,13 +102,13 @@ paths: {}
       const workspaceRoot = path.join(tempDir, 'platform');
 
       expect(getWorkspaceMetadataDir(workspaceRoot)).toBe(
-        path.join(workspaceRoot, '.openspec-workspace')
+        path.join(workspaceRoot, '.ovsespec-workspace')
       );
       expect(getWorkspaceSharedStatePath(workspaceRoot)).toBe(
-        path.join(workspaceRoot, '.openspec-workspace', 'workspace.yaml')
+        path.join(workspaceRoot, '.ovsespec-workspace', 'workspace.yaml')
       );
       expect(getWorkspaceLocalStatePath(workspaceRoot)).toBe(
-        path.join(workspaceRoot, '.openspec-workspace', 'local.yaml')
+        path.join(workspaceRoot, '.ovsespec-workspace', 'local.yaml')
       );
       expect(getWorkspaceChangesDir(workspaceRoot)).toBe(path.join(workspaceRoot, 'changes'));
       expect(getWorkspaceCodeWorkspaceFileName('platform')).toBe('platform.code-workspace');
@@ -121,22 +121,22 @@ paths: {}
       const workspaceRoot = 'D:\\repos\\platform-workspace';
 
       expect(getWorkspaceSharedStatePath(workspaceRoot)).toBe(
-        'D:\\repos\\platform-workspace\\.openspec-workspace\\workspace.yaml'
+        'D:\\repos\\platform-workspace\\.ovsespec-workspace\\workspace.yaml'
       );
       expect(getWorkspaceLocalStatePath(workspaceRoot)).toBe(
-        'D:\\repos\\platform-workspace\\.openspec-workspace\\local.yaml'
+        'D:\\repos\\platform-workspace\\.ovsespec-workspace\\local.yaml'
       );
     });
 
     it('uses getGlobalDataDir for managed workspace and registry locations', () => {
       process.env.XDG_DATA_HOME = tempDir;
 
-      expect(getManagedWorkspacesDir()).toBe(path.join(tempDir, 'openspec', 'workspaces'));
+      expect(getManagedWorkspacesDir()).toBe(path.join(tempDir, 'ovsespec', 'workspaces'));
       expect(getManagedWorkspaceRoot('platform')).toBe(
-        path.join(tempDir, 'openspec', 'workspaces', 'platform')
+        path.join(tempDir, 'ovsespec', 'workspaces', 'platform')
       );
       expect(getWorkspaceRegistryPath()).toBe(
-        path.join(tempDir, 'openspec', 'workspaces', 'registry.yaml')
+        path.join(tempDir, 'ovsespec', 'workspaces', 'registry.yaml')
       );
     });
 
@@ -148,7 +148,7 @@ paths: {}
       });
 
       expect(getManagedWorkspacesDir({ globalDataDir: dataDir })).toBe(
-        '/home/tabish/.local/share/openspec/workspaces'
+        '/home/tabish/.local/share/ovsespec/workspaces'
       );
     });
 
@@ -160,15 +160,15 @@ paths: {}
       });
 
       expect(getManagedWorkspacesDir({ globalDataDir: dataDir })).toBe(
-        'C:\\Users\\Tabish\\AppData\\Local\\openspec\\workspaces'
+        'C:\\Users\\Tabish\\AppData\\Local\\ovsespec\\workspaces'
       );
     });
 
     it('exposes the portable collaboration ignore rule for local state', () => {
-      expect(WORKSPACE_LOCAL_STATE_IGNORE_PATTERN).toBe('.openspec-workspace/local.yaml');
-      expect(getWorkspacePortableIgnorePatterns()).toEqual(['.openspec-workspace/local.yaml']);
+      expect(WORKSPACE_LOCAL_STATE_IGNORE_PATTERN).toBe('.ovsespec-workspace/local.yaml');
+      expect(getWorkspacePortableIgnorePatterns()).toEqual(['.ovsespec-workspace/local.yaml']);
       expect(getWorkspacePortableIgnorePatterns('platform')).toEqual([
-        '.openspec-workspace/local.yaml',
+        '.ovsespec-workspace/local.yaml',
         'platform.code-workspace',
       ]);
     });
@@ -231,19 +231,19 @@ paths: {}
       await expect(findWorkspaceRoot(path.join(notWorkspace, 'changes'))).resolves.toBe(null);
     });
 
-    it('does not mistake repo-local openspec projects for coordination workspaces', async () => {
+    it('does not mistake repo-local ovsespec projects for coordination workspaces', async () => {
       const repoRoot = path.join(tempDir, 'repo');
-      fs.mkdirSync(path.join(repoRoot, 'openspec', 'changes', 'add-feature'), {
+      fs.mkdirSync(path.join(repoRoot, 'ovsespec', 'changes', 'add-feature'), {
         recursive: true,
       });
-      fs.mkdirSync(path.join(repoRoot, 'openspec', 'specs'), { recursive: true });
+      fs.mkdirSync(path.join(repoRoot, 'ovsespec', 'specs'), { recursive: true });
 
-      await expect(findWorkspaceRoot(path.join(repoRoot, 'openspec', 'changes'))).resolves.toBe(
+      await expect(findWorkspaceRoot(path.join(repoRoot, 'ovsespec', 'changes'))).resolves.toBe(
         null
       );
     });
 
-    it('detects a workspace even when a linked path has no repo-local openspec state', async () => {
+    it('detects a workspace even when a linked path has no repo-local ovsespec state', async () => {
       const workspaceRoot = createWorkspaceRoot();
       const linkedPath = path.join(workspaceRoot, 'external-folder');
       fs.mkdirSync(linkedPath, { recursive: true });
@@ -463,9 +463,9 @@ After block.
       expect(refreshed).toContain('# Team Notes');
       expect(refreshed).toContain('Keep this.');
       expect(refreshed).toContain('After block.');
-      expect(refreshed.match(/OPENSPEC:WORKSPACE-GUIDANCE:START/gu)).toHaveLength(1);
+      expect(refreshed.match(/OVSESPEC:WORKSPACE-GUIDANCE:START/gu)).toHaveLength(1);
       expect(applyWorkspaceGuidanceBlock('# Team Notes\n')).toContain(
-        '<!-- OPENSPEC:WORKSPACE-GUIDANCE:START -->'
+        '<!-- OVSESPEC:WORKSPACE-GUIDANCE:START -->'
       );
     });
 
@@ -541,7 +541,7 @@ After block.
         },
       ]);
       expect(fs.readFileSync(path.join(workspaceRoot, '.gitignore'), 'utf-8')).toContain(
-        '*.code-workspace\n.openspec-workspace/local.yaml\nplatform.code-workspace\n'
+        '*.code-workspace\n.ovsespec-workspace/local.yaml\nplatform.code-workspace\n'
       );
     });
   });
@@ -601,7 +601,7 @@ workspaces:
     });
 
     it('reads the local registry from the standard registry path', async () => {
-      const globalDataDir = path.join(tempDir, 'data', 'openspec');
+      const globalDataDir = path.join(tempDir, 'data', 'ovsespec');
       const registryPath = getWorkspaceRegistryPath({ globalDataDir });
       fs.mkdirSync(path.dirname(registryPath), { recursive: true });
       fs.writeFileSync(
@@ -621,7 +621,7 @@ workspaces:
     });
 
     it('writes the local registry to the standard registry path', async () => {
-      const globalDataDir = path.join(tempDir, 'data', 'openspec');
+      const globalDataDir = path.join(tempDir, 'data', 'ovsespec');
       const registry = {
         version: 1 as const,
         workspaces: {

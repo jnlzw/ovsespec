@@ -8,8 +8,8 @@ import type { SkillTemplate, CommandTemplate } from '../types.js';
 
 export function getContinueChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-continue-change',
-    description: 'Continue working on an OpenSpec change by creating the next artifact. Use when the user wants to progress their change, create the next artifact, or continue their workflow.',
+    name: 'ovsespec-continue-change',
+    description: 'Continue working on an OvseSpec change by creating the next artifact. Use when the user wants to progress their change, create the next artifact, or continue their workflow.',
     instructions: `Continue working on a change by creating the next artifact.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -18,7 +18,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 1. **If no change name provided, prompt for selection**
 
-   Run \`openspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
+   Run \`ovsespec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
 
    Present the top 3-4 most recently modified changes as options, showing:
    - Change name
@@ -32,7 +32,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 2. **Check current status**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   ovsespec status --change "<name>" --json
    \`\`\`
    Parse the JSON to understand current state. The response includes:
    - \`schemaName\`: The workflow schema being used (e.g., "spec-driven")
@@ -55,7 +55,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
    - Pick the FIRST artifact with \`status: "ready"\` from the status output
    - Get its instructions:
      \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
+     ovsespec instructions <artifact-id> --change "<name>" --json
      \`\`\`
    - Parse the JSON. The key fields are:
      - \`context\`: Project background (constraints for you - do NOT include in output)
@@ -80,7 +80,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 4. **After creating an artifact, show progress**
    \`\`\`bash
-   openspec status --change "<name>"
+   ovsespec status --change "<name>"
    \`\`\`
 
 **Output**
@@ -118,123 +118,64 @@ For other schemas, follow the \`instruction\` field from the CLI output.
   - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
   - These guide what you write, but should never appear in the output`,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxContinueCommandTemplate(): CommandTemplate {
+export function getOvsxContinueCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Continue',
-    description: 'Continue working on a change - create the next artifact (Experimental)',
+    name: 'OVSX: Continue',
+    description: '继续一个变更，并按依赖顺序创建下一个产物',
     category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Continue working on a change by creating the next artifact.
+    tags: ['workflow', 'artifacts'],
+    content: `继续处理一个 OvseSpec 变更，并只创建下一个 ready 产物。
 
-**Input**: Optionally specify a change name after \`/opsx:continue\` (e.g., \`/opsx:continue add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+保留原命令意图：一次只推进一个产物，遵守 schema 的依赖顺序。不要跳过产物，也不要一次生成多个产物。
 
-**Steps**
+**输入**：可以指定变更名，例如 \`/ovsx:continue add-auth\`。如果省略，先从上下文推断；如果不明确，必须让用户选择。
 
-1. **If no change name provided, prompt for selection**
+**步骤**
 
-   Run \`openspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
-
-   Present the top 3-4 most recently modified changes as options, showing:
-   - Change name
-   - Schema (from \`schema\` field if present, otherwise "spec-driven")
-   - Status (e.g., "0/5 tasks", "complete", "no tasks")
-   - How recently it was modified (from \`lastModified\` field)
-
-   Mark the most recently modified change as "(Recommended)" since it's likely what the user wants to continue.
-
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
-
-2. **Check current status**
+1. 如果没有明确变更名，运行 \`ovsespec list --json\`，展示最近修改的 active changes，并使用 **AskUserQuestion tool** 让用户选择。不要猜测。
+2. 检查当前状态：
    \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to understand current state. The response includes:
-   - \`schemaName\`: The workflow schema being used (e.g., "spec-driven")
-   - \`artifacts\`: Array of artifacts with their status ("done", "ready", "blocked")
-   - \`isComplete\`: Boolean indicating if all artifacts are complete
-
-3. **Act based on status**:
-
-   ---
-
-   **If all artifacts are complete (\`isComplete: true\`)**:
-   - Congratulate the user
-   - Show final status including the schema used
-   - Suggest: "All artifacts created! You can now implement this change with \`/opsx:apply\` or archive it with \`/opsx:archive\`."
-   - STOP
-
-   ---
-
-   **If artifacts are ready to create** (status shows artifacts with \`status: "ready"\`):
-   - Pick the FIRST artifact with \`status: "ready"\` from the status output
-   - Get its instructions:
-     \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
-     \`\`\`
-   - Parse the JSON. The key fields are:
-     - \`context\`: Project background (constraints for you - do NOT include in output)
-     - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-     - \`template\`: The structure to use for your output file
-     - \`instruction\`: Schema-specific guidance
-     - \`outputPath\`: Where to write the artifact
-     - \`dependencies\`: Completed artifacts to read for context
-   - **Create the artifact file**:
-     - Read any completed dependency files for context
-     - Use \`template\` as the structure - fill in its sections
-     - Apply \`context\` and \`rules\` as constraints when writing - but do NOT copy them into the file
-     - Write to the output path specified in instructions
-   - Show what was created and what's now unlocked
-   - STOP after creating ONE artifact
-
-   ---
-
-   **If no artifacts are ready (all blocked)**:
-   - This shouldn't happen with a valid schema
-   - Show status and suggest checking for issues
-
-4. **After creating an artifact, show progress**
-   \`\`\`bash
-   openspec status --change "<name>"
+   ovsespec status --change "<name>" --json
    \`\`\`
 
-**Output**
+   解析 \`schemaName\`、\`artifacts\`、\`isComplete\`。
 
-After each invocation, show:
-- Which artifact was created
-- Schema workflow being used
-- Current progress (N/M complete)
-- What artifacts are now unlocked
-- Prompt: "Run \`/opsx:continue\` to create the next artifact"
+3. 如果所有产物都已完成，展示最终状态，并建议运行 \`/ovsx:apply\` 或 \`/ovsx:archive\`。
+4. 如果存在 \`ready\` 产物，选择状态输出中的第一个 ready 产物，获取说明：
 
-**Artifact Creation Guidelines**
+   \`\`\`bash
+   ovsespec instructions <artifact-id> --change "<name>" --json
+   \`\`\`
 
-The artifact types and their purpose depend on the schema. Use the \`instruction\` field from the instructions output to understand what to create.
+   读取依赖产物，使用 \`template\` 写入 \`outputPath\`，遵守 \`context\` 和 \`rules\`，但不要把这些块原样复制进文件。
 
-Common artifact patterns:
+5. 创建一个产物后立刻停止，并展示进度：
 
-**spec-driven schema** (proposal → specs → design → tasks):
-- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
-  - The Capabilities section is critical - each capability listed will need a spec file.
-- **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **design.md**: Document technical decisions, architecture, and implementation approach.
-- **tasks.md**: Break down implementation into checkboxed tasks.
+   \`\`\`bash
+   ovsespec status --change "<name>"
+   \`\`\`
 
-For other schemas, follow the \`instruction\` field from the CLI output.
+**输出**
 
-**Guardrails**
-- Create ONE artifact per invocation
-- Always read dependency artifacts before creating a new one
-- Never skip artifacts or create out of order
-- If context is unclear, ask the user before creating
-- Verify the artifact file exists after writing before marking progress
-- Use the schema's artifact sequence, don't assume specific artifact names
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output`
+用中文说明：
+- 创建了哪个产物
+- 使用的 schema
+- 当前进度
+- 解锁了哪些后续产物
+- 提示：“运行 \`/ovsx:continue\` 创建下一个产物。”
+
+**护栏**
+- 每次只创建一个产物。
+- 创建前必须读取依赖产物。
+- 不要跳过依赖顺序。
+- 上下文不清楚时先问。
+- 写完后确认文件存在。
+- 使用 schema 返回的产物序列，不要假设固定文件名。
+- \`context\` 和 \`rules\` 是给你的约束，不是产物内容。`
   };
 }

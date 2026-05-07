@@ -32,12 +32,12 @@ describe('workspace command', () => {
   let env: NodeJS.ProcessEnv;
 
   beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openspec-workspace-command-'));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ovsespec-workspace-command-'));
     dataHome = path.join(tempDir, 'data');
     env = {
       XDG_DATA_HOME: dataHome,
-      OPEN_SPEC_INTERACTIVE: '0',
-      OPENSPEC_TELEMETRY: '0',
+      OVSE_SPEC_INTERACTIVE: '0',
+      OVSESPEC_TELEMETRY: '0',
     };
   });
 
@@ -72,15 +72,15 @@ describe('workspace command', () => {
     fs.mkdirSync(binDir, { recursive: true });
     fs.writeFileSync(
       recorderPath,
-      "const fs = require('node:fs');\nfs.writeFileSync(process.env.OPENSPEC_FAKE_OPEN_LOG, JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }));\n"
+      "const fs = require('node:fs');\nfs.writeFileSync(process.env.OVSESPEC_FAKE_OPEN_LOG, JSON.stringify({ cwd: process.cwd(), args: process.argv.slice(2) }));\n"
     );
 
     const posixExecutable = path.join(binDir, name);
-    fs.writeFileSync(posixExecutable, '#!/bin/sh\nnode "$OPENSPEC_FAKE_OPEN_RECORDER" "$@"\n');
+    fs.writeFileSync(posixExecutable, '#!/bin/sh\nnode "$OVSESPEC_FAKE_OPEN_RECORDER" "$@"\n');
     fs.chmodSync(posixExecutable, 0o755);
     fs.writeFileSync(
       path.join(binDir, `${name}.cmd`),
-      '@echo off\r\nnode "%OPENSPEC_FAKE_OPEN_RECORDER%" %*\r\n'
+      '@echo off\r\nnode "%OVSESPEC_FAKE_OPEN_RECORDER%" %*\r\n'
     );
 
     return { binDir, logPath };
@@ -90,8 +90,8 @@ describe('workspace command', () => {
     return {
       ...env,
       PATH: `${fake.binDir}${path.delimiter}${process.env.PATH ?? ''}`,
-      OPENSPEC_FAKE_OPEN_RECORDER: path.join(fake.binDir, 'record-launch.cjs'),
-      OPENSPEC_FAKE_OPEN_LOG: fake.logPath,
+      OVSESPEC_FAKE_OPEN_RECORDER: path.join(fake.binDir, 'record-launch.cjs'),
+      OVSESPEC_FAKE_OPEN_LOG: fake.logPath,
     };
   }
 
@@ -135,7 +135,7 @@ describe('workspace command', () => {
 
   it('sets up a workspace with required links, records local state, and lists it through ls', async () => {
     const api = mkdir('repos/api');
-    mkdir('repos/api/openspec/specs');
+    mkdir('repos/api/ovsespec/specs');
     const checkout = mkdir('repos/platform/apps/checkout');
     const expectedApi = expectedExistingPath(api);
     const expectedCheckout = expectedExistingPath(checkout);
@@ -150,7 +150,7 @@ describe('workspace command', () => {
       expect.objectContaining({
         name: 'api',
         path: expectedApi,
-        repo_specs_path: path.join(expectedApi, 'openspec', 'specs'),
+        repo_specs_path: path.join(expectedApi, 'ovsespec', 'specs'),
         status: [],
       }),
       expect.objectContaining({
@@ -169,7 +169,7 @@ describe('workspace command', () => {
     );
     const registry = parseWorkspaceRegistryState(
       fs.readFileSync(
-        getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') }),
+        getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') }),
         'utf-8'
       )
     );
@@ -195,7 +195,7 @@ describe('workspace command', () => {
       'platform.code-workspace'
     );
     expect(fs.readFileSync(path.join(workspaceRoot, 'AGENTS.md'), 'utf-8')).toContain(
-      'OpenSpec Workspace Guidance'
+      'OvseSpec Workspace Guidance'
     );
     expect(JSON.parse(fs.readFileSync(getWorkspaceCodeWorkspacePath(workspaceRoot, 'platform'), 'utf-8')).folders).toEqual([
       {
@@ -402,7 +402,7 @@ describe('workspace command', () => {
         fix: expect.stringContaining('--link api-alt='),
       })
     );
-    expect(fs.existsSync(getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') }))).toBe(false);
+    expect(fs.existsSync(getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') }))).toBe(false);
   });
 
   it('removes a partially created workspace when setup fails after creating the root', async () => {
@@ -428,7 +428,7 @@ describe('workspace command', () => {
       }
     }
 
-    const globalDataDir = path.join(dataHome, 'openspec');
+    const globalDataDir = path.join(dataHome, 'ovsespec');
     expect(fs.existsSync(getManagedWorkspaceRoot('platform', { globalDataDir }))).toBe(false);
     expect(fs.existsSync(getWorkspaceRegistryPath({ globalDataDir }))).toBe(false);
   });
@@ -474,7 +474,7 @@ describe('workspace command', () => {
 
     const noWorkspaces = await runCLI(['workspace', 'list'], { cwd: tempDir, env });
     expect(noWorkspaces.exitCode).toBe(0);
-    expect(noWorkspaces.stdout).toContain("No OpenSpec workspaces found. Run 'openspec workspace setup' first.");
+    expect(noWorkspaces.stdout).toContain("No OvseSpec workspaces found. Run 'ovsespec workspace setup' first.");
 
     const missing = await runCLI(['workspace', 'setup', '--no-interactive', '--json'], {
       cwd: tempDir,
@@ -658,7 +658,7 @@ describe('workspace command', () => {
     );
     expect(fs.readFileSync(sentinelPath, 'utf-8')).toBe('{"name":"checkout"}\n');
     expect(fs.readdirSync(packageDir).sort()).toEqual(entriesBefore);
-    expect(fs.existsSync(path.join(packageDir, 'openspec'))).toBe(false);
+    expect(fs.existsSync(path.join(packageDir, 'ovsespec'))).toBe(false);
     expect(fs.existsSync(path.join(packageDir, WORKSPACE_METADATA_DIR_NAME))).toBe(false);
   });
 
@@ -704,7 +704,7 @@ describe('workspace command', () => {
   it('reports stale registry entries without rewriting the registry', async () => {
     const api = mkdir('repos/api');
     const setup = await setupWorkspace('platform', [`api=${api}`]);
-    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') });
+    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') });
     const registryBefore = fs.readFileSync(registryPath, 'utf-8');
 
     fs.rmSync(setup.workspace.root, { recursive: true, force: true });
@@ -734,7 +734,7 @@ describe('workspace command', () => {
     const api = mkdir('repos/api');
     const setup = await setupWorkspace('doctor-local-invalid', [`api=${api}`]);
     const localPath = getWorkspaceLocalStatePath(setup.workspace.root);
-    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') });
+    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') });
     const malformedLocalState = 'version: 1\npaths: []\n';
     const registryBefore = fs.readFileSync(registryPath, 'utf-8');
     fs.writeFileSync(localPath, malformedLocalState);
@@ -780,7 +780,7 @@ describe('workspace command', () => {
     const localOnly = mkdir('repos/local-only');
     const setup = await setupWorkspace('platform', [`api=${api}`]);
     const workspaceRoot = setup.workspace.root;
-    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') });
+    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') });
     const missingApiPath = path.join(tempDir, 'repos', 'missing-api');
     const sharedDrift = `version: 1
 name: platform
@@ -864,7 +864,7 @@ paths:
       'version: 1\npaths: {}\n'
     );
 
-    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'openspec') });
+    const registryPath = getWorkspaceRegistryPath({ globalDataDir: path.join(dataHome, 'ovsespec') });
     const doctor = await runCLI(['workspace', 'doctor', '--json'], { cwd: nested, env });
     expect(doctor.exitCode).toBe(0);
     expect(parseJson(doctor).status[0]).toEqual(
@@ -952,9 +952,9 @@ paths:
     });
 
     expect(doctor.exitCode).toBe(1);
-    expect(doctor.stderr).toContain('Multiple OpenSpec workspaces are known.');
+    expect(doctor.stderr).toContain('Multiple OvseSpec workspaces are known.');
     expect(doctor.stderr).toContain('Pass --workspace <name>.');
-    expect(doctor.stderr).toContain('openspec workspace doctor --workspace <name>');
+    expect(doctor.stderr).toContain('ovsespec workspace doctor --workspace <name>');
   });
 
   it('opens a workspace through VS Code editor and agent overrides without changing stored preference', async () => {
@@ -1017,7 +1017,7 @@ paths:
     expect(codexLaunch.args).toEqual([
       '--add-dir',
       expectedApi,
-      'Open this OpenSpec workspace.',
+      'Open this OvseSpec workspace.',
     ]);
     expect(readLocalState(setup.workspace.root).preferred_opener).toEqual({
       kind: 'editor',
@@ -1034,7 +1034,7 @@ paths:
       env,
     });
     expect(noKnown.exitCode).toBe(1);
-    expect(noKnown.stderr).toContain("No known OpenSpec workspaces. Run 'openspec workspace setup' first.");
+    expect(noKnown.stderr).toContain("No known OvseSpec workspaces. Run 'ovsespec workspace setup' first.");
 
     const platform = await setupWorkspace('platform', [`api=${api}`]);
     await setupWorkspace('checkout-web', [`web=${web}`]);
@@ -1130,7 +1130,7 @@ preferred_opener:
     );
     expect(setup.exitCode).toBe(0);
     expect(setup.stdout).toContain('Workspace setup complete');
-    expect(setup.stdout).toContain('OpenSpec workspaces (1)');
+    expect(setup.stdout).toContain('OvseSpec workspaces (1)');
     expect(setup.stdout).toContain('Location:');
     expect(setup.stdout).not.toContain('Root:');
     expect(setup.stdout).toContain('Linked repos or folders (1):');
@@ -1142,7 +1142,7 @@ preferred_opener:
 
     const list = await runCLI(['workspace', 'list'], { cwd: tempDir, env });
     expect(list.exitCode).toBe(0);
-    expect(list.stdout).toContain('OpenSpec workspaces (1)');
+    expect(list.stdout).toContain('OvseSpec workspaces (1)');
     expect(list.stdout).toContain('platform');
     expect(list.stdout).toContain('Location:');
     expect(list.stdout).not.toContain('Root:');

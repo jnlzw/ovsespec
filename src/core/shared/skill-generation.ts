@@ -15,18 +15,20 @@ import {
   getBulkArchiveChangeSkillTemplate,
   getVerifyChangeSkillTemplate,
   getOnboardSkillTemplate,
-  getOpsxProposeSkillTemplate,
-  getOpsxExploreCommandTemplate,
-  getOpsxNewCommandTemplate,
-  getOpsxContinueCommandTemplate,
-  getOpsxApplyCommandTemplate,
-  getOpsxFfCommandTemplate,
-  getOpsxSyncCommandTemplate,
-  getOpsxArchiveCommandTemplate,
-  getOpsxBulkArchiveCommandTemplate,
-  getOpsxVerifyCommandTemplate,
-  getOpsxOnboardCommandTemplate,
-  getOpsxProposeCommandTemplate,
+  getOvsxProposeSkillTemplate,
+  getOvsxExploreCommandTemplate,
+  getOvsxNewCommandTemplate,
+  getOvsxContinueCommandTemplate,
+  getOvsxApplyCommandTemplate,
+  getOvsxFfCommandTemplate,
+  getOvsxSyncCommandTemplate,
+  getOvsxArchiveCommandTemplate,
+  getOvsxBulkArchiveCommandTemplate,
+  getOvsxVerifyCommandTemplate,
+  getOvsxOnboardCommandTemplate,
+  getOvsxProposeCommandTemplate,
+  getPaasTestDeploySkillTemplate,
+  getOvsxPaasTestDeployCommandTemplate,
   type SkillTemplate,
 } from '../templates/skill-templates.js';
 import type { CommandContent } from '../command-generation/index.js';
@@ -44,7 +46,7 @@ export interface SkillTemplateEntry {
  * Command template with ID mapping.
  */
 export interface CommandTemplateEntry {
-  template: ReturnType<typeof getOpsxExploreCommandTemplate>;
+  template: ReturnType<typeof getOvsxExploreCommandTemplate>;
   id: string;
 }
 
@@ -55,17 +57,18 @@ export interface CommandTemplateEntry {
  */
 export function getSkillTemplates(workflowFilter?: readonly string[]): SkillTemplateEntry[] {
   const all: SkillTemplateEntry[] = [
-    { template: getExploreSkillTemplate(), dirName: 'openspec-explore', workflowId: 'explore' },
-    { template: getNewChangeSkillTemplate(), dirName: 'openspec-new-change', workflowId: 'new' },
-    { template: getContinueChangeSkillTemplate(), dirName: 'openspec-continue-change', workflowId: 'continue' },
-    { template: getApplyChangeSkillTemplate(), dirName: 'openspec-apply-change', workflowId: 'apply' },
-    { template: getFfChangeSkillTemplate(), dirName: 'openspec-ff-change', workflowId: 'ff' },
-    { template: getSyncSpecsSkillTemplate(), dirName: 'openspec-sync-specs', workflowId: 'sync' },
-    { template: getArchiveChangeSkillTemplate(), dirName: 'openspec-archive-change', workflowId: 'archive' },
-    { template: getBulkArchiveChangeSkillTemplate(), dirName: 'openspec-bulk-archive-change', workflowId: 'bulk-archive' },
-    { template: getVerifyChangeSkillTemplate(), dirName: 'openspec-verify-change', workflowId: 'verify' },
-    { template: getOnboardSkillTemplate(), dirName: 'openspec-onboard', workflowId: 'onboard' },
-    { template: getOpsxProposeSkillTemplate(), dirName: 'openspec-propose', workflowId: 'propose' },
+    { template: getExploreSkillTemplate(), dirName: 'ovsespec-explore', workflowId: 'explore' },
+    { template: getNewChangeSkillTemplate(), dirName: 'ovsespec-new-change', workflowId: 'new' },
+    { template: getContinueChangeSkillTemplate(), dirName: 'ovsespec-continue-change', workflowId: 'continue' },
+    { template: getApplyChangeSkillTemplate(), dirName: 'ovsespec-apply-change', workflowId: 'apply' },
+    { template: getFfChangeSkillTemplate(), dirName: 'ovsespec-ff-change', workflowId: 'ff' },
+    { template: getSyncSpecsSkillTemplate(), dirName: 'ovsespec-sync-specs', workflowId: 'sync' },
+    { template: getArchiveChangeSkillTemplate(), dirName: 'ovsespec-archive-change', workflowId: 'archive' },
+    { template: getBulkArchiveChangeSkillTemplate(), dirName: 'ovsespec-bulk-archive-change', workflowId: 'bulk-archive' },
+    { template: getVerifyChangeSkillTemplate(), dirName: 'ovsespec-verify-change', workflowId: 'verify' },
+    { template: getOnboardSkillTemplate(), dirName: 'ovsespec-onboard', workflowId: 'onboard' },
+    { template: getOvsxProposeSkillTemplate(), dirName: 'ovsespec-propose', workflowId: 'propose' },
+    { template: getPaasTestDeploySkillTemplate(), dirName: 'ovsespec-paas-test-deploy', workflowId: 'paas-test-deploy' },
   ];
 
   if (!workflowFilter) return all;
@@ -81,17 +84,18 @@ export function getSkillTemplates(workflowFilter?: readonly string[]): SkillTemp
  */
 export function getCommandTemplates(workflowFilter?: readonly string[]): CommandTemplateEntry[] {
   const all: CommandTemplateEntry[] = [
-    { template: getOpsxExploreCommandTemplate(), id: 'explore' },
-    { template: getOpsxNewCommandTemplate(), id: 'new' },
-    { template: getOpsxContinueCommandTemplate(), id: 'continue' },
-    { template: getOpsxApplyCommandTemplate(), id: 'apply' },
-    { template: getOpsxFfCommandTemplate(), id: 'ff' },
-    { template: getOpsxSyncCommandTemplate(), id: 'sync' },
-    { template: getOpsxArchiveCommandTemplate(), id: 'archive' },
-    { template: getOpsxBulkArchiveCommandTemplate(), id: 'bulk-archive' },
-    { template: getOpsxVerifyCommandTemplate(), id: 'verify' },
-    { template: getOpsxOnboardCommandTemplate(), id: 'onboard' },
-    { template: getOpsxProposeCommandTemplate(), id: 'propose' },
+    { template: getOvsxExploreCommandTemplate(), id: 'explore' },
+    { template: getOvsxNewCommandTemplate(), id: 'new' },
+    { template: getOvsxContinueCommandTemplate(), id: 'continue' },
+    { template: getOvsxApplyCommandTemplate(), id: 'apply' },
+    { template: getOvsxFfCommandTemplate(), id: 'ff' },
+    { template: getOvsxSyncCommandTemplate(), id: 'sync' },
+    { template: getOvsxArchiveCommandTemplate(), id: 'archive' },
+    { template: getOvsxBulkArchiveCommandTemplate(), id: 'bulk-archive' },
+    { template: getOvsxVerifyCommandTemplate(), id: 'verify' },
+    { template: getOvsxOnboardCommandTemplate(), id: 'onboard' },
+    { template: getOvsxProposeCommandTemplate(), id: 'propose' },
+    { template: getOvsxPaasTestDeployCommandTemplate(), id: 'paas-test-deploy' },
   ];
 
   if (!workflowFilter) return all;
@@ -121,7 +125,7 @@ export function getCommandContents(workflowFilter?: readonly string[]): CommandC
  * Generates skill file content with YAML frontmatter.
  *
  * @param template - The skill template
- * @param generatedByVersion - The OpenSpec version to embed in the file
+ * @param generatedByVersion - The OvseSpec version to embed in the file
  * @param transformInstructions - Optional callback to transform the instructions content
  */
 export function generateSkillContent(
@@ -137,9 +141,9 @@ export function generateSkillContent(
 name: ${template.name}
 description: ${template.description}
 license: ${template.license || 'MIT'}
-compatibility: ${template.compatibility || 'Requires openspec CLI.'}
+compatibility: ${template.compatibility || 'Requires ovsespec CLI.'}
 metadata:
-  author: ${template.metadata?.author || 'openspec'}
+  author: ${template.metadata?.author || 'ovsespec'}
   version: "${template.metadata?.version || '1.0'}"
   generatedBy: "${generatedByVersion}"
 ---

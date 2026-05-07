@@ -11,19 +11,19 @@ import {
 
 const fs = nodeFs.promises;
 
-export const WORKSPACE_GUIDANCE_START_MARKER = '<!-- OPENSPEC:WORKSPACE-GUIDANCE:START -->';
-export const WORKSPACE_GUIDANCE_END_MARKER = '<!-- OPENSPEC:WORKSPACE-GUIDANCE:END -->';
+export const WORKSPACE_GUIDANCE_START_MARKER = '<!-- OVSESPEC:WORKSPACE-GUIDANCE:START -->';
+export const WORKSPACE_GUIDANCE_END_MARKER = '<!-- OVSESPEC:WORKSPACE-GUIDANCE:END -->';
 
-export const WORKSPACE_GUIDANCE_BODY = `# OpenSpec Workspace Guidance
+export const WORKSPACE_GUIDANCE_BODY = `# OvseSpec Workspace Guidance
 
-This directory is an OpenSpec workspace for planning across linked repos or folders.
+This directory is an OvseSpec workspace for planning across linked repos or folders.
 
 - Use \`changes/\` for workspace-level planning.
 - Linked repos and folders are available for exploration and planning.
 - Repo or folder visibility supports exploration and planning.
 - Make implementation edits after the user explicitly asks for implementation work.
 - Treat linked repos and folders as the implementation homes for their owned code.
-- Use OpenSpec workspace commands instead of hand-editing \`.openspec-workspace/*.yaml\`.`;
+- Use OvseSpec workspace commands instead of hand-editing \`.ovsespec-workspace/*.yaml\`.`;
 
 export interface WorkspaceOpenLink {
   name: string;
@@ -70,7 +70,7 @@ export function applyWorkspaceGuidanceBlock(existingContent: string): string {
 
   if (startIndex !== -1 || endIndex !== -1) {
     if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-      throw new Error('Invalid OpenSpec workspace guidance marker state in AGENTS.md.');
+      throw new Error('Invalid OvseSpec workspace guidance marker state in AGENTS.md.');
     }
 
     const before = existingContent.slice(0, startIndex).trimEnd();

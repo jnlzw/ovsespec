@@ -6,274 +6,193 @@
  */
 import type { SkillTemplate, CommandTemplate } from '../types.js';
 
+const ARCHIVE_INSTRUCTIONS = `归档一个已完成的 OvseSpec 变更。
+
+保留原命令意图：检查变更是否适合结束，必要时提示同步 specs，然后把 active change 移动到 archive。团队版增强只是在归档前增加团队就绪检查和交接摘要，不改变“归档变更”的核心职责。
+
+**输入**：可以指定变更名，例如 \`/ovsx:archive add-auth\`。如果省略，先尝试从上下文推断；如果模糊，必须让用户选择。
+
+**团队协作增强**
+
+- 归档前检查是否还有未完成任务、未同步 specs、未确认 owner/reviewer、跨团队交接、发布/迁移/回滚事项。
+- 对跨仓或 workspace 变更，确认每个受影响仓库/模块的状态，至少在摘要中说明已完成、跳过、未知或需要人工确认。
+- 归档不应该隐藏风险。即使用户选择继续归档，也要把未完成或未确认事项写入最终摘要。
+- 不要自动删除或修改 linked repo 中无关内容；归档只移动 OvseSpec change 目录。
+
+**步骤**
+
+1. **选择变更**
+
+   如果没有明确变更名，运行：
+
+   \`\`\`bash
+   ovsespec list --json
+   \`\`\`
+
+   使用 **AskUserQuestion tool** 让用户选择 active change。
+   展示候选时尽量包含 schema 信息。
+
+   **重要**：不要在多个候选之间猜测。
+
+2. **检查产物完成状态**
+
+   运行：
+
+   \`\`\`bash
+   ovsespec status --change "<name>" --json
+   \`\`\`
+
+   解析：
+   - \`schemaName\`
+   - \`artifacts\`：每个产物的状态
+
+   如果存在未完成产物：
+   - 展示 warning，列出未完成产物。
+   - 使用 **AskUserQuestion tool** 确认用户是否仍要归档。
+   - 用户确认后才能继续。
+
+3. **检查任务完成状态**
+
+   读取任务文件，通常是 \`tasks.md\`，统计：
+   - \`- [ ]\`：未完成任务
+   - \`- [x]\`：已完成任务
+
+   如果存在未完成任务：
+   - 展示 warning 和数量。
+   - 如能识别 owner、仓库或模块，附带说明。
+   - 使用 **AskUserQuestion tool** 确认是否继续归档。
+
+   如果没有任务文件，可继续，但在摘要中说明没有任务文件可检查。
+
+4. **评估 delta spec 同步状态**
+
+   检查：
+
+   \`\`\`
+   ovsespec/changes/<name>/specs/
+   \`\`\`
+
+   如果不存在 delta specs，继续归档。
+
+   如果存在 delta specs：
+   - 将每个 delta spec 与对应主 spec \`ovsespec/specs/<capability>/spec.md\` 对比。
+   - 判断会产生哪些新增、修改、移除、重命名。
+   - 汇总影响 capability、owner/reviewer、消费者、契约或发布风险。
+   - 在询问前展示合并摘要。
+
+   **提示选项：**
+   - 如果需要同步：\`立即同步（推荐）\`、\`不同步直接归档\`
+   - 如果看起来已同步：\`立即归档\`、\`仍然同步\`、\`取消\`
+
+   如果用户选择同步，按 \`ovsespec-sync-specs\` / \`/ovsx:sync\` 的 agent-driven 方式执行同步。同步后继续归档。
+
+5. **执行归档**
+
+   创建 archive 目录：
+
+   \`\`\`bash
+   mkdir -p ovsespec/changes/archive
+   \`\`\`
+
+   目标目录使用当前日期：
+
+   \`\`\`
+   ovsespec/changes/archive/YYYY-MM-DD-<change-name>
+   \`\`\`
+
+   如果目标目录已存在：
+   - 失败并展示错误。
+   - 建议重命名已有 archive、删除重复 archive，或改日再归档。
+
+   如果不存在，移动目录：
+
+   \`\`\`bash
+   mv ovsespec/changes/<name> ovsespec/changes/archive/YYYY-MM-DD-<name>
+   \`\`\`
+
+6. **展示归档摘要**
+
+   用中文总结：
+   - 变更名
+   - schema
+   - archive 位置
+   - specs 同步状态：已同步 / 跳过同步 / 没有 delta specs
+   - 任务和产物完成情况
+   - 如适用，团队交接摘要：影响仓库/模块、owner/reviewer、剩余风险、发布/迁移/回滚事项
+
+**成功输出示例**
+
+\`\`\`
+## 归档完成
+
+**变更:** <change-name>
+**Schema:** <schema-name>
+**归档位置:** ovsespec/changes/archive/YYYY-MM-DD-<name>/
+**Specs:** 已同步到主 specs
+**任务:** 全部完成
+**团队交接:** 无未决事项
+\`\`\`
+
+**带 warning 的成功输出示例**
+
+\`\`\`
+## 归档完成（有 warning）
+
+**变更:** <change-name>
+**Schema:** <schema-name>
+**归档位置:** ovsespec/changes/archive/YYYY-MM-DD-<name>/
+**Specs:** 用户选择跳过同步
+
+**Warnings:**
+- 仍有 2 个未完成产物
+- 仍有 3 个未完成任务
+- Delta spec 未同步
+- 仍需 <owner/reviewer> 确认发布事项
+\`\`\`
+
+**目标已存在时输出示例**
+
+\`\`\`
+## 归档失败
+
+**变更:** <change-name>
+**目标:** ovsespec/changes/archive/YYYY-MM-DD-<name>/
+
+目标归档目录已存在。
+
+可选处理：
+1. 重命名已有归档目录
+2. 如果确认重复，删除已有归档目录
+3. 改日再归档
+\`\`\`
+
+**护栏**
+
+- 没有明确变更名时必须让用户选择。
+- 使用 \`ovsespec status --json\` 检查产物完成状态。
+- warning 不一定阻止归档，但必须展示并获得用户确认。
+- 移动目录时保留 \`.ovsespec.yaml\`，它会随变更目录一起移动。
+- 如果存在 delta specs，必须先做同步评估并展示摘要。
+- 如果用户选择同步，使用 \`/ovsx:sync\` 的 agent-driven 合并方式。
+- 归档摘要必须清楚说明 specs、任务、产物和团队交接状态。`;
+
 export function getArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-archive-change',
-    description: 'Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.',
-    instructions: `Archive a completed change in the experimental workflow.
-
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
-
-**Steps**
-
-1. **If no change name provided, prompt for selection**
-
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
-
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
-
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
-
-2. **Check artifact completion status**
-
-   Run \`openspec status --change "<name>" --json\` to check artifact completion.
-
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used
-   - \`artifacts\`: List of artifacts with their status (\`done\` or other)
-
-   **If any artifacts are not \`done\`:**
-   - Display warning listing incomplete artifacts
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
-
-3. **Check task completion status**
-
-   Read the tasks file (typically \`tasks.md\`) to check for incomplete tasks.
-
-   Count tasks marked with \`- [ ]\` (incomplete) vs \`- [x]\` (complete).
-
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
-
-   **If no tasks file exists:** Proceed without task-related warning.
-
-4. **Assess delta spec sync state**
-
-   Check for delta specs at \`openspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
-
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at \`openspec/specs/<capability>/spec.md\`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
-
-5. **Perform the archive**
-
-   Create the archive directory if it doesn't exist:
-   \`\`\`bash
-   mkdir -p openspec/changes/archive
-   \`\`\`
-
-   Generate target name using current date: \`YYYY-MM-DD-<change-name>\`
-
-   **Check if target already exists:**
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
-
-   \`\`\`bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   \`\`\`
-
-6. **Display summary**
-
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Whether specs were synced (if applicable)
-   - Note about any warnings (incomplete artifacts/tasks)
-
-**Output On Success**
-
-\`\`\`
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs (or "No delta specs" or "Sync skipped")
-
-All artifacts complete. All tasks complete.
-\`\`\`
-
-**Guardrails**
-- Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
-- Show clear summary of what happened
-- If sync is requested, use openspec-sync-specs approach (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting`,
+    name: 'ovsespec-archive-change',
+    description: '归档已完成的 OvseSpec 变更；团队场景会检查 specs、任务、owner、交接和发布风险。',
+    instructions: ARCHIVE_INSTRUCTIONS,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxArchiveCommandTemplate(): CommandTemplate {
+export function getOvsxArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Archive',
-    description: 'Archive a completed change in the experimental workflow',
+    name: 'OVSX: Archive',
+    description: '归档已完成变更，并输出 specs、任务、团队交接和风险状态',
     category: 'Workflow',
-    tags: ['workflow', 'archive', 'experimental'],
-    content: `Archive a completed change in the experimental workflow.
-
-**Input**: Optionally specify a change name after \`/opsx:archive\` (e.g., \`/opsx:archive add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
-
-**Steps**
-
-1. **If no change name provided, prompt for selection**
-
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
-
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
-
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
-
-2. **Check artifact completion status**
-
-   Run \`openspec status --change "<name>" --json\` to check artifact completion.
-
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used
-   - \`artifacts\`: List of artifacts with their status (\`done\` or other)
-
-   **If any artifacts are not \`done\`:**
-   - Display warning listing incomplete artifacts
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
-
-3. **Check task completion status**
-
-   Read the tasks file (typically \`tasks.md\`) to check for incomplete tasks.
-
-   Count tasks marked with \`- [ ]\` (incomplete) vs \`- [x]\` (complete).
-
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
-
-   **If no tasks file exists:** Proceed without task-related warning.
-
-4. **Assess delta spec sync state**
-
-   Check for delta specs at \`openspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
-
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at \`openspec/specs/<capability>/spec.md\`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
-
-5. **Perform the archive**
-
-   Create the archive directory if it doesn't exist:
-   \`\`\`bash
-   mkdir -p openspec/changes/archive
-   \`\`\`
-
-   Generate target name using current date: \`YYYY-MM-DD-<change-name>\`
-
-   **Check if target already exists:**
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
-
-   \`\`\`bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   \`\`\`
-
-6. **Display summary**
-
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Spec sync status (synced / sync skipped / no delta specs)
-   - Note about any warnings (incomplete artifacts/tasks)
-
-**Output On Success**
-
-\`\`\`
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs
-
-All artifacts complete. All tasks complete.
-\`\`\`
-
-**Output On Success (No Delta Specs)**
-
-\`\`\`
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** No delta specs
-
-All artifacts complete. All tasks complete.
-\`\`\`
-
-**Output On Success With Warnings**
-
-\`\`\`
-## Archive Complete (with warnings)
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** Sync skipped (user chose to skip)
-
-**Warnings:**
-- Archived with 2 incomplete artifacts
-- Archived with 3 incomplete tasks
-- Delta spec sync was skipped (user chose to skip)
-
-Review the archive if this was not intentional.
-\`\`\`
-
-**Output On Error (Archive Exists)**
-
-\`\`\`
-## Archive Failed
-
-**Change:** <change-name>
-**Target:** openspec/changes/archive/YYYY-MM-DD-<name>/
-
-Target archive directory already exists.
-
-**Options:**
-1. Rename the existing archive
-2. Delete the existing archive if it's a duplicate
-3. Wait until a different date to archive
-\`\`\`
-
-**Guardrails**
-- Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
-- Show clear summary of what happened
-- If sync is requested, use the Skill tool to invoke \`openspec-sync-specs\` (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting`
+    tags: ['workflow', 'archive', 'team'],
+    content: ARCHIVE_INSTRUCTIONS,
   };
 }

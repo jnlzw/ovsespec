@@ -9,26 +9,27 @@ import * as fs from 'fs';
 import { AI_TOOLS } from '../config.js';
 
 /**
- * Names of skill directories created by openspec init.
+ * Names of skill directories created by ovsespec init.
  */
 export const SKILL_NAMES = [
-  'openspec-explore',
-  'openspec-new-change',
-  'openspec-continue-change',
-  'openspec-apply-change',
-  'openspec-ff-change',
-  'openspec-sync-specs',
-  'openspec-archive-change',
-  'openspec-bulk-archive-change',
-  'openspec-verify-change',
-  'openspec-onboard',
-  'openspec-propose',
+  'ovsespec-explore',
+  'ovsespec-new-change',
+  'ovsespec-continue-change',
+  'ovsespec-apply-change',
+  'ovsespec-ff-change',
+  'ovsespec-sync-specs',
+  'ovsespec-archive-change',
+  'ovsespec-bulk-archive-change',
+  'ovsespec-verify-change',
+  'ovsespec-onboard',
+  'ovsespec-propose',
+  'ovsespec-paas-test-deploy',
 ] as const;
 
 export type SkillName = (typeof SKILL_NAMES)[number];
 
 /**
- * IDs of command templates created by openspec init.
+ * IDs of command templates created by ovsespec init.
  */
 export const COMMAND_IDS = [
   'explore',
@@ -42,6 +43,7 @@ export const COMMAND_IDS = [
   'verify',
   'onboard',
   'propose',
+  'paas-test-deploy',
 ] as const;
 
 export type CommandId = (typeof COMMAND_IDS)[number];
@@ -138,7 +140,7 @@ export function extractGeneratedByVersion(skillFilePath: string): string | null 
     // ---
     // ...
     // metadata:
-    //   author: openspec
+    //   author: ovsespec
     //   version: "1.0"
     //   generatedBy: "0.23.0"
     // ---

@@ -341,7 +341,7 @@ function printDoctorHuman(result: { workspace: WorkspaceOutput; status: Workspac
 }
 
 function printWorkspaceListHuman(workspaces: WorkspaceListOutput[]): void {
-  console.log(chalk.bold(`OpenSpec workspaces (${workspaces.length})`));
+  console.log(chalk.bold(`OvseSpec workspaces (${workspaces.length})`));
 
   for (const workspace of workspaces) {
     console.log('');
@@ -466,7 +466,7 @@ function assertWorkspaceOpenSupportedOptions(options: WorkspaceOpenOptions): voi
       'workspace_open_prepare_only_unsupported',
       {
         target: 'workspace.open',
-        fix: 'Run openspec workspace open with --agent <tool> or --editor.',
+        fix: 'Run ovsespec workspace open with --agent <tool> or --editor.',
       }
     );
   }
@@ -477,7 +477,7 @@ function assertWorkspaceOpenSupportedOptions(options: WorkspaceOpenOptions): voi
       'workspace_open_json_unsupported',
       {
         target: 'workspace.open',
-        fix: 'Use openspec workspace doctor --json for current workspace status.',
+        fix: 'Use ovsespec workspace doctor --json for current workspace status.',
       }
     );
   }
@@ -532,7 +532,7 @@ function printWorkspaceOpenHuman(
     const location = link.path ?? '(no local path recorded)';
     console.log(`  ${link.name} -> ${location}`);
   }
-  console.log('Repair skipped links with openspec workspace doctor.');
+  console.log('Repair skipped links with ovsespec workspace doctor.');
 }
 
 class WorkspaceCommand {
@@ -545,7 +545,7 @@ class WorkspaceCommand {
           'workspace setup --json requires --no-interactive.',
           'setup_json_requires_no_interactive',
           {
-            fix: 'openspec workspace setup --no-interactive --json --name <name> --link <path>',
+            fix: 'ovsespec workspace setup --no-interactive --json --name <name> --link <path>',
           }
         );
       }
@@ -560,7 +560,7 @@ class WorkspaceCommand {
           'workspace setup --no-interactive requires --name <name> and at least one --link <path>.',
           'missing_setup_inputs',
           {
-            fix: 'openspec workspace setup --no-interactive --name platform --link /path/to/repo',
+            fix: 'ovsespec workspace setup --no-interactive --name platform --link /path/to/repo',
           }
         );
       }
@@ -582,7 +582,7 @@ class WorkspaceCommand {
           'workspace setup --no-interactive requires --name <name> and at least one --link <path>.',
           'missing_setup_inputs',
           {
-            fix: 'openspec workspace setup --no-interactive --name platform --link /path/to/repo',
+            fix: 'ovsespec workspace setup --no-interactive --name platform --link /path/to/repo',
           }
         );
       }
@@ -618,8 +618,8 @@ class WorkspaceCommand {
       printWorkspaceCheckSummaryHuman(doctorResult);
       console.log('');
       console.log('Next useful commands:');
-      console.log(`  openspec workspace doctor --workspace ${workspace.name}`);
-      console.log('  openspec workspace list');
+      console.log(`  ovsespec workspace doctor --workspace ${workspace.name}`);
+      console.log('  ovsespec workspace list');
     } catch (error) {
       this.handleFailure(options.json, { workspace: null, status: [] }, error);
     }
@@ -638,7 +638,7 @@ class WorkspaceCommand {
       }
 
       if (workspaces.length === 0) {
-        console.log("No OpenSpec workspaces found. Run 'openspec workspace setup' first.");
+        console.log("No OvseSpec workspaces found. Run 'ovsespec workspace setup' first.");
         return;
       }
 
@@ -659,7 +659,7 @@ class WorkspaceCommand {
           'workspace link requires a repo or folder path.',
           'missing_link_path',
           {
-            fix: 'openspec workspace link /path/to/repo',
+            fix: 'ovsespec workspace link /path/to/repo',
           }
         );
       }
@@ -689,7 +689,7 @@ class WorkspaceCommand {
           'workspace relink requires a link name and repo or folder path.',
           'missing_relink_arguments',
           {
-            fix: 'openspec workspace relink <name> /path/to/repo',
+            fix: 'ovsespec workspace relink <name> /path/to/repo',
           }
         );
       }
@@ -820,7 +820,7 @@ export function registerWorkspaceCommand(program: Command): void {
 
   workspace
     .command('list')
-    .description('List known OpenSpec workspaces')
+    .description('List known OvseSpec workspaces')
     .option('--json', 'Output as JSON')
     .action(async (options: WorkspaceListOptions) => {
       await workspaceCommand.list(options);
@@ -828,7 +828,7 @@ export function registerWorkspaceCommand(program: Command): void {
 
   workspace
     .command('ls')
-    .description('List known OpenSpec workspaces')
+    .description('List known OvseSpec workspaces')
     .option('--json', 'Output as JSON')
     .action(async (options: WorkspaceListOptions) => {
       await workspaceCommand.list(options);

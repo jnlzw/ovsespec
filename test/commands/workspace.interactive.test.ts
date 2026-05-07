@@ -20,7 +20,7 @@ async function runWorkspaceCommand(args: string[]): Promise<void> {
   const { registerWorkspaceCommand } = await import('../../src/commands/workspace.js');
   const program = new Command();
   registerWorkspaceCommand(program);
-  await program.parseAsync(['node', 'openspec', 'workspace', ...args]);
+  await program.parseAsync(['node', 'ovsespec', 'workspace', ...args]);
 }
 
 async function getPromptMocks(): Promise<{
@@ -49,7 +49,7 @@ describe('workspace command interactive flows', () => {
   beforeEach(() => {
     vi.resetModules();
 
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openspec-workspace-interactive-'));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ovsespec-workspace-interactive-'));
     dataHome = path.join(tempDir, 'data');
     originalEnv = { ...process.env };
     originalCwd = process.cwd();
@@ -59,10 +59,10 @@ describe('workspace command interactive flows', () => {
     process.env = {
       ...process.env,
       XDG_DATA_HOME: dataHome,
-      OPENSPEC_TELEMETRY: '0',
+      OVSESPEC_TELEMETRY: '0',
     };
     delete process.env.CI;
-    delete process.env.OPEN_SPEC_INTERACTIVE;
+    delete process.env.OVSE_SPEC_INTERACTIVE;
     process.chdir(tempDir);
     (process.stdin as NodeJS.ReadStream & { isTTY?: boolean }).isTTY = true;
     process.exitCode = undefined;

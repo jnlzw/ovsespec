@@ -6,311 +6,201 @@
  */
 import type { SkillTemplate, CommandTemplate } from '../types.js';
 
+const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
+
+保留原命令意图：读取 change 的上下文和任务列表，按任务逐步实现，并及时更新 tasks.md。团队版增强只是在实现前后补充协作边界、影响范围和交接信息，不改变“执行任务”的核心职责。
+
+**输入**：可以指定变更名，例如 \`/ovsx:apply add-auth\`。如果省略，先尝试从对话上下文推断；如果模糊或有多个候选，必须让用户选择。
+
+**团队协作增强**
+
+- 开始实现前，识别任务影响的仓库、模块、服务、owner/reviewer、接口契约和发布顺序。
+- 优先从 proposal/design/tasks 中读取团队结构化字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff。缺失时补充到本轮输出或暂停询问，不要靠口头记忆推进。
+- 如果变更涉及 workspace 或多仓，先读取可用 workspace 状态：\`ovsespec workspace list --json\` 和 \`ovsespec workspace doctor --json\`。只在用户明确要求实现时修改 linked repo 中的代码。
+- 不要把所有 linked repo 当成可任意修改的范围；只修改任务、产物或用户明确指向的代码位置。
+- 对跨团队契约、迁移、数据变更、兼容性风险，先确认实现顺序和验收方式。
+- 如果任务涉及 Controller、API route、DTO、request/response schema、错误包装、advmock 或接口契约，必须把 YAPI 纳入实现范围：识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、owner/reviewer 和文档同步方式。
+- 如果 proposal/design/tasks 中已有 API/YAPI 清单，以清单作为 source of truth；实现发现接口、schema、错误包装或 Mock 场景变化时，先更新或报告产物差异，再继续写 YAPI。
+- YAPI 目标不明确时不要猜。优先从 artifacts、代码注解、已有 YAPI URL、接口列表或项目配置中取证；证据不足就暂停询问。
+- 实现阶段如果新增了公开接口，且 YAPI 中按 \`method + path\` 查不到对应接口，必须创建 YAPI 接口；如果已存在，必须更新接口文档。
+- API 实现完成时必须补齐 YAPI Mock 数据：至少准备默认成功响应；如果 change/spec 明确包含空数据、错误码、权限失败、边界条件等场景，要创建对应 advmock 期望。
+- 每完成一个任务，立即更新任务勾选；如果发现设计或任务不再准确，暂停并说明需要更新产物。
+
+**步骤**
+
+1. **选择变更**
+
+   如果用户提供了变更名，直接使用。否则：
+   - 从对话上下文推断用户提到的变更。
+   - 如果只有一个 active change，可以自动选择。
+   - 如果不明确，运行 \`ovsespec list --json\` 获取候选，并使用 **AskUserQuestion tool** 让用户选择。
+
+   始终说明：“使用变更：<name>”，并告知可用 \`/ovsx:apply <other>\` 覆盖。
+
+2. **检查状态和 schema**
+
+   \`\`\`bash
+   ovsespec status --change "<name>" --json
+   \`\`\`
+
+   解析 JSON，了解：
+   - \`schemaName\`：当前变更使用的 workflow schema
+   - 哪个产物包含任务，通常是 \`tasks\`，但以状态输出为准
+
+3. **获取 apply 指令**
+
+   \`\`\`bash
+   ovsespec instructions apply --change "<name>" --json
+   \`\`\`
+
+   输出包含：
+   - \`contextFiles\`：产物 ID 到具体文件路径的映射
+   - 进度：总数、已完成、剩余
+   - 任务列表及状态
+   - 当前状态对应的动态指令
+
+   **状态处理：**
+   - 如果 \`state: "blocked"\`，说明缺少必要产物，展示原因并建议先运行 \`/ovsx:continue\` 或 \`/ovsx:propose\` 补齐。
+   - 如果 \`state: "all_done"\`，说明任务已完成，建议归档。
+   - 其他情况继续实现。
+
+4. **读取上下文文件**
+
+   读取 \`contextFiles\` 中列出的每一个文件。
+   不要假设固定文件名；不同 schema 可能使用不同产物。
+   如果上下文中出现 YAPI、接口文档、\`interface_id\`、\`service_id\`、\`program_name\`、advmock、Controller 或 API capability，额外建立 YAPI checklist：
+   - 受影响接口的 \`method + path\`
+   - 对应 Controller/handler、DTO、request/response、错误包装
+   - YAPI 项目、服务标识、分类和接口 ID
+   - owner/reviewer、acceptance、rollback、handoff
+   - 需要新增、更新、审计或 mock 的事项
+   - 需要的 Mock 场景：默认成功、空数据、错误码、权限失败、边界参数或 spec 指定场景
+
+5. **展示当前进度**
+
+   用中文展示：
+   - 使用的 schema
+   - 进度，例如 “3/7 个任务完成”
+   - 剩余任务概览
+   - 如适用，团队影响范围：仓库/模块、owner/reviewer、交接点、契约或发布风险
+   - 如适用，YAPI 状态：目标接口、service_id/interface_id 是否已知、是否需要 sync/audit/mock
+   - CLI 返回的动态指令
+
+6. **执行任务，直到完成或遇到阻塞**
+
+   对每个待办任务：
+   - 说明正在处理哪个任务。
+   - 做最小、聚焦的代码修改。
+   - 如果是多仓任务，先说明当前修改哪个仓库或模块，以及为什么。
+   - 如果 team/API 结构化字段缺失，先把缺口写入输出并尽量从代码或 artifacts 补证；缺关键写入目标时暂停。
+   - 如果修改公开 API、Controller、DTO、请求/响应 schema 或错误包装，同步更新对应测试和 YAPI 文档计划；能访问 YAPI tooling 时执行 sync/audit，不能访问时把精确待办写入输出。
+   - API 代码实现完成后，按 \`method + path\` 查询 YAPI：不存在则创建接口，存在则更新接口；新增/更新前必须确认写入目标 \`service_id/mcp_sid\`，不能依赖隐式 token 默认目标。
+   - YAPI 接口新增/更新成功后，拉取接口详情确认 method、path、service_id、request/response schema 和错误包装与代码一致；不一致时不要勾选任务，先报告差异。
+   - 为新增或变更接口补齐 YAPI advmock：先查询现有期望，避免重复创建默认成功期望；新增/更新后重新拉取 advmock list 验证生效。
+   - YAPI 写入时以 \`method + path\` 作为唯一匹配键，不要仅凭分类或名称覆盖接口；不要合并别名路由，除非项目明确声明它们是同一公开接口。
+   - 不要暴露 token、cookie、私有网关地址或 secret。输出只保留必要的 \`program_name\`、\`service_id\`、\`interface_id\` 和接口路径。
+   - 如果本轮实现需要 test/staging 部署验证，只记录前置条件和验证口径；部署动作通过 \`/ovsx:paas-test-deploy\` 执行，不在 apply 中静默触发。
+   - 完成后立刻把任务文件中的 \`- [ ]\` 改为 \`- [x]\`。
+   - 继续下一个任务。
+
+   **以下情况必须暂停：**
+   - 任务描述不清楚。
+   - 实现中发现设计、契约、迁移方案有问题。
+   - 需要其他团队/owner 确认。
+   - 发生错误或阻塞。
+   - 用户中断。
+
+7. **完成或暂停时展示状态**
+
+   展示：
+   - 本轮完成的任务
+   - 总体进度
+   - 涉及的文件、仓库或模块摘要
+   - API/YAPI 摘要：已创建接口、已更新接口、已审计接口、已创建/更新 Mock、未处理接口、阻塞原因
+   - 如果全部完成，建议运行 \`/ovsx:archive\`
+   - 如果暂停，说明原因和可选下一步
+
+**实现中输出示例**
+
+\`\`\`
+## 实现中：<change-name> (schema: <schema-name>)
+
+当前任务 3/7：<task description>
+[正在实现...]
+✓ 任务完成
+\`\`\`
+
+**完成输出示例**
+
+\`\`\`
+## 实现完成
+
+**变更:** <change-name>
+**Schema:** <schema-name>
+**进度:** 7/7 个任务完成
+
+### 本轮完成
+- [x] 任务 1
+- [x] 任务 2
+
+### YAPI
+- <已创建/已更新/已审计接口摘要>
+- <Mock/advmock 新增或更新摘要>
+- <待处理接口或阻塞原因>
+
+所有任务已完成。可以运行 /ovsx:archive 归档。
+\`\`\`
+
+**暂停输出示例**
+
+\`\`\`
+## 实现暂停
+
+**变更:** <change-name>
+**Schema:** <schema-name>
+**进度:** 4/7 个任务完成
+
+### 阻塞点
+<说明问题、影响范围、需要谁确认>
+
+### 可选下一步
+1. <选项 1>
+2. <选项 2>
+3. 其他方式
+\`\`\`
+
+**护栏**
+
+- 开始前必须读取 CLI 返回的上下文文件。
+- 按任务推进，除非完成、阻塞或用户中断。
+- 任务不清楚时先问，不要猜。
+- 跨团队或跨仓修改必须保持边界清晰，只改任务需要的范围。
+- API 相关任务完成前必须处理 YAPI 状态：已 sync/audit，或明确记录为什么无法处理以及下一步。
+- API 相关任务不能只完成代码；tasks.md 中的 YAPI create/update、Mock/advmock、audit/一致性核对也必须完成或明确阻塞。
+- YAPI 同步不清楚时先问，不要猜 \`program_name\`、\`service_id\`、\`interface_id\`、分类或包装语义。
+- 新增 API 没有 YAPI 接口时必须创建接口；已有接口必须更新文档；除非 YAPI tooling 或权限不可用，并且输出明确阻塞。
+- YAPI Mock 数据是 API 实现完成条件的一部分：至少默认成功响应，必要时包含空数据、错误码、权限失败和边界场景。
+- 发现产物错误时，暂停并建议更新产物，而不是绕开产物继续。
+- 每完成一个任务，立即更新任务勾选。
+- 使用 \`contextFiles\`，不要硬编码文件名。`;
+
 export function getApplyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-apply-change',
-    description: 'Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.',
-    instructions: `Implement tasks from an OpenSpec change.
-
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
-
-**Steps**
-
-1. **Select the change**
-
-   If a name is provided, use it. Otherwise:
-   - Infer from conversation context if the user mentioned a change
-   - Auto-select if only one active change exists
-   - If ambiguous, run \`openspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
-
-   Always announce: "Using change: <name>" and how to override (e.g., \`/opsx:apply <other>\`).
-
-2. **Check status to understand the schema**
-   \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
-
-3. **Get apply instructions**
-
-   \`\`\`bash
-   openspec instructions apply --change "<name>" --json
-   \`\`\`
-
-   This returns:
-   - \`contextFiles\`: artifact ID -> array of concrete file paths (varies by schema - could be proposal/specs/design/tasks or spec/tests/implementation/docs)
-   - Progress (total, complete, remaining)
-   - Task list with status
-   - Dynamic instruction based on current state
-
-   **Handle states:**
-   - If \`state: "blocked"\` (missing artifacts): show message, suggest using openspec-continue-change
-   - If \`state: "all_done"\`: congratulate, suggest archive
-   - Otherwise: proceed to implementation
-
-4. **Read context files**
-
-   Read every file path listed under \`contextFiles\` from the apply instructions output.
-   The files depend on the schema being used:
-   - **spec-driven**: proposal, specs, design, tasks
-   - Other schemas: follow the contextFiles from CLI output
-
-5. **Show current progress**
-
-   Display:
-   - Schema being used
-   - Progress: "N/M tasks complete"
-   - Remaining tasks overview
-   - Dynamic instruction from CLI
-
-6. **Implement tasks (loop until done or blocked)**
-
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: \`- [ ]\` → \`- [x]\`
-   - Continue to next task
-
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design issue → suggest updating artifacts
-   - Error or blocker encountered → report and wait for guidance
-   - User interrupts
-
-7. **On completion or pause, show status**
-
-   Display:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archive
-   - If paused: explain why and wait for guidance
-
-**Output During Implementation**
-
-\`\`\`
-## Implementing: <change-name> (schema: <schema-name>)
-
-Working on task 3/7: <task description>
-[...implementation happening...]
-✓ Task complete
-
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
-\`\`\`
-
-**Output On Completion**
-
-\`\`\`
-## Implementation Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 7/7 tasks complete ✓
-
-### Completed This Session
-- [x] Task 1
-- [x] Task 2
-...
-
-All tasks complete! Ready to archive this change.
-\`\`\`
-
-**Output On Pause (Issue Encountered)**
-
-\`\`\`
-## Implementation Paused
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 4/7 tasks complete
-
-### Issue Encountered
-<description of the issue>
-
-**Options:**
-1. <option 1>
-2. <option 2>
-3. Other approach
-
-What would you like to do?
-\`\`\`
-
-**Guardrails**
-- Keep going through tasks until done or blocked
-- Always read context files before starting (from the apply instructions output)
-- If task is ambiguous, pause and ask before implementing
-- If implementation reveals issues, pause and suggest artifact updates
-- Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
-- Pause on errors, blockers, or unclear requirements - don't guess
-- Use contextFiles from CLI output, don't assume specific file names
-
-**Fluid Workflow Integration**
-
-This skill supports the "actions on a change" model:
-
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`,
+    name: 'ovsespec-apply-change',
+    description: '实现 OvseSpec 变更中的任务；团队场景会明确影响范围、owner、交接点和跨仓边界。',
+    instructions: APPLY_INSTRUCTIONS,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxApplyCommandTemplate(): CommandTemplate {
+export function getOvsxApplyCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Apply',
-    description: 'Implement tasks from an OpenSpec change (Experimental)',
+    name: 'OVSX: Apply',
+    description: '实现变更任务，并在团队场景中处理影响范围、owner、交接和跨仓边界',
     category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Implement tasks from an OpenSpec change.
-
-**Input**: Optionally specify a change name (e.g., \`/opsx:apply add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
-
-**Steps**
-
-1. **Select the change**
-
-   If a name is provided, use it. Otherwise:
-   - Infer from conversation context if the user mentioned a change
-   - Auto-select if only one active change exists
-   - If ambiguous, run \`openspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
-
-   Always announce: "Using change: <name>" and how to override (e.g., \`/opsx:apply <other>\`).
-
-2. **Check status to understand the schema**
-   \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
-
-3. **Get apply instructions**
-
-   \`\`\`bash
-   openspec instructions apply --change "<name>" --json
-   \`\`\`
-
-   This returns:
-   - \`contextFiles\`: artifact ID -> array of concrete file paths (varies by schema)
-   - Progress (total, complete, remaining)
-   - Task list with status
-   - Dynamic instruction based on current state
-
-   **Handle states:**
-   - If \`state: "blocked"\` (missing artifacts): show message, suggest using \`/opsx:continue\`
-   - If \`state: "all_done"\`: congratulate, suggest archive
-   - Otherwise: proceed to implementation
-
-4. **Read context files**
-
-   Read every file path listed under \`contextFiles\` from the apply instructions output.
-   The files depend on the schema being used:
-   - **spec-driven**: proposal, specs, design, tasks
-   - Other schemas: follow the contextFiles from CLI output
-
-5. **Show current progress**
-
-   Display:
-   - Schema being used
-   - Progress: "N/M tasks complete"
-   - Remaining tasks overview
-   - Dynamic instruction from CLI
-
-6. **Implement tasks (loop until done or blocked)**
-
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: \`- [ ]\` → \`- [x]\`
-   - Continue to next task
-
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design issue → suggest updating artifacts
-   - Error or blocker encountered → report and wait for guidance
-   - User interrupts
-
-7. **On completion or pause, show status**
-
-   Display:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archive
-   - If paused: explain why and wait for guidance
-
-**Output During Implementation**
-
-\`\`\`
-## Implementing: <change-name> (schema: <schema-name>)
-
-Working on task 3/7: <task description>
-[...implementation happening...]
-✓ Task complete
-
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
-\`\`\`
-
-**Output On Completion**
-
-\`\`\`
-## Implementation Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 7/7 tasks complete ✓
-
-### Completed This Session
-- [x] Task 1
-- [x] Task 2
-...
-
-All tasks complete! You can archive this change with \`/opsx:archive\`.
-\`\`\`
-
-**Output On Pause (Issue Encountered)**
-
-\`\`\`
-## Implementation Paused
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 4/7 tasks complete
-
-### Issue Encountered
-<description of the issue>
-
-**Options:**
-1. <option 1>
-2. <option 2>
-3. Other approach
-
-What would you like to do?
-\`\`\`
-
-**Guardrails**
-- Keep going through tasks until done or blocked
-- Always read context files before starting (from the apply instructions output)
-- If task is ambiguous, pause and ask before implementing
-- If implementation reveals issues, pause and suggest artifact updates
-- Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
-- Pause on errors, blockers, or unclear requirements - don't guess
-- Use contextFiles from CLI output, don't assume specific file names
-
-**Fluid Workflow Integration**
-
-This skill supports the "actions on a change" model:
-
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`
+    tags: ['workflow', 'artifacts', 'team'],
+    content: APPLY_INSTRUCTIONS,
   };
 }

@@ -8,8 +8,8 @@ import type { SkillTemplate, CommandTemplate } from '../types.js';
 
 export function getFfChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-ff-change',
-    description: 'Fast-forward through OpenSpec artifact creation. Use when the user wants to quickly create all artifacts needed for implementation without stepping through each one individually.',
+    name: 'ovsespec-ff-change',
+    description: 'Fast-forward through OvseSpec artifact creation. Use when the user wants to quickly create all artifacts needed for implementation without stepping through each one individually.',
     instructions: `Fast-forward through artifact creation - generate everything needed to start implementation in one go.
 
 **Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
@@ -27,13 +27,13 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
 
 2. **Create the change directory**
    \`\`\`bash
-   openspec new change "<name>"
+   ovsespec new change "<name>"
    \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\`.
+   This creates a scaffolded change at \`ovsespec/changes/<name>/\`.
 
 3. **Get the artifact build order**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   ovsespec status --change "<name>" --json
    \`\`\`
    Parse the JSON to get:
    - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
@@ -48,7 +48,7 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
    a. **For each artifact that is \`ready\` (dependencies satisfied)**:
       - Get instructions:
         \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
+        ovsespec instructions <artifact-id> --change "<name>" --json
         \`\`\`
       - The instructions JSON includes:
         - \`context\`: Project background (constraints for you - do NOT include in output)
@@ -63,7 +63,7 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
       - Show brief progress: "✓ Created <artifact-id>"
 
    b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
+      - After creating each artifact, re-run \`ovsespec status --change "<name>" --json\`
       - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
       - Stop when all \`applyRequires\` artifacts are done
 
@@ -73,7 +73,7 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
 
 5. **Show final status**
    \`\`\`bash
-   openspec status --change "<name>"
+   ovsespec status --change "<name>"
    \`\`\`
 
 **Output**
@@ -82,11 +82,11 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` or ask me to implement to start working on the tasks."
+- Prompt: "Run \`/ovsx:apply\` or ask me to implement to start working on the tasks."
 
 **Artifact Creation Guidelines**
 
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
+- Follow the \`instruction\` field from \`ovsespec instructions\` for each artifact type
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use \`template\` as the structure for your output file - fill in its sections
@@ -101,106 +101,71 @@ After completing all artifacts, summarize:
 - If a change with that name already exists, suggest continuing that change instead
 - Verify each artifact file exists after writing before proceeding to next`,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxFfCommandTemplate(): CommandTemplate {
+export function getOvsxFfCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Fast Forward',
-    description: 'Create a change and generate all artifacts needed for implementation in one go',
+    name: 'OVSX: Fast Forward',
+    description: '快速创建变更，并一次生成实现前需要的全部产物',
     category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Fast-forward through artifact creation - generate everything needed to start implementation.
+    tags: ['workflow', 'artifacts'],
+    content: `快速推进产物创建，一次生成开始实现前所需的全部产物。
 
-**Input**: The argument after \`/opsx:ff\` is the change name (kebab-case), OR a description of what the user wants to build.
+保留原命令意图：这是 expanded workflow 的快速路径，等价于创建 change 后连续执行产物生成，直到满足 \`apply.requires\`。如果用户需要默认团队版一键提案，优先使用 \`/ovsx:propose\`。
 
-**Steps**
+**输入**：\`/ovsx:ff\` 后面可以是 kebab-case 变更名，也可以是用户想构建或修复的描述。
 
-1. **If no input provided, ask what they want to build**
+**步骤**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+1. 如果没有输入，使用 **AskUserQuestion tool** 询问用户想做什么，并推导 kebab-case 变更名。
+2. 创建变更：
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
-
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
-
-2. **Create the change directory**
    \`\`\`bash
-   openspec new change "<name>"
-   \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\`.
-
-3. **Get the artifact build order**
-   \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to get:
-   - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
-   - \`artifacts\`: list of all artifacts with their status and dependencies
-
-4. **Create artifacts in sequence until apply-ready**
-
-   Use the **TodoWrite tool** to track progress through the artifacts.
-
-   Loop through artifacts in dependency order (artifacts with no pending dependencies first):
-
-   a. **For each artifact that is \`ready\` (dependencies satisfied)**:
-      - Get instructions:
-        \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
-        \`\`\`
-      - The instructions JSON includes:
-        - \`context\`: Project background (constraints for you - do NOT include in output)
-        - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-        - \`template\`: The structure to use for your output file
-        - \`instruction\`: Schema-specific guidance for this artifact type
-        - \`outputPath\`: Where to write the artifact
-        - \`dependencies\`: Completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using \`template\` as the structure
-      - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
-      - Show brief progress: "✓ Created <artifact-id>"
-
-   b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
-      - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
-      - Stop when all \`applyRequires\` artifacts are done
-
-   c. **If an artifact requires user input** (unclear context):
-      - Use **AskUserQuestion tool** to clarify
-      - Then continue with creation
-
-5. **Show final status**
-   \`\`\`bash
-   openspec status --change "<name>"
+   ovsespec new change "<name>"
    \`\`\`
 
-**Output**
+3. 获取产物顺序：
 
-After completing all artifacts, summarize:
-- Change name and location
-- List of artifacts created with brief descriptions
-- What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` to start implementing."
+   \`\`\`bash
+   ovsespec status --change "<name>" --json
+   \`\`\`
 
-**Artifact Creation Guidelines**
+   读取 \`applyRequires\` 和 \`artifacts\`。
 
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
-- The schema defines what each artifact should contain - follow it
-- Read dependency artifacts for context before creating new ones
-- Use \`template\` as the structure for your output file - fill in its sections
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output
+4. 按依赖顺序循环创建 ready 产物：
+   - 获取说明：
+     \`\`\`bash
+     ovsespec instructions <artifact-id> --change "<name>" --json
+     \`\`\`
+   - 读取依赖产物。
+   - 使用 \`template\` 写入 \`outputPath\`。
+   - 遵守 \`context\` 和 \`rules\`，但不要复制这些块。
+   - 每创建一个产物后重新运行 \`ovsespec status --change "<name>" --json\`。
+   - 当 \`applyRequires\` 中所有产物都为 \`done\` 时停止。
 
-**Guardrails**
-- Create ALL artifacts needed for implementation (as defined by schema's \`apply.requires\`)
-- Always read dependency artifacts before creating a new one
-- If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, ask if user wants to continue it or create a new one
-- Verify each artifact file exists after writing before proceeding to next`
+5. 展示最终状态：
+
+   \`\`\`bash
+   ovsespec status --change "<name>"
+   \`\`\`
+
+**输出**
+
+用中文总结：
+- 变更名和位置
+- 已创建产物列表
+- 当前已实现就绪
+- 提示：“运行 \`/ovsx:apply\` 开始实现。”
+
+**护栏**
+
+- 必须创建 \`apply.requires\` 需要的全部产物。
+- 创建新产物前必须读取依赖产物。
+- 上下文关键不清楚时先问。
+- 同名变更已存在时询问是继续还是换名。
+- 每个产物写完后确认文件存在。`
   };
 }

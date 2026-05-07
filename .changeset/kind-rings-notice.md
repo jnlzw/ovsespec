@@ -1,5 +1,5 @@
 ---
-"@fission-ai/openspec": minor
+"@ths-oversea/ovsespec": minor
 ---
 
 ### New Features

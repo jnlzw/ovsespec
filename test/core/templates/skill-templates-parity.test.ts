@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -12,61 +13,66 @@ import {
   getFfChangeSkillTemplate,
   getNewChangeSkillTemplate,
   getOnboardSkillTemplate,
-  getOpsxApplyCommandTemplate,
-  getOpsxArchiveCommandTemplate,
-  getOpsxBulkArchiveCommandTemplate,
-  getOpsxContinueCommandTemplate,
-  getOpsxExploreCommandTemplate,
-  getOpsxFfCommandTemplate,
-  getOpsxNewCommandTemplate,
-  getOpsxOnboardCommandTemplate,
-  getOpsxSyncCommandTemplate,
-  getOpsxProposeCommandTemplate,
-  getOpsxProposeSkillTemplate,
-  getOpsxVerifyCommandTemplate,
+  getOvsxApplyCommandTemplate,
+  getOvsxArchiveCommandTemplate,
+  getOvsxBulkArchiveCommandTemplate,
+  getOvsxContinueCommandTemplate,
+  getOvsxExploreCommandTemplate,
+  getOvsxFfCommandTemplate,
+  getOvsxNewCommandTemplate,
+  getOvsxOnboardCommandTemplate,
+  getOvsxPaasTestDeployCommandTemplate,
+  getOvsxSyncCommandTemplate,
+  getOvsxProposeCommandTemplate,
+  getOvsxProposeSkillTemplate,
+  getOvsxVerifyCommandTemplate,
+  getPaasTestDeploySkillTemplate,
   getSyncSpecsSkillTemplate,
   getVerifyChangeSkillTemplate,
 } from '../../../src/core/templates/skill-templates.js';
 import { generateSkillContent } from '../../../src/core/shared/skill-generation.js';
 
 const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
-  getExploreSkillTemplate: '3f73b4d7ab189ef6367fccc9d99308bee35c6a89dae4c8044582a01cb01b335b',
-  getNewChangeSkillTemplate: '5989672758eccf54e3bb554ab97f2c129a192b12bbb7688cc1ffcf6bccb1ae9d',
-  getContinueChangeSkillTemplate: 'f2e413f0333dfd6641cc2bd1a189273fdea5c399eecdde98ef528b5216f097b3',
-  getApplyChangeSkillTemplate: '6238712ba8cd2fd099c4f3bac13436f758fc6ac776fb8be19547f2b195240bfd',
-  getFfChangeSkillTemplate: 'a7332fb14c8dc3f9dec71f5d332790b4a8488191e7db4ab6132ccbefecf9ded9',
-  getSyncSpecsSkillTemplate: 'bded184e4c345619148de2c0ad80a5b527d4ffe45c87cc785889b9329e0f465b',
-  getOnboardSkillTemplate: 'c9e719a02d2ae7f74a0e978f9ad4e767c1921248a9e3724c3321c58a15c38ba9',
-  getOpsxExploreCommandTemplate: 'b421b88c7a532385f7b1404736d7893eb35a05573b4a04a96f72379ac1bbf148',
-  getOpsxNewCommandTemplate: '62eee32d6d81a376e7be845d0891e28e6262ad07482f9bfe6af12a9f0366c364',
-  getOpsxContinueCommandTemplate: '8bbaedcc95287f9e822572608137df4f49ad54cedfb08d3342d0d1c4e9716caa',
-  getOpsxApplyCommandTemplate: 'f59cfe9482a1b29f64b9cd7396397991a2f00a5cb1abde4ab8b4757acf1678b9',
-  getOpsxFfCommandTemplate: 'cdebe872cc8e0fcc25c8864b98ffd66a93484c0657db94bd1285b8113092702a',
-  getArchiveChangeSkillTemplate: '6f8ca383fdb5a4eb9872aca81e07bf0ba7f25e4de8617d7a047ca914ca7f14b9',
-  getBulkArchiveChangeSkillTemplate: '8049897ce1ddb2ff6c0d4b72e22636f9ecfd083b5f2c2a30cf3bb1cb828a2f93',
-  getOpsxSyncCommandTemplate: '378d035fe7cc30be3e027b66dcc4b8afc78ef1c8369c39479c9b05a582fb5ccf',
-  getVerifyChangeSkillTemplate: '40dde29051a0ba204295b74e49e87b6e9ff30c8b89ff0e791b4f955b4595de59',
-  getOpsxArchiveCommandTemplate: 'b44cc9748109f61687f9f596604b037bc3ea803abc143b22f09a76aebd98b493',
-  getOpsxOnboardCommandTemplate: 'fce531f952e939ee85a41848fc21e4cc720b0f3eb62737adc3a51ee6ad2dfc57',
-  getOpsxBulkArchiveCommandTemplate: '0d77c82de43840a28c74f5181cb21e33b9a9d00454adf4bc92bdc9e69817d6f5',
-  getOpsxVerifyCommandTemplate: 'd7c0444863faabb16abb091bc40ee56d985ae4bfa9a4db1e622ca8ba03c32fed',
-  getOpsxProposeSkillTemplate: 'd67f937d44650e9c61d2158c865309fbab23cb3f50a3d4868a640a97776e3999',
-  getOpsxProposeCommandTemplate: '41ad59b37eafd7a161bab5c6e41997a37368f9c90b194451295ede5cd42e4d46',
-  getFeedbackSkillTemplate: 'd7d83c5f7fc2b92fe8f4588a5bf2d9cb315e4c73ec19bcd5ef28270906319a0d',
+  getExploreSkillTemplate: '26b89eebe246d5cc07622a8f1dba1986d4d7ad20d64922967f72b198629c4bca',
+  getNewChangeSkillTemplate: '47dee4d6ab4cedcc88d6af9c9ffce526fbd48582c242be019e57c3184a313883',
+  getContinueChangeSkillTemplate: '8f37b325ffc9857352b1534fe95d5ed4d16534fc88f85eef73efef6a2920f662',
+  getApplyChangeSkillTemplate: 'f12de03007fe6488a61c621f4ec8cf9d3a0e9c2c673b5a85bb05ba9f5848dd9f',
+  getFfChangeSkillTemplate: '6ed37ce42987f67c574037a167b1ac91aa7a34965ec8ee21ac1e07573c52095b',
+  getSyncSpecsSkillTemplate: 'e80aee8c7730e2a83c81c1e3a26ae47d72fb80e5799f3296064788bcf7bbdcb6',
+  getOnboardSkillTemplate: 'a8aaac486dffbaeceb589192db7c195beb0e55f332da355518af1c9dadd2ccc7',
+  getOvsxExploreCommandTemplate: '69aeeb36e6ac7b71fc075106b07cdd0c41d9772cd1510b0a2d6e0a00efc6426c',
+  getOvsxNewCommandTemplate: 'a45e3703fbcac9aa49f2b7410b173f8643bbabc20fc3ff5caaf10c259f8c6cce',
+  getOvsxContinueCommandTemplate: 'a77fd1b94c4dc5c7acf31d62c8bcd9252fa0f1299edf70e84146a04d80bd9bd5',
+  getOvsxApplyCommandTemplate: '93f4f499b79e7e92554af9cee80c0ab108c0316070a2f022434980ec116cafcb',
+  getOvsxFfCommandTemplate: 'cd6d59f343707860eb584c23c1c631332e1df00738eda40d0ba31ed0d79d1c3d',
+  getArchiveChangeSkillTemplate: 'ff0bebc7c3e7f82634fa738be217af4289ea6030bd264f7cbe2105bc7a9b3892',
+  getBulkArchiveChangeSkillTemplate: 'bee6161eedc05f4737e2625dae6845bf462a1b56b8e534ef1c7f1ab9dbada323',
+  getOvsxSyncCommandTemplate: '403e40b6f4643727cc341cb5d1c032e84e937aea78713ca0fbf10f6961f59443',
+  getVerifyChangeSkillTemplate: '5985873f822e0de4d5fbe66010c25e32fb1f3c584aa4bddd8b41cfbe878c325a',
+  getOvsxArchiveCommandTemplate: '88fea293c206df2dd37c97de91f30363eb04f53a95beacaf5686b007f1136041',
+  getOvsxOnboardCommandTemplate: '2d77c77ae1493a22ba6d5a5daae4ceb0dc10834ef0bba785d1a6da25a3b20c47',
+  getOvsxBulkArchiveCommandTemplate: '3e166d832330ebcc97cdca053ca6456fff79a372949dcae0faa889370b33a97d',
+  getOvsxVerifyCommandTemplate: '87f53867f4e783b7a91758593d8637145ffa48cea98b749298e6551eacc08eee',
+  getOvsxProposeSkillTemplate: 'd5ba20fa3bfdc734232e70c5dcb6ab742f929cc4d9bfd790bc412f93268e316b',
+  getOvsxProposeCommandTemplate: 'dc30bb644a1592a76b00a90bf0861c3d506b0efced8a43e3c350a7c67a1e1db3',
+  getPaasTestDeploySkillTemplate: '6fb430bf63ca1aa7f3bfa848418aa3122de2260d2bd3485ccc67a23500130fe9',
+  getOvsxPaasTestDeployCommandTemplate: '291743c69939c6d7c8c19506deebeb8484bf996f1bd66de1a1f74aa0d3a720c2',
+  getFeedbackSkillTemplate: '99faf4b968e497afdc1ac250192a9e7254239a0c3c790bda6a4b4a499e19d2ab',
 };
 
 const EXPECTED_GENERATED_SKILL_CONTENT_HASHES: Record<string, string> = {
-  'openspec-explore': '08e1ec9958eb04653707dd3e198c3fd69cf1b3acd3cf95a1022693cca83c60fc',
-  'openspec-new-change': 'c324a7ace1f244aa3f534ac8e3370a2c11190d6d1b85a315f26a211398310f0f',
-  'openspec-continue-change': '463cf0b980ec9c3c24774414ef2a3e48e9faa8577bc8748990f45ab3d5efe960',
-  'openspec-apply-change': '38ad2cb645827eda555f20e1ac9d483e1d75bae4c817c0669474aaa8c12c0421',
-  'openspec-ff-change': '672c3a5b8df152d959b15bd7ae2be7a75ab7b8eaa2ec1e0daa15c02479b27937',
-  'openspec-sync-specs': 'b8859cf454379a19ca35dbf59eedca67306607f44a355327f9dc851114e50bde',
-  'openspec-archive-change': 'f83c85452bd47de0dee6b8efbcea6a62534f8a175480e9044f3043f887cebf0f',
-  'openspec-bulk-archive-change': '10477399bb07c7ba67f78e315bd68fb1901af8866720545baf4c62a6a679493b',
-  'openspec-verify-change': 'b6dc1b87940be9d6125b834831c8619019aec9a9748995f72bf981b6f08b67f8',
-  'openspec-onboard': 'c1444e026028210efd699110f7e9079bcb486d85ccf27f743213a81cb1084303',
-  'openspec-propose': '20e36dabefb90e232bad0667292bd5007ec280f8fc4fc995dbc4282bf45a22e7',
+  'ovsespec-explore': 'a4ab13246aab310c330a285bf65302e1e5c79fd33a3ee6fa6c486a4f609c6e62',
+  'ovsespec-new-change': 'a3b171e6e0d08f061b25276ab72222f001a660c7d6a6199d65f96dcf79fb815e',
+  'ovsespec-continue-change': '170ba3d79f79b840ae862a29e26102ff238c1bcbad818e150105abf9234d408c',
+  'ovsespec-apply-change': 'e5c198e130b8b632cf44beb4dfbc634370d0996492ea950041c1c0bee539cd59',
+  'ovsespec-ff-change': '03c7f0a051b91280da393afbf0261267432bb08f5f95fe28fc1dc86299d64245',
+  'ovsespec-sync-specs': '9e23d251ff5e330adb6af7b4dc275f7933f1df9e938fd8995fde0217707d6932',
+  'ovsespec-archive-change': '95cd3f1d9e888ec29726fcf087c267d4a571a8f529624c7676504015b49866c0',
+  'ovsespec-bulk-archive-change': '3a20835abe49f51e4a916084dd508cf300b8ae8242a909d0906a34f65481d5e4',
+  'ovsespec-verify-change': '7d8e1f38d3ffa2be9a9d65fe8e153bc561201493bfec373900fe8e0683f4cfcd',
+  'ovsespec-onboard': '330157f612153a68ff1a6712845084169322489dfec2f316e1f94b5cef1d77bd',
+  'ovsespec-propose': 'e9a0cafb0064cb95f6be4a2bbef5148e99de2cc6c6536c0cf66a0912bbbae872',
+  'ovsespec-paas-test-deploy': 'be95c74e0a5a0b8c5e211d0fa117e9e802ef9198779abd26679a8f74dc3bba0c',
 };
 
 function stableStringify(value: unknown): string {
@@ -89,6 +95,10 @@ function hash(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function readSpecDrivenTemplate(fileName: string): string {
+  return readFileSync(new URL(`../../../schemas/spec-driven/templates/${fileName}`, import.meta.url), 'utf8');
+}
+
 describe('skill templates split parity', () => {
   it('preserves all template function payloads exactly', () => {
     const functionFactories: Record<string, () => unknown> = {
@@ -99,21 +109,23 @@ describe('skill templates split parity', () => {
       getFfChangeSkillTemplate,
       getSyncSpecsSkillTemplate,
       getOnboardSkillTemplate,
-      getOpsxExploreCommandTemplate,
-      getOpsxNewCommandTemplate,
-      getOpsxContinueCommandTemplate,
-      getOpsxApplyCommandTemplate,
-      getOpsxFfCommandTemplate,
+      getOvsxExploreCommandTemplate,
+      getOvsxNewCommandTemplate,
+      getOvsxContinueCommandTemplate,
+      getOvsxApplyCommandTemplate,
+      getOvsxFfCommandTemplate,
       getArchiveChangeSkillTemplate,
       getBulkArchiveChangeSkillTemplate,
-      getOpsxSyncCommandTemplate,
+      getOvsxSyncCommandTemplate,
       getVerifyChangeSkillTemplate,
-      getOpsxArchiveCommandTemplate,
-      getOpsxOnboardCommandTemplate,
-      getOpsxBulkArchiveCommandTemplate,
-      getOpsxVerifyCommandTemplate,
-      getOpsxProposeSkillTemplate,
-      getOpsxProposeCommandTemplate,
+      getOvsxArchiveCommandTemplate,
+      getOvsxOnboardCommandTemplate,
+      getOvsxBulkArchiveCommandTemplate,
+      getOvsxVerifyCommandTemplate,
+      getOvsxProposeSkillTemplate,
+      getOvsxProposeCommandTemplate,
+      getPaasTestDeploySkillTemplate,
+      getOvsxPaasTestDeployCommandTemplate,
       getFeedbackSkillTemplate,
     };
 
@@ -128,17 +140,18 @@ describe('skill templates split parity', () => {
     // Intentionally excludes getFeedbackSkillTemplate: skillFactories only models templates
     // deployed via generateSkillContent, while feedback is covered in function payload parity.
     const skillFactories: Array<[string, () => SkillTemplate]> = [
-      ['openspec-explore', getExploreSkillTemplate],
-      ['openspec-new-change', getNewChangeSkillTemplate],
-      ['openspec-continue-change', getContinueChangeSkillTemplate],
-      ['openspec-apply-change', getApplyChangeSkillTemplate],
-      ['openspec-ff-change', getFfChangeSkillTemplate],
-      ['openspec-sync-specs', getSyncSpecsSkillTemplate],
-      ['openspec-archive-change', getArchiveChangeSkillTemplate],
-      ['openspec-bulk-archive-change', getBulkArchiveChangeSkillTemplate],
-      ['openspec-verify-change', getVerifyChangeSkillTemplate],
-      ['openspec-onboard', getOnboardSkillTemplate],
-      ['openspec-propose', getOpsxProposeSkillTemplate],
+      ['ovsespec-explore', getExploreSkillTemplate],
+      ['ovsespec-new-change', getNewChangeSkillTemplate],
+      ['ovsespec-continue-change', getContinueChangeSkillTemplate],
+      ['ovsespec-apply-change', getApplyChangeSkillTemplate],
+      ['ovsespec-ff-change', getFfChangeSkillTemplate],
+      ['ovsespec-sync-specs', getSyncSpecsSkillTemplate],
+      ['ovsespec-archive-change', getArchiveChangeSkillTemplate],
+      ['ovsespec-bulk-archive-change', getBulkArchiveChangeSkillTemplate],
+      ['ovsespec-verify-change', getVerifyChangeSkillTemplate],
+      ['ovsespec-onboard', getOnboardSkillTemplate],
+      ['ovsespec-propose', getOvsxProposeSkillTemplate],
+      ['ovsespec-paas-test-deploy', getPaasTestDeploySkillTemplate],
     ];
 
     const actualHashes = Object.fromEntries(
@@ -149,5 +162,52 @@ describe('skill templates split parity', () => {
     );
 
     expect(actualHashes).toEqual(EXPECTED_GENERATED_SKILL_CONTENT_HASHES);
+  });
+
+  it('keeps team and YAPI workflow semantics explicit', () => {
+    const propose = getOvsxProposeCommandTemplate().content;
+    const apply = getOvsxApplyCommandTemplate().content;
+    const sync = getOvsxSyncCommandTemplate().content;
+    const paasDeploy = getOvsxPaasTestDeployCommandTemplate().content;
+
+    expect(propose).toContain('结构化 API/YAPI 清单');
+    expect(propose).toContain('owner、reviewer、acceptance、rollback、handoff');
+    expect(propose).toContain('method + path');
+    expect(propose).toContain('YAPI create/update、Mock/advmock、audit');
+
+    expect(apply).toContain('source of truth');
+    expect(apply).toContain('必须创建 YAPI 接口');
+    expect(apply).toContain('YAPI Mock 数据是 API 实现完成条件的一部分');
+    expect(apply).toContain('重新拉取 advmock list 验证生效');
+
+    expect(sync).toContain('再次执行 YAPI sync');
+    expect(sync).toContain('核对 YAPI 与代码/spec 是否一致');
+    expect(sync).toContain('advmock 是否覆盖默认成功响应和 spec 指定场景');
+    expect(sync).toContain('unknown/TBD');
+
+    expect(paasDeploy).toContain('这个 workflow 保持独立');
+    expect(paasDeploy).toContain('获得用户确认后才执行会改变环境状态的 deploy 操作');
+    expect(paasDeploy).toContain('不能自动 archive');
+  });
+
+  it('keeps spec-driven artifact templates ready for team and YAPI fields', () => {
+    const proposal = readSpecDrivenTemplate('proposal.md');
+    const design = readSpecDrivenTemplate('design.md');
+    const tasks = readSpecDrivenTemplate('tasks.md');
+
+    expect(proposal).toContain('## Team Coordination');
+    expect(proposal).toContain('## API / YAPI Contracts');
+    expect(proposal).toContain('`method + path`');
+    expect(proposal).toContain('Mock / advmock');
+
+    expect(design).toContain('## Migration Plan');
+    expect(design).toContain('## Team Workflow');
+    expect(design).toContain('## API / YAPI Contract Plan');
+    expect(design).toContain('## Open Questions');
+
+    expect(tasks).toContain('## 0. Coordination / Contracts');
+    expect(tasks).toContain('YAPI create/update');
+    expect(tasks).toContain('Mock/advmock');
+    expect(tasks).toContain('audit/consistency checks');
   });
 });

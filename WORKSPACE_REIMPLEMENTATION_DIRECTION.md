@@ -4,9 +4,9 @@ Date: 2026-04-30
 
 Fresh-agent entry point: read `WORKSPACE_REIMPLEMENTATION_START_HERE.md` first, then return to this document for the full product direction.
 
-This document captures the intended direction for reimplementing OpenSpec workspace support from scratch, based on what we learned from the workspace POC.
+This document captures the intended direction for reimplementing OvseSpec workspace support from scratch, based on what we learned from the workspace POC.
 
-The reimplementation should be ordered around the path a real user takes through OpenSpec:
+The reimplementation should be ordered around the path a real user takes through OvseSpec:
 
 ```text
 set up workspace
@@ -27,7 +27,7 @@ A user should think:
 
 ```text
 I have a multi-repo product goal.
-I set up an OpenSpec workspace.
+I set up an OvseSpec workspace.
 I open it with my agent.
 The agent can see the linked repos or folders.
 We explore until the scope is clear.
@@ -61,20 +61,20 @@ First make workspace setup boring and solid.
 User goal:
 
 ```text
-Create a planning home and link the repos or folders OpenSpec should know about.
+Create a planning home and link the repos or folders OvseSpec should know about.
 ```
 
 Expected surface:
 
 ```bash
-openspec workspace setup
-openspec workspace setup --no-interactive --name platform --link /path/to/api --link web=/path/to/web
-openspec workspace list
-openspec workspace ls
-openspec workspace link /path/to/api
-openspec workspace link api-service /path/to/api
-openspec workspace relink api /new/path/to/api
-openspec workspace doctor
+ovsespec workspace setup
+ovsespec workspace setup --no-interactive --name platform --link /path/to/api --link web=/path/to/web
+ovsespec workspace list
+ovsespec workspace ls
+ovsespec workspace link /path/to/api
+ovsespec workspace link api-service /path/to/api
+ovsespec workspace relink api /new/path/to/api
+ovsespec workspace doctor
 ```
 
 Expected outcome:
@@ -82,18 +82,18 @@ Expected outcome:
 ```text
 workspace-folder/
   changes/
-  .openspec-workspace/
+  .ovsespec-workspace/
     workspace.yaml
     local.yaml
 ```
 
 Product decisions:
 
-- Use `.openspec-workspace/`, not `.openspec/`, for workspace metadata.
+- Use `.ovsespec-workspace/`, not `.ovsespec/`, for workspace metadata.
 - Keep `changes/` visible in the workspace folder.
 - Keep setup as the only public creation path for the first release; do not expose `workspace create`.
 - Use `workspace link` and `workspace relink`, not POC-era `add-repo` or `update-repo`.
-- Allow linked repos or folders without repo-local `openspec/` state.
+- Allow linked repos or folders without repo-local `ovsespec/` state.
 - Keep stable link names in shared workspace state and local paths in machine-local state.
 - Make `doctor` show link names, resolved paths, repo-local specs paths when present, and suggested fixes.
 
@@ -109,7 +109,7 @@ Defer:
 - Archive.
 - Complex target lifecycle.
 
-Done when a user can set up a workspace, link repos or folders, list known workspaces, relink local paths, and run `doctor` to see exactly what OpenSpec can resolve.
+Done when a user can set up a workspace, link repos or folders, list known workspaces, relink local paths, and run `doctor` to see exactly what OvseSpec can resolve.
 
 ### 2. Workspace Open
 
@@ -124,9 +124,9 @@ Open this multi-repo planning context with my coding agent.
 Expected surface:
 
 ```bash
-openspec workspace open
-openspec workspace open --agent codex
-openspec workspace open --agent github-copilot
+ovsespec workspace open
+ovsespec workspace open --agent codex
+ovsespec workspace open --agent github-copilot
 ```
 
 Product behavior:
@@ -167,7 +167,7 @@ Tell the agent a rough product goal and have it inspect the repos before creatin
 Expected user prompt:
 
 ```text
-Explore how we should make the OpenSpec docs available on the landing page.
+Explore how we should make the OvseSpec docs available on the landing page.
 Look across the linked repos or folders, but do not implement yet.
 ```
 
@@ -182,7 +182,7 @@ Agent behavior:
 Build:
 
 - Workspace-level `AGENTS.md` guidance.
-- Normal OpenSpec skills and commands in workspace sessions.
+- Normal OvseSpec skills and commands in workspace sessions.
 - Workspace-specific guidance layered on top of normal `/explore`, not replacing it.
 
 Defer:
@@ -218,7 +218,7 @@ changes/integrate-docs/
   design.md
   tasks.md
   specs/
-    openspec/
+    ovsespec/
       docs-conventions/spec.md
     landing/
       docs-routing/spec.md
@@ -256,15 +256,15 @@ Where are we, what repos are involved, and is this ready to implement?
 Expected surface:
 
 ```bash
-openspec status
-openspec status --change integrate-docs
+ovsespec status
+ovsespec status --change integrate-docs
 ```
 
 Human output should answer:
 
 ```text
 Change: integrate-docs
-Scope: openspec, landing
+Scope: ovsespec, landing
 Proposal: present
 Design: present
 Tasks: present
@@ -306,13 +306,13 @@ It does not mean:
 
 ```text
 copy planning files
-materialize repo-local OpenSpec state
+materialize repo-local OvseSpec state
 create the proposal files for the first time
 ```
 
 Agent behavior:
 
-1. Ask OpenSpec for apply context.
+1. Ask OvseSpec for apply context.
 2. Read proposal, design, tasks, and relevant specs.
 3. Confirm the target repo checkout.
 4. Edit only that repo.
@@ -326,7 +326,7 @@ This likely wants a normalized context command internally, but that is supportin
   "mode": "workspace",
   "change": "integrate-docs",
   "target": "landing",
-  "implementationRoot": "/repos/openspec-landing",
+  "implementationRoot": "/repos/ovsespec-landing",
   "contextFiles": [
     "changes/integrate-docs/proposal.md",
     "changes/integrate-docs/design.md",
@@ -334,7 +334,7 @@ This likely wants a normalized context command internally, but that is supportin
     "changes/integrate-docs/specs/landing/docs-routing/spec.md"
   ],
   "allowedEditRoots": [
-    "/repos/openspec-landing"
+    "/repos/ovsespec-landing"
   ],
   "tasksFile": "changes/integrate-docs/tasks.md"
 }
@@ -345,7 +345,7 @@ Defer:
 - Applying multiple repos at once.
 - Automatic branch creation.
 - Worktree management.
-- Repo-local OpenSpec mirroring.
+- Repo-local OvseSpec mirroring.
 
 Done when one repo slice can be implemented from the central workspace plan.
 
@@ -397,7 +397,7 @@ Behavior:
 
 - Require all targeted repo slices to be complete or explicitly accepted.
 - Archive the workspace change.
-- Do not require repo-local planning copies unless OpenSpec later decides that repo-local archival matters.
+- Do not require repo-local planning copies unless OvseSpec later decides that repo-local archival matters.
 
 Done when a user can complete the full lifecycle:
 
@@ -445,7 +445,7 @@ Those may matter later, but they should not define the first reimplementation pa
 
 ## Product Shape
 
-The workspace should feel like OpenSpec's normal workflow stretched across multiple repos, not a second product with its own lifecycle.
+The workspace should feel like OvseSpec's normal workflow stretched across multiple repos, not a second product with its own lifecycle.
 
 The durable product model is:
 

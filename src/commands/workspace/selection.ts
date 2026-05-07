@@ -32,11 +32,11 @@ export async function selectWorkspaceForCommand(
 
     if (!registryRoot) {
       throw new WorkspaceCliError(
-        `Unknown OpenSpec workspace '${workspaceName}'.`,
+        `Unknown OvseSpec workspace '${workspaceName}'.`,
         'workspace_not_found',
         {
           target: 'workspace.name',
-          fix: 'Run openspec workspace list to see known workspaces.',
+          fix: 'Run ovsespec workspace list to see known workspaces.',
         }
       );
     }
@@ -79,11 +79,11 @@ export async function selectWorkspaceForCommand(
 
   if (entries.length === 0) {
     throw new WorkspaceCliError(
-      "No known OpenSpec workspaces. Run 'openspec workspace setup' first.\nAfter at least one workspace is known locally, you can also pass --workspace <name>.",
+      "No known OvseSpec workspaces. Run 'ovsespec workspace setup' first.\nAfter at least one workspace is known locally, you can also pass --workspace <name>.",
       'no_known_workspaces',
       {
         target: 'workspace.name',
-        fix: 'openspec workspace setup',
+        fix: 'ovsespec workspace setup',
       }
     );
   }
@@ -103,13 +103,13 @@ export async function selectWorkspaceForCommand(
     const knownNames = entries.map((entry) => entry.name).join(', ');
     const usesPositionalName = selectionOptions.preferPositionalName;
     const fix = usesPositionalName
-      ? `openspec workspace ${commandName} <name>`
-      : `openspec workspace ${commandName} --workspace <name>`;
+      ? `ovsespec workspace ${commandName} <name>`
+      : `ovsespec workspace ${commandName} --workspace <name>`;
 
     throw new WorkspaceCliError(
       usesPositionalName
-        ? `Multiple OpenSpec workspaces are known. Known workspaces: ${knownNames}. Pass a workspace name.`
-        : `Multiple OpenSpec workspaces are known. Known workspaces: ${knownNames}. Pass --workspace <name>.`,
+        ? `Multiple OvseSpec workspaces are known. Known workspaces: ${knownNames}. Pass a workspace name.`
+        : `Multiple OvseSpec workspaces are known. Known workspaces: ${knownNames}. Pass --workspace <name>.`,
       'workspace_selection_ambiguous',
       {
         target: 'workspace.name',

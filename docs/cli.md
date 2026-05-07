@@ -1,12 +1,12 @@
 # CLI Reference
 
-The OpenSpec CLI (`openspec`) provides terminal commands for project setup, validation, status inspection, and management. These commands complement the AI slash commands (like `/opsx:propose`) documented in [Commands](commands.md).
+The OvseSpec CLI (`ovsespec`) provides terminal commands for project setup, validation, status inspection, and management. These commands complement the AI slash commands (like `/ovsx:propose`) documented in [Commands](commands.md).
 
 ## Summary
 
 | Category | Commands | Purpose |
 |----------|----------|---------|
-| **Setup** | `init`, `update` | Initialize and update OpenSpec in your project |
+| **Setup** | `init`, `update` | Initialize and update OvseSpec in your project |
 | **Workspaces (beta)** | `workspace setup`, `workspace list`, `workspace ls`, `workspace link`, `workspace relink`, `workspace doctor`, `workspace open` | Set up planning across linked repos or folders |
 | **Browsing** | `list`, `view`, `show` | Explore changes and specs |
 | **Validation** | `validate` | Check changes and specs for issues |
@@ -28,11 +28,11 @@ These commands are interactive and designed for terminal use:
 
 | Command | Purpose |
 |---------|---------|
-| `openspec init` | Initialize project (interactive prompts) |
-| `openspec view` | Interactive dashboard |
-| `openspec config edit` | Open config in editor |
-| `openspec feedback` | Submit feedback via GitHub |
-| `openspec completion install` | Install shell completions |
+| `ovsespec init` | Initialize project (interactive prompts) |
+| `ovsespec view` | Interactive dashboard |
+| `ovsespec config edit` | Open config in editor |
+| `ovsespec feedback` | Submit feedback via GitHub |
+| `ovsespec completion install` | Install shell completions |
 
 ### Agent-Compatible Commands
 
@@ -40,18 +40,18 @@ These commands support `--json` output for programmatic use by AI agents and scr
 
 | Command | Human Use | Agent Use |
 |---------|-----------|-----------|
-| `openspec list` | Browse changes/specs | `--json` for structured data |
-| `openspec show <item>` | Read content | `--json` for parsing |
-| `openspec validate` | Check for issues | `--all --json` for bulk validation |
-| `openspec status` | See artifact progress | `--json` for structured status |
-| `openspec instructions` | Get next steps | `--json` for agent instructions |
-| `openspec templates` | Find template paths | `--json` for path resolution |
-| `openspec schemas` | List available schemas | `--json` for schema discovery |
-| `openspec workspace setup --no-interactive` | Create a workspace with explicit inputs | `--json` for structured setup output |
-| `openspec workspace list` | Browse known workspaces | `--json` for typed workspace objects |
-| `openspec workspace link` | Link a repo or folder | `--json` for structured link output |
-| `openspec workspace relink` | Repair a linked path | `--json` for structured link output |
-| `openspec workspace doctor` | Check one workspace | `--json` for structured status output |
+| `ovsespec list` | Browse changes/specs | `--json` for structured data |
+| `ovsespec show <item>` | Read content | `--json` for parsing |
+| `ovsespec validate` | Check for issues | `--all --json` for bulk validation |
+| `ovsespec status` | See artifact progress | `--json` for structured status |
+| `ovsespec instructions` | Get next steps | `--json` for agent instructions |
+| `ovsespec templates` | Find template paths | `--json` for path resolution |
+| `ovsespec schemas` | List available schemas | `--json` for schema discovery |
+| `ovsespec workspace setup --no-interactive` | Create a workspace with explicit inputs | `--json` for structured setup output |
+| `ovsespec workspace list` | Browse known workspaces | `--json` for typed workspace objects |
+| `ovsespec workspace link` | Link a repo or folder | `--json` for structured link output |
+| `ovsespec workspace relink` | Repair a linked path | `--json` for structured link output |
+| `ovsespec workspace doctor` | Check one workspace | `--json` for structured status output |
 
 ---
 
@@ -69,14 +69,14 @@ These options work with all commands:
 
 ## Setup Commands
 
-### `openspec init`
+### `ovsespec init`
 
-Initialize OpenSpec in your project. Creates the folder structure and configures AI tool integrations.
+Initialize OvseSpec in your project. Creates the folder structure and configures AI tool integrations.
 
 Default behavior uses global config defaults: profile `core`, delivery `both`, workflows `propose, explore, apply, sync, archive`.
 
 ```
-openspec init [path] [options]
+ovsespec init [path] [options]
 ```
 
 **Arguments:**
@@ -93,7 +93,7 @@ openspec init [path] [options]
 | `--force` | Auto-cleanup legacy files without prompting |
 | `--profile <profile>` | Override global profile for this init run (`core` or `custom`) |
 
-`--profile custom` uses whatever workflows are currently selected in global config (`openspec config profile`).
+`--profile custom` uses whatever workflows are currently selected in global config (`ovsespec config profile`).
 
 **Supported tool IDs (`--tools`):** `amazon-q`, `antigravity`, `auggie`, `bob`, `claude`, `cline`, `codex`, `forgecode`, `codebuddy`, `continue`, `costrict`, `crush`, `cursor`, `factory`, `gemini`, `github-copilot`, `iflow`, `junie`, `kilocode`, `kimi`, `kiro`, `opencode`, `pi`, `qoder`, `lingma`, `qwen`, `roocode`, `trae`, `windsurf`
 
@@ -101,46 +101,46 @@ openspec init [path] [options]
 
 ```bash
 # Interactive initialization
-openspec init
+ovsespec init
 
 # Initialize in a specific directory
-openspec init ./my-project
+ovsespec init ./my-project
 
 # Non-interactive: configure for Claude and Cursor
-openspec init --tools claude,cursor
+ovsespec init --tools claude,cursor
 
 # Configure for all supported tools
-openspec init --tools all
+ovsespec init --tools all
 
 # Override profile for this run
-openspec init --profile core
+ovsespec init --profile core
 
 # Skip prompts and auto-cleanup legacy files
-openspec init --force
+ovsespec init --force
 ```
 
 **What it creates:**
 
 ```
-openspec/
+ovsespec/
 ├── specs/              # Your specifications (source of truth)
 ├── changes/            # Proposed changes
 └── config.yaml         # Project configuration
 
 .claude/skills/         # Claude Code skills (if claude selected)
 .cursor/skills/         # Cursor skills (if cursor selected)
-.cursor/commands/       # Cursor OPSX commands (if delivery includes commands)
+.cursor/commands/       # Cursor OVSX commands (if delivery includes commands)
 ... (other tool configs)
 ```
 
 ---
 
-### `openspec update`
+### `ovsespec update`
 
-Update OpenSpec instruction files after upgrading the CLI. Re-generates AI tool configuration files using your current global profile, selected workflows, and delivery mode.
+Update OvseSpec instruction files after upgrading the CLI. Re-generates AI tool configuration files using your current global profile, selected workflows, and delivery mode.
 
 ```
-openspec update [path] [options]
+ovsespec update [path] [options]
 ```
 
 **Arguments:**
@@ -159,8 +159,8 @@ openspec update [path] [options]
 
 ```bash
 # Update instruction files after npm upgrade
-npm update @fission-ai/openspec
-openspec update
+npm update @ths-oversea/ovsespec
+ovsespec update
 ```
 
 ---
@@ -169,14 +169,14 @@ openspec update
 
 Workspace commands are under active development and are not ready for use yet. Do not build external automation, integrations, or long-lived workflows on top of this command surface; command behavior, state files, and JSON output can change at any point.
 
-Coordination workspaces are planning homes for work that spans multiple repos or folders. Workspace visibility is not change commitment: link the repos or folders OpenSpec should know about, then create changes when you are ready to plan specific work.
+Coordination workspaces are planning homes for work that spans multiple repos or folders. Workspace visibility is not change commitment: link the repos or folders OvseSpec should know about, then create changes when you are ready to plan specific work.
 
-### `openspec workspace setup`
+### `ovsespec workspace setup`
 
-Create a workspace in the standard OpenSpec workspace location and link at least one existing repo or folder.
+Create a workspace in the standard OvseSpec workspace location and link at least one existing repo or folder.
 
 ```bash
-openspec workspace setup [options]
+ovsespec workspace setup [options]
 ```
 
 **Options:**
@@ -193,31 +193,31 @@ openspec workspace setup [options]
 **Examples:**
 
 ```bash
-openspec workspace setup
-openspec workspace setup --no-interactive --name platform --link /repos/api --link web=/repos/web
-openspec workspace setup --no-interactive --name platform --link /repos/api --opener codex
-openspec workspace setup --no-interactive --json --name checkout --link /repos/platform/apps/checkout
+ovsespec workspace setup
+ovsespec workspace setup --no-interactive --name platform --link /repos/api --link web=/repos/web
+ovsespec workspace setup --no-interactive --name platform --link /repos/api --opener codex
+ovsespec workspace setup --no-interactive --json --name checkout --link /repos/platform/apps/checkout
 ```
 
 Interactive setup asks for a preferred opener and stores it in machine-local workspace state. Non-interactive setup stores a preferred opener only when `--opener` is provided; otherwise `workspace open` prompts later in interactive terminals when a supported opener is available, or asks scripts to pass `--agent <tool>` or `--editor`.
 
-### `openspec workspace list`
+### `ovsespec workspace list`
 
-List known OpenSpec workspaces from the local registry.
+List known OvseSpec workspaces from the local registry.
 
 ```bash
-openspec workspace list [--json]
-openspec workspace ls [--json]
+ovsespec workspace list [--json]
+ovsespec workspace ls [--json]
 ```
 
 The list shows each workspace location and linked repos or folders. Stale registry records are reported but not changed.
 
-### `openspec workspace link`
+### `ovsespec workspace link`
 
 Record an existing repo or folder for one workspace.
 
 ```bash
-openspec workspace link [name] <path> [options]
+ovsespec workspace link [name] <path> [options]
 ```
 
 **Options:**
@@ -231,29 +231,29 @@ openspec workspace link [name] <path> [options]
 **Examples:**
 
 ```bash
-openspec workspace link /repos/api
-openspec workspace link api-service /repos/api
-openspec workspace link --workspace platform /repos/platform/apps/checkout
+ovsespec workspace link /repos/api
+ovsespec workspace link api-service /repos/api
+ovsespec workspace link --workspace platform /repos/platform/apps/checkout
 ```
 
-The path must already exist. Relative paths are resolved against the command's current directory before OpenSpec stores the verified absolute path in machine-local workspace state. Linked paths can be full repos, packages, services, apps, or folders without repo-local `openspec/` state.
+The path must already exist. Relative paths are resolved against the command's current directory before OvseSpec stores the verified absolute path in machine-local workspace state. Linked paths can be full repos, packages, services, apps, or folders without repo-local `ovsespec/` state.
 
-### `openspec workspace relink`
+### `ovsespec workspace relink`
 
 Repair or change the local path for an existing link.
 
 ```bash
-openspec workspace relink <name> <path> [options]
+ovsespec workspace relink <name> <path> [options]
 ```
 
 The path must already exist. Relink updates only the machine-local path for the stable link name.
 
-### `openspec workspace doctor`
+### `ovsespec workspace doctor`
 
 Check what one workspace can resolve on the current machine.
 
 ```bash
-openspec workspace doctor [options]
+ovsespec workspace doctor [options]
 ```
 
 Doctor shows the workspace location, planning path, linked repos or folders, missing paths, repo-local specs paths when present, and suggested fixes. It reports issues only; it does not repair them automatically.
@@ -262,12 +262,12 @@ Commands that need one workspace use the current workspace when run from inside 
 
 JSON responses use typed objects plus `status` arrays. Primary data lives in `workspace`, `workspaces`, or `link`; warnings and errors live in `status`.
 
-### `openspec workspace open`
+### `ovsespec workspace open`
 
 Open a workspace working set through the stored preferred opener, a one-session agent override, or VS Code editor mode.
 
 ```bash
-openspec workspace open [name] [options]
+ovsespec workspace open [name] [options]
 ```
 
 **Options:**
@@ -282,31 +282,31 @@ openspec workspace open [name] [options]
 **Examples:**
 
 ```bash
-openspec workspace open
-openspec workspace open platform
-openspec workspace open platform --agent github-copilot
-openspec workspace open --agent codex
-openspec workspace open --editor
+ovsespec workspace open
+ovsespec workspace open platform
+ovsespec workspace open platform --agent github-copilot
+ovsespec workspace open --agent codex
+ovsespec workspace open --editor
 ```
 
 `workspace open` uses the current workspace when run inside one, auto-selects the only known workspace when run elsewhere, and asks the user to choose when multiple workspaces are known. `--agent` and `--editor` do not change the stored preferred opener. Passing both opener overrides is an error; choose either `--agent <tool>` or `--editor`.
 
-OpenSpec maintains `<workspace-name>.code-workspace` at the workspace root for VS Code editor and GitHub Copilot-in-VS-Code opens. That file is machine-local and ignored by default with a specific `<workspace-name>.code-workspace` `.gitignore` entry, so user-authored `*.code-workspace` files remain eligible for tracking.
+OvseSpec maintains `<workspace-name>.code-workspace` at the workspace root for VS Code editor and GitHub Copilot-in-VS-Code opens. That file is machine-local and ignored by default with a specific `<workspace-name>.code-workspace` `.gitignore` entry, so user-authored `*.code-workspace` files remain eligible for tracking.
 
 The maintained VS Code workspace includes the coordination root as `.` plus valid linked repos or folders as additional roots. VS Code displays those entries as a multi-root workspace.
 
-Root workspace open supports exploration and planning across linked repos or folders. Implementation edits should start only after an explicit user request and a normal OpenSpec implementation workflow.
+Root workspace open supports exploration and planning across linked repos or folders. Implementation edits should start only after an explicit user request and a normal OvseSpec implementation workflow.
 
 ---
 
 ## Browsing Commands
 
-### `openspec list`
+### `ovsespec list`
 
 List changes or specs in your project.
 
 ```
-openspec list [options]
+ovsespec list [options]
 ```
 
 **Options:**
@@ -322,13 +322,13 @@ openspec list [options]
 
 ```bash
 # List all active changes
-openspec list
+ovsespec list
 
 # List all specs
-openspec list --specs
+ovsespec list --specs
 
 # JSON output for scripts
-openspec list --json
+ovsespec list --json
 ```
 
 **Output (text):**
@@ -341,24 +341,24 @@ Active changes:
 
 ---
 
-### `openspec view`
+### `ovsespec view`
 
 Display an interactive dashboard for exploring specs and changes.
 
 ```
-openspec view
+ovsespec view
 ```
 
 Opens a terminal-based interface for navigating your project's specifications and changes.
 
 ---
 
-### `openspec show`
+### `ovsespec show`
 
 Display details of a change or spec.
 
 ```
-openspec show [item-name] [options]
+ovsespec show [item-name] [options]
 ```
 
 **Arguments:**
@@ -393,28 +393,28 @@ openspec show [item-name] [options]
 
 ```bash
 # Interactive selection
-openspec show
+ovsespec show
 
 # Show a specific change
-openspec show add-dark-mode
+ovsespec show add-dark-mode
 
 # Show a specific spec
-openspec show auth --type spec
+ovsespec show auth --type spec
 
 # JSON output for parsing
-openspec show add-dark-mode --json
+ovsespec show add-dark-mode --json
 ```
 
 ---
 
 ## Validation Commands
 
-### `openspec validate`
+### `ovsespec validate`
 
 Validate changes and specs for structural issues.
 
 ```
-openspec validate [item-name] [options]
+ovsespec validate [item-name] [options]
 ```
 
 **Arguments:**
@@ -433,26 +433,26 @@ openspec validate [item-name] [options]
 | `--type <type>` | Specify type when name is ambiguous: `change` or `spec` |
 | `--strict` | Enable strict validation mode |
 | `--json` | Output as JSON |
-| `--concurrency <n>` | Max parallel validations (default: 6, or `OPENSPEC_CONCURRENCY` env) |
+| `--concurrency <n>` | Max parallel validations (default: 6, or `OVSESPEC_CONCURRENCY` env) |
 | `--no-interactive` | Disable prompts |
 
 **Examples:**
 
 ```bash
 # Interactive validation
-openspec validate
+ovsespec validate
 
 # Validate a specific change
-openspec validate add-dark-mode
+ovsespec validate add-dark-mode
 
 # Validate all changes
-openspec validate --changes
+ovsespec validate --changes
 
 # Validate everything with JSON output (for CI/scripts)
-openspec validate --all --json
+ovsespec validate --all --json
 
 # Strict validation with increased parallelism
-openspec validate --all --strict --concurrency 12
+ovsespec validate --all --strict --concurrency 12
 ```
 
 **Output (text):**
@@ -492,12 +492,12 @@ Validating add-dark-mode...
 
 ## Lifecycle Commands
 
-### `openspec archive`
+### `ovsespec archive`
 
 Archive a completed change and merge delta specs into main specs.
 
 ```
-openspec archive [change-name] [options]
+ovsespec archive [change-name] [options]
 ```
 
 **Arguments:**
@@ -518,37 +518,37 @@ openspec archive [change-name] [options]
 
 ```bash
 # Interactive archive
-openspec archive
+ovsespec archive
 
 # Archive specific change
-openspec archive add-dark-mode
+ovsespec archive add-dark-mode
 
 # Archive without prompts (CI/scripts)
-openspec archive add-dark-mode --yes
+ovsespec archive add-dark-mode --yes
 
 # Archive a tooling change that doesn't affect specs
-openspec archive update-ci-config --skip-specs
+ovsespec archive update-ci-config --skip-specs
 ```
 
 **What it does:**
 
 1. Validates the change (unless `--no-validate`)
 2. Prompts for confirmation (unless `--yes`)
-3. Merges delta specs into `openspec/specs/`
-4. Moves change folder to `openspec/changes/archive/YYYY-MM-DD-<name>/`
+3. Merges delta specs into `ovsespec/specs/`
+4. Moves change folder to `ovsespec/changes/archive/YYYY-MM-DD-<name>/`
 
 ---
 
 ## Workflow Commands
 
-These commands support the artifact-driven OPSX workflow. They're useful for both humans checking progress and agents determining next steps.
+These commands support the artifact-driven OVSX workflow. They're useful for both humans checking progress and agents determining next steps.
 
-### `openspec status`
+### `ovsespec status`
 
 Display artifact completion status for a change.
 
 ```
-openspec status [options]
+ovsespec status [options]
 ```
 
 **Options:**
@@ -563,13 +563,13 @@ openspec status [options]
 
 ```bash
 # Interactive status check
-openspec status
+ovsespec status
 
 # Status for specific change
-openspec status --change add-dark-mode
+ovsespec status --change add-dark-mode
 
 # JSON for agent use
-openspec status --change add-dark-mode --json
+ovsespec status --change add-dark-mode --json
 ```
 
 **Output (text):**
@@ -604,12 +604,12 @@ Progress: 2/4 artifacts complete
 
 ---
 
-### `openspec instructions`
+### `ovsespec instructions`
 
 Get enriched instructions for creating an artifact or applying tasks. Used by AI agents to understand what to create next.
 
 ```
-openspec instructions [artifact] [options]
+ovsespec instructions [artifact] [options]
 ```
 
 **Arguments:**
@@ -632,16 +632,16 @@ openspec instructions [artifact] [options]
 
 ```bash
 # Get instructions for next artifact
-openspec instructions --change add-dark-mode
+ovsespec instructions --change add-dark-mode
 
 # Get specific artifact instructions
-openspec instructions design --change add-dark-mode
+ovsespec instructions design --change add-dark-mode
 
 # Get apply/implementation instructions
-openspec instructions apply --change add-dark-mode
+ovsespec instructions apply --change add-dark-mode
 
 # JSON for agent consumption
-openspec instructions design --change add-dark-mode --json
+ovsespec instructions design --change add-dark-mode --json
 ```
 
 **Output includes:**
@@ -653,12 +653,12 @@ openspec instructions design --change add-dark-mode --json
 
 ---
 
-### `openspec templates`
+### `ovsespec templates`
 
 Show resolved template paths for all artifacts in a schema.
 
 ```
-openspec templates [options]
+ovsespec templates [options]
 ```
 
 **Options:**
@@ -672,13 +672,13 @@ openspec templates [options]
 
 ```bash
 # Show template paths for default schema
-openspec templates
+ovsespec templates
 
 # Show templates for custom schema
-openspec templates --schema my-workflow
+ovsespec templates --schema my-workflow
 
 # JSON for programmatic use
-openspec templates --json
+ovsespec templates --json
 ```
 
 **Output (text):**
@@ -687,20 +687,20 @@ openspec templates --json
 Schema: spec-driven
 
 Templates:
-  proposal  → ~/.openspec/schemas/spec-driven/templates/proposal.md
-  specs     → ~/.openspec/schemas/spec-driven/templates/specs.md
-  design    → ~/.openspec/schemas/spec-driven/templates/design.md
-  tasks     → ~/.openspec/schemas/spec-driven/templates/tasks.md
+  proposal  → ~/.ovsespec/schemas/spec-driven/templates/proposal.md
+  specs     → ~/.ovsespec/schemas/spec-driven/templates/specs.md
+  design    → ~/.ovsespec/schemas/spec-driven/templates/design.md
+  tasks     → ~/.ovsespec/schemas/spec-driven/templates/tasks.md
 ```
 
 ---
 
-### `openspec schemas`
+### `ovsespec schemas`
 
 List available workflow schemas with their descriptions and artifact flows.
 
 ```
-openspec schemas [options]
+ovsespec schemas [options]
 ```
 
 **Options:**
@@ -712,7 +712,7 @@ openspec schemas [options]
 **Example:**
 
 ```bash
-openspec schemas
+ovsespec schemas
 ```
 
 **Output:**
@@ -735,12 +735,12 @@ Available schemas:
 
 Commands for creating and managing custom workflow schemas.
 
-### `openspec schema init`
+### `ovsespec schema init`
 
 Create a new project-local schema.
 
 ```
-openspec schema init <name> [options]
+ovsespec schema init <name> [options]
 ```
 
 **Arguments:**
@@ -764,10 +764,10 @@ openspec schema init <name> [options]
 
 ```bash
 # Interactive schema creation
-openspec schema init research-first
+ovsespec schema init research-first
 
 # Non-interactive with specific artifacts
-openspec schema init rapid \
+ovsespec schema init rapid \
   --description "Rapid iteration workflow" \
   --artifacts "proposal,tasks" \
   --default
@@ -776,7 +776,7 @@ openspec schema init rapid \
 **What it creates:**
 
 ```
-openspec/schemas/<name>/
+ovsespec/schemas/<name>/
 ├── schema.yaml           # Schema definition
 └── templates/
     ├── proposal.md       # Template for each artifact
@@ -787,12 +787,12 @@ openspec/schemas/<name>/
 
 ---
 
-### `openspec schema fork`
+### `ovsespec schema fork`
 
 Copy an existing schema to your project for customization.
 
 ```
-openspec schema fork <source> [name] [options]
+ovsespec schema fork <source> [name] [options]
 ```
 
 **Arguments:**
@@ -813,17 +813,17 @@ openspec schema fork <source> [name] [options]
 
 ```bash
 # Fork the built-in spec-driven schema
-openspec schema fork spec-driven my-workflow
+ovsespec schema fork spec-driven my-workflow
 ```
 
 ---
 
-### `openspec schema validate`
+### `ovsespec schema validate`
 
 Validate a schema's structure and templates.
 
 ```
-openspec schema validate [name] [options]
+ovsespec schema validate [name] [options]
 ```
 
 **Arguments:**
@@ -843,20 +843,20 @@ openspec schema validate [name] [options]
 
 ```bash
 # Validate a specific schema
-openspec schema validate my-workflow
+ovsespec schema validate my-workflow
 
 # Validate all schemas
-openspec schema validate
+ovsespec schema validate
 ```
 
 ---
 
-### `openspec schema which`
+### `ovsespec schema which`
 
 Show where a schema resolves from (useful for debugging precedence).
 
 ```
-openspec schema which [name] [options]
+ovsespec schema which [name] [options]
 ```
 
 **Arguments:**
@@ -876,32 +876,32 @@ openspec schema which [name] [options]
 
 ```bash
 # Check where a schema comes from
-openspec schema which spec-driven
+ovsespec schema which spec-driven
 ```
 
 **Output:**
 
 ```
 spec-driven resolves from: package
-  Source: /usr/local/lib/node_modules/@fission-ai/openspec/schemas/spec-driven
+  Source: /usr/local/lib/node_modules/@ths-oversea/ovsespec/schemas/spec-driven
 ```
 
 **Schema precedence:**
 
-1. Project: `openspec/schemas/<name>/`
-2. User: `~/.local/share/openspec/schemas/<name>/`
+1. Project: `ovsespec/schemas/<name>/`
+2. User: `~/.local/share/ovsespec/schemas/<name>/`
 3. Package: Built-in schemas
 
 ---
 
 ## Configuration Commands
 
-### `openspec config`
+### `ovsespec config`
 
-View and modify global OpenSpec configuration.
+View and modify global OvseSpec configuration.
 
 ```
-openspec config <subcommand> [options]
+ovsespec config <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -921,57 +921,57 @@ openspec config <subcommand> [options]
 
 ```bash
 # Show config file path
-openspec config path
+ovsespec config path
 
 # List all settings
-openspec config list
+ovsespec config list
 
 # Get a specific value
-openspec config get telemetry.enabled
+ovsespec config get telemetry.enabled
 
 # Set a value
-openspec config set telemetry.enabled false
+ovsespec config set telemetry.enabled false
 
 # Set a string value explicitly
-openspec config set user.name "My Name" --string
+ovsespec config set user.name "My Name" --string
 
 # Remove a custom setting
-openspec config unset user.name
+ovsespec config unset user.name
 
 # Reset all configuration
-openspec config reset --all --yes
+ovsespec config reset --all --yes
 
 # Edit config in your editor
-openspec config edit
+ovsespec config edit
 
 # Configure profile with action-based wizard
-openspec config profile
+ovsespec config profile
 
 # Fast preset: switch workflows to core (keeps delivery mode)
-openspec config profile core
+ovsespec config profile core
 ```
 
-`openspec config profile` starts with a current-state summary, then lets you choose:
+`ovsespec config profile` starts with a current-state summary, then lets you choose:
 - Change delivery + workflows
 - Change delivery only
 - Change workflows only
 - Keep current settings (exit)
 
 If you keep current settings, no changes are written and no update prompt is shown.
-If there are no config changes but the current project files are out of sync with your global profile/delivery, OpenSpec will show a warning and suggest running `openspec update`.
+If there are no config changes but the current project files are out of sync with your global profile/delivery, OvseSpec will show a warning and suggest running `ovsespec update`.
 Pressing `Ctrl+C` also cancels the flow cleanly (no stack trace) and exits with code `130`.
-In the workflow checklist, `[x]` means the workflow is selected in global config. To apply those selections to project files, run `openspec update` (or choose `Apply changes to this project now?` when prompted inside a project).
+In the workflow checklist, `[x]` means the workflow is selected in global config. To apply those selections to project files, run `ovsespec update` (or choose `Apply changes to this project now?` when prompted inside a project).
 
 **Interactive examples:**
 
 ```bash
 # Delivery-only update
-openspec config profile
+ovsespec config profile
 # choose: Change delivery only
 # choose delivery: Skills only
 
 # Workflows-only update
-openspec config profile
+ovsespec config profile
 # choose: Change workflows only
 # toggle workflows in the checklist, then confirm
 ```
@@ -980,12 +980,12 @@ openspec config profile
 
 ## Utility Commands
 
-### `openspec feedback`
+### `ovsespec feedback`
 
-Submit feedback about OpenSpec. Creates a GitHub issue.
+Submit feedback about OvseSpec. Creates a GitHub issue.
 
 ```
-openspec feedback <message> [options]
+ovsespec feedback <message> [options]
 ```
 
 **Arguments:**
@@ -1005,18 +1005,18 @@ openspec feedback <message> [options]
 **Example:**
 
 ```bash
-openspec feedback "Add support for custom artifact types" \
+ovsespec feedback "Add support for custom artifact types" \
   --body "I'd like to define my own artifact types beyond the built-in ones."
 ```
 
 ---
 
-### `openspec completion`
+### `ovsespec completion`
 
-Manage shell completions for the OpenSpec CLI.
+Manage shell completions for the OvseSpec CLI.
 
 ```
-openspec completion <subcommand> [shell]
+ovsespec completion <subcommand> [shell]
 ```
 
 **Subcommands:**
@@ -1033,16 +1033,16 @@ openspec completion <subcommand> [shell]
 
 ```bash
 # Install completions (auto-detects shell)
-openspec completion install
+ovsespec completion install
 
 # Install for specific shell
-openspec completion install zsh
+ovsespec completion install zsh
 
 # Generate script for manual installation
-openspec completion generate bash > ~/.bash_completion.d/openspec
+ovsespec completion generate bash > ~/.bash_completion.d/ovsespec
 
 # Uninstall
-openspec completion uninstall
+ovsespec completion uninstall
 ```
 
 ---
@@ -1060,17 +1060,17 @@ openspec completion uninstall
 
 | Variable | Description |
 |----------|-------------|
-| `OPENSPEC_TELEMETRY` | Set to `0` to disable telemetry |
+| `OVSESPEC_TELEMETRY` | Set to `0` to disable telemetry |
 | `DO_NOT_TRACK` | Set to `1` to disable telemetry (standard DNT signal) |
-| `OPENSPEC_CONCURRENCY` | Default concurrency for bulk validation (default: 6) |
-| `EDITOR` or `VISUAL` | Editor for `openspec config edit` |
+| `OVSESPEC_CONCURRENCY` | Default concurrency for bulk validation (default: 6) |
+| `EDITOR` or `VISUAL` | Editor for `ovsespec config edit` |
 | `NO_COLOR` | Disable color output when set |
 
 ---
 
 ## Related Documentation
 
-- [Commands](commands.md) - AI slash commands (`/opsx:propose`, `/opsx:apply`, etc.)
+- [Commands](commands.md) - AI slash commands (`/ovsx:propose`, `/ovsx:apply`, etc.)
 - [Workflows](workflows.md) - Common patterns and when to use each command
 - [Customization](customization.md) - Create custom schemas and templates
 - [Getting Started](getting-started.md) - First-time setup guide

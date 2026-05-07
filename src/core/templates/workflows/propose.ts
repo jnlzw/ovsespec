@@ -6,219 +6,149 @@
  */
 import type { SkillTemplate, CommandTemplate } from '../types.js';
 
-export function getOpsxProposeSkillTemplate(): SkillTemplate {
-  return {
-    name: 'openspec-propose',
-    description: 'Propose a new change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation.',
-    instructions: `Propose a new change - create the change and generate all artifacts in one step.
+const PROPOSE_INSTRUCTIONS = `创建一个新的 OvseSpec 变更，并一次性生成进入实现前所需的计划产物。
 
-I'll create a change with artifacts:
-- proposal.md (what & why)
-- design.md (how)
-- tasks.md (implementation steps)
+保留原命令意图：用户描述想做什么，你负责创建 change，并生成 proposal.md、design.md、tasks.md 等 schema 要求的产物。团队版增强只是在原流程上补充协作信息，不改变“提案”的核心职责。
 
-When ready to implement, run /opsx:apply
+我会创建这些产物：
+- proposal.md：做什么、为什么做
+- design.md：怎么做、关键取舍
+- tasks.md：实现步骤
+
+准备实现时，运行 /ovsx:apply
 
 ---
 
-**Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
+**输入**：\`/ovsx:propose\` 后面的参数可以是 kebab-case 变更名，也可以是用户想构建或修复的自然语言描述。
 
-**Steps**
+**团队协作增强**
 
-1. **If no clear input provided, ask what they want to build**
+- 如果变更涉及多个仓库、模块、服务、接口契约、团队或发布窗口，必须在产物里记录影响范围、协作方、评审/验收路径、迁移或回滚风险。
+- 团队字段采用最小必填集：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff。能确认就填写，不能确认就标为 unknown/TBD 并说明需要谁确认；不要直接省略。
+- 如果用户提到 workspace、多仓、多团队，优先用 \`ovsespec workspace list --json\` 和 \`ovsespec workspace doctor --json\` 获取可用上下文；如果上下文不可用或不明确，向用户询问仓库/模块映射，不要猜。
+- 如果变更涉及 Controller、API route、DTO、request/response schema、错误包装、advmock 或接口契约，必须在 proposal/design/tasks 中保留结构化 API/YAPI 清单，而不是只在对话里说明。
+- API/YAPI 清单至少包含：\`method + path\`、\`program_name\`、\`service_id\`、\`interface_id\`、分类、owner/reviewer、Controller/handler、DTO、request/response、错误包装、Mock/advmock 场景、同步状态或阻塞项。
+- 如果新接口还没有 \`interface_id\`，明确写 \`interface_id: new/unknown\`，并在 tasks.md 加入“创建 YAPI 接口、写入 Mock/advmock、回读 audit”的 checkbox。
+- 不要把机器本地绝对路径写入长期产物，除非用户明确要求。优先使用仓库名、workspace link 名、包名、模块名、服务名。
+- 单仓或个人小改动保持轻量，只在有实际协作价值时补充团队字段。
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+**步骤**
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
+1. **确认目标**
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+   如果没有明确输入，使用 **AskUserQuestion tool**（开放问题，不提供预设选项）询问：
+   > “你想做哪个变更？请描述要构建、修复或调整的内容。”
 
-2. **Create the change directory**
+   从用户描述中推导 kebab-case 变更名，例如 “add user authentication” -> \`add-user-auth\`。
+
+   **重要**：在理解用户目标前不要继续。
+
+2. **创建变更目录**
+
    \`\`\`bash
-   openspec new change "<name>"
+   ovsespec new change "<name>"
    \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\` with \`.openspec.yaml\`.
 
-3. **Get the artifact build order**
+   这会在 \`ovsespec/changes/<name>/\` 下创建带 \`.ovsespec.yaml\` 的变更骨架。
+
+3. **获取产物顺序**
+
    \`\`\`bash
-   openspec status --change "<name>" --json
+   ovsespec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to get:
-   - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
-   - \`artifacts\`: list of all artifacts with their status and dependencies
 
-4. **Create artifacts in sequence until apply-ready**
+   解析 JSON，读取：
+   - \`applyRequires\`：实现前必须完成的产物 ID，例如 \`["tasks"]\`
+   - \`artifacts\`：所有产物的状态和依赖关系
 
-   Use the **TodoWrite tool** to track progress through the artifacts.
+4. **按依赖顺序生成产物，直到实现就绪**
 
-   Loop through artifacts in dependency order (artifacts with no pending dependencies first):
+   使用 **TodoWrite tool** 跟踪产物生成进度。
 
-   a. **For each artifact that is \`ready\` (dependencies satisfied)**:
-      - Get instructions:
+   按依赖顺序循环处理所有 ready 状态的产物：
+
+   a. 对每个 \`ready\` 产物：
+      - 获取说明：
         \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
+        ovsespec instructions <artifact-id> --change "<name>" --json
         \`\`\`
-      - The instructions JSON includes:
-        - \`context\`: Project background (constraints for you - do NOT include in output)
-        - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-        - \`template\`: The structure to use for your output file
-        - \`instruction\`: Schema-specific guidance for this artifact type
-        - \`outputPath\`: Where to write the artifact
-        - \`dependencies\`: Completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using \`template\` as the structure
-      - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
-      - Show brief progress: "Created <artifact-id>"
+      - instructions JSON 包含：
+        - \`context\`：项目背景，作为约束使用，不要复制到输出文件
+        - \`rules\`：产物规则，作为约束使用，不要复制到输出文件
+        - \`template\`：输出文件结构
+        - \`instruction\`：当前 schema 对该产物的具体指导
+        - \`outputPath\`：要写入的路径
+        - \`dependencies\`：需要读取的已完成依赖产物
+      - 读取所有已完成依赖产物作为上下文。
+      - 按 \`template\` 结构创建产物文件。
+      - 遵守 \`context\` 和 \`rules\`，但不要把这些块原样写进文件。
+      - 如果团队信息相关，在合适章节补充：影响 repo/module/service、owner/reviewer、acceptance、协作顺序、契约兼容、发布/迁移/rollback、handoff。
+      - 如果 API/YAPI 相关，在产物里保留同一组结构化字段；proposal.md 放影响和目标接口，design.md 放契约、同步和 Mock/advmock 方案，tasks.md 放实现、测试、YAPI create/update、Mock/advmock、audit 的 checkbox。
+      - PaaS test deploy 不自动并入 apply；如果需要部署验证，在 tasks.md 中写清楚触发 \`/ovsx:paas-test-deploy\` 的前置条件和验证口径。
+      - 简短汇报：\`Created <artifact-id>\`。
 
-   b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
-      - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
-      - Stop when all \`applyRequires\` artifacts are done
+   b. 每创建一个产物后，重新运行：
+      \`\`\`bash
+      ovsespec status --change "<name>" --json
+      \`\`\`
+      当 \`applyRequires\` 中的全部产物都为 \`done\` 时停止。
 
-   c. **If an artifact requires user input** (unclear context):
-      - Use **AskUserQuestion tool** to clarify
-      - Then continue with creation
+   c. 如果产物需要用户输入或团队边界不清楚，使用 **AskUserQuestion tool** 澄清，然后继续。
 
-5. **Show final status**
+5. **展示最终状态**
+
    \`\`\`bash
-   openspec status --change "<name>"
+   ovsespec status --change "<name>"
    \`\`\`
 
-**Output**
+**输出**
 
-After completing all artifacts, summarize:
-- Change name and location
-- List of artifacts created with brief descriptions
-- What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` or ask me to implement to start working on the tasks."
+完成后用中文总结：
+- 变更名和位置
+- 已创建的产物及简要说明
+- 如适用，列出团队协作摘要：影响仓库/模块、owner/reviewer、交接点、发布或契约风险
+- 如适用，列出 API/YAPI 摘要：\`method + path\`、\`service_id/interface_id\`、Mock/advmock 场景、sync/audit 阻塞项
+- 当前状态：“所有实现前产物已完成，可以开始实现。”
+- 提示：“运行 \`/ovsx:apply\` 或直接让我实现，开始处理任务。”
 
-**Artifact Creation Guidelines**
+**产物生成准则**
 
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
-- The schema defines what each artifact should contain - follow it
-- Read dependency artifacts for context before creating new ones
-- Use \`template\` as the structure for your output file - fill in its sections
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output
+- 遵循 \`ovsespec instructions\` 返回的 \`instruction\` 字段。
+- schema 定义产物应该包含什么，就按 schema 写。
+- 生成新产物前必须读取依赖产物。
+- 使用 \`template\` 作为文件结构，并填充实际内容。
+- 保留原有 proposal/design/tasks 的语义；团队增强只补充协作上下文，不把产物改成会议纪要或项目管理文档。
+- **重要**：\`context\` 和 \`rules\` 是给你的约束，不是产物内容。
+  - 不要把 \`<context>\`、\`<rules>\`、\`<project_context>\` 块复制进输出文件。
+  - 它们指导你写什么，但不应该出现在最终文件中。
 
-**Guardrails**
-- Create ALL artifacts needed for implementation (as defined by schema's \`apply.requires\`)
-- Always read dependency artifacts before creating a new one
-- If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, ask if user wants to continue it or create a new one
-- Verify each artifact file exists after writing before proceeding to next`,
+**护栏**
+
+- 创建 schema 的 \`apply.requires\` 定义的所有实现前产物。
+- 始终先读依赖产物，再写新产物。
+- 对关键业务、契约、迁移、跨团队 owner 不明确的地方要询问，不要臆测。
+- 团队或 API/YAPI 信息不完整时，必须在产物中保留 unknown/TBD 和确认对象，不能把缺口藏在对话里。
+- 涉及 API 的 change 必须在 tasks.md 中包含 YAPI create/update、Mock/advmock 和 audit/一致性核对任务。
+- 如果同名变更已存在，询问用户是继续该变更还是创建新变更。
+- 写完每个产物后确认文件存在，再继续下一个。`;
+
+export function getOvsxProposeSkillTemplate(): SkillTemplate {
+  return {
+    name: 'ovsespec-propose',
+    description: '创建新的 OvseSpec 变更，并一次生成实现前所需产物；团队场景会补充影响范围、owner、评审、迁移和交接信息。',
+    instructions: PROPOSE_INSTRUCTIONS,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxProposeCommandTemplate(): CommandTemplate {
+export function getOvsxProposeCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Propose',
-    description: 'Propose a new change - create it and generate all artifacts in one step',
+    name: 'OVSX: Propose',
+    description: '创建新变更并一次生成 proposal、design、tasks；团队场景补充协作上下文',
     category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Propose a new change - create the change and generate all artifacts in one step.
-
-I'll create a change with artifacts:
-- proposal.md (what & why)
-- design.md (how)
-- tasks.md (implementation steps)
-
-When ready to implement, run /opsx:apply
-
----
-
-**Input**: The argument after \`/opsx:propose\` is the change name (kebab-case), OR a description of what the user wants to build.
-
-**Steps**
-
-1. **If no input provided, ask what they want to build**
-
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
-
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
-
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
-
-2. **Create the change directory**
-   \`\`\`bash
-   openspec new change "<name>"
-   \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\` with \`.openspec.yaml\`.
-
-3. **Get the artifact build order**
-   \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to get:
-   - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
-   - \`artifacts\`: list of all artifacts with their status and dependencies
-
-4. **Create artifacts in sequence until apply-ready**
-
-   Use the **TodoWrite tool** to track progress through the artifacts.
-
-   Loop through artifacts in dependency order (artifacts with no pending dependencies first):
-
-   a. **For each artifact that is \`ready\` (dependencies satisfied)**:
-      - Get instructions:
-        \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
-        \`\`\`
-      - The instructions JSON includes:
-        - \`context\`: Project background (constraints for you - do NOT include in output)
-        - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-        - \`template\`: The structure to use for your output file
-        - \`instruction\`: Schema-specific guidance for this artifact type
-        - \`outputPath\`: Where to write the artifact
-        - \`dependencies\`: Completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using \`template\` as the structure
-      - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
-      - Show brief progress: "Created <artifact-id>"
-
-   b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
-      - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
-      - Stop when all \`applyRequires\` artifacts are done
-
-   c. **If an artifact requires user input** (unclear context):
-      - Use **AskUserQuestion tool** to clarify
-      - Then continue with creation
-
-5. **Show final status**
-   \`\`\`bash
-   openspec status --change "<name>"
-   \`\`\`
-
-**Output**
-
-After completing all artifacts, summarize:
-- Change name and location
-- List of artifacts created with brief descriptions
-- What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` to start implementing."
-
-**Artifact Creation Guidelines**
-
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
-- The schema defines what each artifact should contain - follow it
-- Read dependency artifacts for context before creating new ones
-- Use \`template\` as the structure for your output file - fill in its sections
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output
-
-**Guardrails**
-- Create ALL artifacts needed for implementation (as defined by schema's \`apply.requires\`)
-- Always read dependency artifacts before creating a new one
-- If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, ask if user wants to continue it or create a new one
-- Verify each artifact file exists after writing before proceeding to next`
+    tags: ['workflow', 'artifacts', 'team'],
+    content: PROPOSE_INSTRUCTIONS,
   };
 }

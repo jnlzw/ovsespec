@@ -8,33 +8,33 @@ import type { SkillTemplate, CommandTemplate } from '../types.js';
 
 export function getOnboardSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-onboard',
-    description: 'Guided onboarding for OpenSpec - walk through a complete workflow cycle with narration and real codebase work.',
+    name: 'ovsespec-onboard',
+    description: 'Guided onboarding for OvseSpec - walk through a complete workflow cycle with narration and real codebase work.',
     instructions: getOnboardInstructions(),
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
 function getOnboardInstructions(): string {
-  return `Guide the user through their first complete OpenSpec workflow cycle. This is a teaching experience—you'll do real work in their codebase while explaining each step.
+  return `Guide the user through their first complete OvseSpec workflow cycle. This is a teaching experience—you'll do real work in their codebase while explaining each step.
 
 ---
 
 ## Preflight
 
-Before starting, check if the OpenSpec CLI is installed:
+Before starting, check if the OvseSpec CLI is installed:
 
 \`\`\`bash
 # Unix/macOS
-openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
+ovsespec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 # Windows (PowerShell)
-# if (Get-Command openspec -ErrorAction SilentlyContinue) { openspec --version } else { echo "CLI_NOT_INSTALLED" }
+# if (Get-Command ovsespec -ErrorAction SilentlyContinue) { ovsespec --version } else { echo "CLI_NOT_INSTALLED" }
 \`\`\`
 
 **If CLI not installed:**
-> OpenSpec CLI is not installed. Install it first, then come back to \`/opsx:onboard\`.
+> OvseSpec CLI is not installed. Install it first, then come back to \`/ovsx:onboard\`.
 
 Stop here if not installed.
 
@@ -45,7 +45,7 @@ Stop here if not installed.
 Display:
 
 \`\`\`
-## Welcome to OpenSpec!
+## Welcome to OvseSpec!
 
 I'll walk you through a complete change cycle—from idea to implementation—using a real task in your codebase. Along the way, you'll learn the workflow by doing it.
 
@@ -123,7 +123,7 @@ Which task interests you? (Pick a number or describe your own)
 If the user picks or describes something too large (major feature, multi-day work):
 
 \`\`\`
-That's a valuable task, but it's probably larger than ideal for your first OpenSpec run-through.
+That's a valuable task, but it's probably larger than ideal for your first OvseSpec run-through.
 
 For learning the workflow, smaller is better—it lets you see the full cycle without getting stuck in implementation details.
 
@@ -161,7 +161,7 @@ Spend 1-2 minutes investigating the relevant code:
 │   [Optional: ASCII diagram if helpful]  │
 └─────────────────────────────────────────┘
 
-Explore mode (\`/opsx:explore\`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
+Explore mode (\`/ovsx:explore\`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
 
 Now let's create a change to hold our work.
 \`\`\`
@@ -176,23 +176,23 @@ Now let's create a change to hold our work.
 \`\`\`
 ## Creating a Change
 
-A "change" in OpenSpec is a container for all the thinking and planning around a piece of work. It lives in \`openspec/changes/<name>/\` and holds your artifacts—proposal, specs, design, tasks.
+A "change" in OvseSpec is a container for all the thinking and planning around a piece of work. It lives in \`ovsespec/changes/<name>/\` and holds your artifacts—proposal, specs, design, tasks.
 
 Let me create one for our task.
 \`\`\`
 
 **DO:** Create the change with a derived kebab-case name:
 \`\`\`bash
-openspec new change "<derived-name>"
+ovsespec new change "<derived-name>"
 \`\`\`
 
 **SHOW:**
 \`\`\`
-Created: \`openspec/changes/<name>/\`
+Created: \`ovsespec/changes/<name>/\`
 
 The folder structure:
 \`\`\`
-openspec/changes/<name>/
+ovsespec/changes/<name>/
 ├── proposal.md    ← Why we're doing this (empty, we'll fill it)
 ├── design.md      ← How we'll build it (empty)
 ├── specs/         ← Detailed requirements (empty)
@@ -252,9 +252,9 @@ Does this capture the intent? I can adjust before we save it.
 
 After approval, save the proposal:
 \`\`\`bash
-openspec instructions proposal --change "<name>" --json
+ovsespec instructions proposal --change "<name>" --json
 \`\`\`
-Then write the content to \`openspec/changes/<name>/proposal.md\`.
+Then write the content to \`ovsespec/changes/<name>/proposal.md\`.
 
 \`\`\`
 Proposal saved. This is your "why" document—you can always come back and refine it as understanding evolves.
@@ -278,9 +278,9 @@ For a small task like this, we might only need one spec file.
 **DO:** Create the spec file:
 \`\`\`bash
 # Unix/macOS
-mkdir -p openspec/changes/<name>/specs/<capability-name>
+mkdir -p ovsespec/changes/<name>/specs/<capability-name>
 # Windows (PowerShell)
-# New-Item -ItemType Directory -Force -Path "openspec/changes/<name>/specs/<capability-name>"
+# New-Item -ItemType Directory -Force -Path "ovsespec/changes/<name>/specs/<capability-name>"
 \`\`\`
 
 Draft the spec content:
@@ -307,7 +307,7 @@ Here's the spec:
 This format—WHEN/THEN/AND—makes requirements testable. You can literally read them as test cases.
 \`\`\`
 
-Save to \`openspec/changes/<name>/specs/<capability>/spec.md\`.
+Save to \`ovsespec/changes/<name>/specs/<capability>/spec.md\`.
 
 ---
 
@@ -352,7 +352,7 @@ Here's the design:
 For a small task, this captures the key decisions without over-engineering.
 \`\`\`
 
-Save to \`openspec/changes/<name>/design.md\`.
+Save to \`ovsespec/changes/<name>/design.md\`.
 
 ---
 
@@ -390,7 +390,7 @@ Each checkbox becomes a unit of work in the apply phase. Ready to implement?
 
 **PAUSE** - Wait for user to confirm they're ready to implement.
 
-Save to \`openspec/changes/<name>/tasks.md\`.
+Save to \`ovsespec/changes/<name>/tasks.md\`.
 
 ---
 
@@ -434,19 +434,19 @@ The change is implemented! One more step—let's archive it.
 \`\`\`
 ## Archiving
 
-When a change is complete, we archive it. This moves it from \`openspec/changes/\` to \`openspec/changes/archive/YYYY-MM-DD-<name>/\`.
+When a change is complete, we archive it. This moves it from \`ovsespec/changes/\` to \`ovsespec/changes/archive/YYYY-MM-DD-<name>/\`.
 
 Archived changes become your project's decision history—you can always find them later to understand why something was built a certain way.
 \`\`\`
 
 **DO:**
 \`\`\`bash
-openspec archive "<name>"
+ovsespec archive "<name>"
 \`\`\`
 
 **SHOW:**
 \`\`\`
-Archived to: \`openspec/changes/archive/YYYY-MM-DD-<name>/\`
+Archived to: \`ovsespec/changes/archive/YYYY-MM-DD-<name>/\`
 
 The change is now part of your project's history. The code is in your codebase, the decision record is preserved.
 \`\`\`
@@ -458,7 +458,7 @@ The change is now part of your project's history. The code is in your codebase, 
 \`\`\`
 ## Congratulations!
 
-You just completed a full OpenSpec cycle:
+You just completed a full OvseSpec cycle:
 
 1. **Explore** - Thought through the problem
 2. **New** - Created a change container
@@ -479,25 +479,25 @@ This same rhythm works for any size change—a small fix or a major feature.
 
  | Command           | What it does                               |
  |-------------------|--------------------------------------------|
- | \`/opsx:propose\` | Create a change and generate all artifacts |
- | \`/opsx:explore\` | Think through problems before/during work  |
- | \`/opsx:apply\`   | Implement tasks from a change              |
- | \`/opsx:archive\` | Archive a completed change                 |
+ | \`/ovsx:propose\` | Create a change and generate all artifacts |
+ | \`/ovsx:explore\` | Think through problems before/during work  |
+ | \`/ovsx:apply\`   | Implement tasks from a change              |
+ | \`/ovsx:archive\` | Archive a completed change                 |
 
 **Additional commands:**
 
  | Command            | What it does                                             |
  |--------------------|----------------------------------------------------------|
- | \`/opsx:new\`      | Start a new change, step through artifacts one at a time |
- | \`/opsx:continue\` | Continue working on an existing change                   |
- | \`/opsx:ff\`       | Fast-forward: create all artifacts at once               |
- | \`/opsx:verify\`   | Verify implementation matches artifacts                  |
+ | \`/ovsx:new\`      | Start a new change, step through artifacts one at a time |
+ | \`/ovsx:continue\` | Continue working on an existing change                   |
+ | \`/ovsx:ff\`       | Fast-forward: create all artifacts at once               |
+ | \`/ovsx:verify\`   | Verify implementation matches artifacts                  |
 
 ---
 
 ## What's Next?
 
-Try \`/opsx:propose\` on something you actually want to build. You've got the rhythm now!
+Try \`/ovsx:propose\` on something you actually want to build. You've got the rhythm now!
 \`\`\`
 
 ---
@@ -509,11 +509,11 @@ Try \`/opsx:propose\` on something you actually want to build. You've got the rh
 If the user says they need to stop, want to pause, or seem disengaged:
 
 \`\`\`
-No problem! Your change is saved at \`openspec/changes/<name>/\`.
+No problem! Your change is saved at \`ovsespec/changes/<name>/\`.
 
 To pick up where we left off later:
-- \`/opsx:continue <name>\` - Resume artifact creation
-- \`/opsx:apply <name>\` - Jump to implementation (if tasks exist)
+- \`/ovsx:continue <name>\` - Resume artifact creation
+- \`/ovsx:apply <name>\` - Jump to implementation (if tasks exist)
 
 The work won't be lost. Come back whenever you're ready.
 \`\`\`
@@ -525,27 +525,27 @@ Exit gracefully without pressure.
 If the user says they just want to see the commands or skip the tutorial:
 
 \`\`\`
-## OpenSpec Quick Reference
+## OvseSpec Quick Reference
 
 **Core workflow:**
 
  | Command                  | What it does                               |
  |--------------------------|--------------------------------------------|
- | \`/opsx:propose <name>\` | Create a change and generate all artifacts |
- | \`/opsx:explore\`        | Think through problems (no code changes)   |
- | \`/opsx:apply <name>\`   | Implement tasks                            |
- | \`/opsx:archive <name>\` | Archive when done                          |
+ | \`/ovsx:propose <name>\` | Create a change and generate all artifacts |
+ | \`/ovsx:explore\`        | Think through problems (no code changes)   |
+ | \`/ovsx:apply <name>\`   | Implement tasks                            |
+ | \`/ovsx:archive <name>\` | Archive when done                          |
 
 **Additional commands:**
 
  | Command                   | What it does                        |
  |---------------------------|-------------------------------------|
- | \`/opsx:new <name>\`      | Start a new change, step by step    |
- | \`/opsx:continue <name>\` | Continue an existing change         |
- | \`/opsx:ff <name>\`       | Fast-forward: all artifacts at once |
- | \`/opsx:verify <name>\`   | Verify implementation               |
+ | \`/ovsx:new <name>\`      | Start a new change, step by step    |
+ | \`/ovsx:continue <name>\` | Continue an existing change         |
+ | \`/ovsx:ff <name>\`       | Fast-forward: all artifacts at once |
+ | \`/ovsx:verify <name>\`   | Verify implementation               |
 
-Try \`/opsx:propose\` to start your first change.
+Try \`/ovsx:propose\` to start your first change.
 \`\`\`
 
 Exit gracefully.
@@ -563,12 +563,52 @@ Exit gracefully.
 - **Adjust scope gently**—guide toward smaller tasks but respect user choice`;
 }
 
-export function getOpsxOnboardCommandTemplate(): CommandTemplate {
+export function getOvsxOnboardCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Onboard',
-    description: 'Guided onboarding - walk through a complete OpenSpec workflow cycle with narration',
+    name: 'OVSX: Onboard',
+    description: '引导用户完成一次 OvseSpec 工作流练习',
     category: 'Workflow',
     tags: ['workflow', 'onboarding', 'tutorial', 'learning'],
-    content: getOnboardInstructions(),
+    content: `引导用户完成一次 OvseSpec 工作流练习。
+
+保留原命令意图：这不是普通实现命令，而是教学式 walkthrough。你要用真实代码库里的小任务带用户理解从探索、提案、实现到归档的节奏。
+
+**步骤**
+
+1. 检查 OvseSpec CLI 是否可用：
+   \`\`\`bash
+   ovsespec --version
+   \`\`\`
+
+2. 简短说明本次会做什么：选择一个小而真实的任务，创建或查看变更产物，理解任务如何进入实现和归档。
+
+3. 调查代码库，找一个低风险练习任务。不要选择大重构、跨团队高风险变更或需要业务决策的任务。
+
+4. 让用户确认练习任务。用户不同意时，继续找更小的任务或退出。
+
+5. 演示核心命令节奏：
+   - \`/ovsx:explore\`：澄清问题，不写代码。
+   - \`/ovsx:propose\`：创建变更并生成计划产物。
+   - \`/ovsx:apply\`：按 tasks 实现。
+   - \`/ovsx:sync\`：需要时同步 delta specs。
+   - \`/ovsx:archive\`：完成后归档。
+
+6. 每个阶段都用中文说明当前动作和原因，但不要写冗长教程。用户要跳过讲解时，按用户节奏继续。
+
+7. 如果进入实现，保持改动很小，并在完成后更新任务勾选。
+
+8. 结束时总结：
+   - 用户学到了哪些命令
+   - 当前练习变更在哪里
+   - 已完成什么
+   - 后续可以运行哪个命令继续
+
+**护栏**
+
+- onboarding 的目标是教学，不是完成大型功能。
+- 使用真实代码库任务，不要编假例子。
+- 不要强迫用户继续。
+- 任何写代码动作都必须获得用户明确同意。
+- 如果用户只想了解流程，可以只讲解和读取文件，不创建或修改代码。`,
   };
 }

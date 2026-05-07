@@ -6,78 +6,130 @@
  */
 import type { SkillTemplate, CommandTemplate } from '../types.js';
 
-export function getSyncSpecsSkillTemplate(): SkillTemplate {
-  return {
-    name: 'openspec-sync-specs',
-    description: 'Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.',
-    instructions: `Sync delta specs from a change to main specs.
+const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs。
 
-This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
+保留原命令意图：这是一次 agent-driven 的 specs 合并操作。你需要读取变更里的 delta spec，并直接编辑主 spec，把新增、修改、删除、重命名的需求合并进去。团队版增强只是在同步时补充影响范围、owner/reviewer 和契约风险说明，不改变“同步 specs”的核心职责。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可以指定变更名，例如 \`/ovsx:sync add-auth\`。如果省略，先尝试从上下文推断；如果模糊，必须让用户选择。
 
-**Steps**
+**团队协作增强**
 
-1. **If no change name provided, prompt for selection**
+- 同步前识别每个 capability 的 owner、reviewer、影响模块、契约消费者和发布/迁移风险；证据不足时明确标注未知或询问用户。
+- 优先读取 proposal/design/tasks 中的结构化团队字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff；同步摘要里保留这些字段的当前状态。
+- 对跨团队 shared contract、API、数据模型、权限、计费、兼容性等变更，合并时保留意图，不要把 delta 当成整段覆盖。
+- 如果 capability 涉及 Controller、API route、request/response schema、错误包装、advmock 或外部消费者，必须把 YAPI 同步纳入本次 sync 摘要。
+- YAPI 同步需要识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、分类、owner/reviewer 和文档质量状态。证据不足时标注 unknown 或询问用户，不要猜。
+- 如果 change artifacts 已有 API/YAPI 清单，必须用它作为核对入口；如果代码/spec 与清单不一致，先在 sync 摘要列出差异，不能静默覆盖。
+- 同步阶段必须再次执行 YAPI sync 或生成明确的 YAPI sync plan，并核对 YAPI 与代码/spec 是否一致；不能只说“需要同步”。
+- 不要把机器本地路径写入主 specs；使用 capability、仓库名、服务名、模块名或 workspace link 名。
+- 同步结果要便于评审：说明哪些 capability 变了、为什么变、谁可能需要 review，以及哪些 YAPI 接口已同步、需审计或被阻塞。
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+**步骤**
 
-   Show changes that have delta specs (under \`specs/\` directory).
+1. **选择变更**
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+   如果没有明确变更名，运行：
 
-2. **Find delta specs**
+   \`\`\`bash
+   ovsespec list --json
+   \`\`\`
 
-   Look for delta spec files in \`openspec/changes/<name>/specs/*/spec.md\`.
+   用 **AskUserQuestion tool** 让用户选择。优先展示包含 \`specs/\` delta specs 的 active changes。
 
-   Each delta spec file contains sections like:
-   - \`## ADDED Requirements\` - New requirements to add
-   - \`## MODIFIED Requirements\` - Changes to existing requirements
-   - \`## REMOVED Requirements\` - Requirements to remove
-   - \`## RENAMED Requirements\` - Requirements to rename (FROM:/TO: format)
+   **重要**：不要在多个候选之间猜测。
 
-   If no delta specs found, inform user and stop.
+2. **查找 delta specs**
 
-3. **For each delta spec, apply changes to main specs**
+   查找：
 
-   For each capability with a delta spec at \`openspec/changes/<name>/specs/<capability>/spec.md\`:
+   \`\`\`
+   ovsespec/changes/<name>/specs/*/spec.md
+   \`\`\`
 
-   a. **Read the delta spec** to understand the intended changes
+   delta spec 通常包含：
+   - \`## ADDED Requirements\`：新增需求
+   - \`## MODIFIED Requirements\`：修改已有需求
+   - \`## REMOVED Requirements\`：移除需求
+   - \`## RENAMED Requirements\`：重命名需求，使用 FROM/TO 格式
 
-   b. **Read the main spec** at \`openspec/specs/<capability>/spec.md\` (may not exist yet)
+   如果没有 delta specs，告知用户并停止。
 
-   c. **Apply changes intelligently**:
+3. **逐个 capability 合并到主 specs**
 
-      **ADDED Requirements:**
-      - If requirement doesn't exist in main spec → add it
-      - If requirement already exists → update it to match (treat as implicit MODIFIED)
+   对每个 \`ovsespec/changes/<name>/specs/<capability>/spec.md\`：
 
-      **MODIFIED Requirements:**
-      - Find the requirement in main spec
-      - Apply the changes - this can be:
-        - Adding new scenarios (don't need to copy existing ones)
-        - Modifying existing scenarios
-        - Changing the requirement description
-      - Preserve scenarios/content not mentioned in the delta
+   a. 读取 delta spec，理解变更意图。
 
-      **REMOVED Requirements:**
-      - Remove the entire requirement block from main spec
+   b. 读取主 spec：
 
-      **RENAMED Requirements:**
-      - Find the FROM requirement, rename to TO
+      \`\`\`
+      ovsespec/specs/<capability>/spec.md
+      \`\`\`
 
-   d. **Create new main spec** if capability doesn't exist yet:
-      - Create \`openspec/specs/<capability>/spec.md\`
-      - Add Purpose section (can be brief, mark as TBD)
-      - Add Requirements section with the ADDED requirements
+      如果主 spec 不存在，准备创建。
 
-4. **Show summary**
+   c. 智能合并：
 
-   After applying all changes, summarize:
-   - Which capabilities were updated
-   - What changes were made (requirements added/modified/removed/renamed)
+      **ADDED Requirements**
+      - 主 spec 不存在该 requirement 时新增。
+      - 主 spec 已存在时，按隐式 MODIFIED 处理，更新到合理状态。
 
-**Delta Spec Format Reference**
+      **MODIFIED Requirements**
+      - 在主 spec 中找到对应 requirement。
+      - 只应用 delta 表达的变化，例如新增 scenario、修改某个 scenario、调整描述。
+      - 保留 delta 未提及的已有内容。
+
+      **REMOVED Requirements**
+      - 从主 spec 中移除整个 requirement block。
+
+      **RENAMED Requirements**
+      - 找到 FROM requirement，并重命名为 TO。
+
+   d. 如果 capability 不存在，创建新的主 spec：
+      - 创建 \`ovsespec/specs/<capability>/spec.md\`
+      - 添加简洁 Purpose
+      - 添加 ADDED requirements
+
+   e. 如果该 capability 影响其他团队或消费者，在合并结果中保留清晰语义，并在最终摘要中标出 review 建议。
+
+4. **同步或规划 YAPI 文档**
+
+   对每个涉及 API/interface contract 的 capability：
+   - 从 delta spec、主 spec、design、tasks 和代码中提取接口变化。
+   - 读取 proposal/design/tasks 中的 API/YAPI 清单，核对是否覆盖所有受影响接口；缺字段时标注 unknown/TBD 和确认对象。
+   - 定位对应 Controller/handler、DTO、request/response、错误包装和 auth/permission 行为。
+   - 定位 YAPI 目标：\`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`。
+   - 如果当前环境有 YAPI tooling（例如 yapi-mcp 或等价能力），再次执行本地代码到 YAPI 的 sync：按 \`method + path\` 不存在则创建接口，存在则更新接口，并在写入后做 audit/质量检查。
+   - 同步后重新拉取 YAPI interface info，逐项核对代码/spec 与 YAPI 是否一致。
+   - 对涉及 mock 的接口，重新拉取 advmock list，确认默认成功响应和 spec 指定场景已经存在；缺失时补充或记录阻塞。
+   - 如果 YAPI tooling 不可用，或缺少必要目标信息，不要伪造成功；输出精确阻塞项和待执行的 YAPI sync/audit 清单。
+
+   YAPI 写入规则：
+   - 使用 \`method + path\` 作为唯一匹配键，不要仅凭分类、标题或模糊名称覆盖接口。
+   - 不要合并别名路由，除非项目明确声明为同一公开接口。
+   - 请求参数、响应结构、错误包装、snake_case/camelCase、可选/必填、枚举和 example 必须以代码和 spec 为准。
+   - advmock 只在 change 明确涉及 mock 期望时处理；不要把单测 mock、MSW、本地 stub 当成 YAPI advmock。
+   - 不要输出 token、cookie、私有网关地址或其他 secret。
+
+   一致性核对至少覆盖：
+   - \`service_id/program_name\` 是否是预期写入目标
+   - \`method + path\` 是否一致
+   - query/path/header/body 参数、必填、类型、枚举、描述是否一致
+   - response schema、wrapper、错误响应、状态码是否一致
+   - YAPI status 是否符合实现状态
+   - advmock 是否覆盖默认成功响应和 spec 指定场景
+
+5. **展示同步摘要**
+
+   用中文总结：
+   - 更新了哪些 capabilities
+   - 新增/修改/移除/重命名了哪些 requirements
+   - 是否创建了新的主 spec
+   - 如适用，列出 owner/reviewer、影响消费者、契约或发布风险
+   - 如适用，列出 acceptance、rollback、handoff 和 PaaS test deploy 是否需要单独执行
+   - 如适用，列出 YAPI 状态：已创建、已更新、已审计、一致性核对结果、Mock/advmock 状态、待同步、阻塞原因、涉及的 \`service_id/interface_id/method + path\`
+
+**Delta spec 格式参考**
 
 \`\`\`markdown
 ## ADDED Requirements
@@ -106,175 +158,69 @@ The system SHALL do something new.
 - TO: \`### Requirement: New Name\`
 \`\`\`
 
-**Key Principle: Intelligent Merging**
+**关键原则：智能合并**
 
-Unlike programmatic merging, you can apply **partial updates**:
-- To add a scenario, just include that scenario under MODIFIED - don't copy existing scenarios
-- The delta represents *intent*, not a wholesale replacement
-- Use your judgment to merge changes sensibly
+- delta 表达的是意图，不是整文件替换。
+- 增加一个 scenario 时，只把该 scenario 合并进去，不要重写整个 requirement。
+- 保留主 spec 中 delta 未提及的有效内容。
+- 同步操作应尽量幂等，重复执行不应产生重复内容。
 
-**Output On Success**
+**成功输出示例**
 
 \`\`\`
-## Specs Synced: <change-name>
+## Specs 已同步：<change-name>
 
-Updated main specs:
+更新的主 specs：
 
-**<capability-1>**:
-- Added requirement: "New Feature"
-- Modified requirement: "Existing Feature" (added 1 scenario)
+**<capability-1>**
+- 新增 requirement: "New Feature"
+- 修改 requirement: "Existing Feature"（新增 1 个 scenario）
+- 评审: <owner/reviewer 或未知>
 
-**<capability-2>**:
-- Created new spec file
-- Added requirement: "Another Feature"
+**<capability-2>**
+- 创建新的 spec 文件
+- 新增 requirement: "Another Feature"
 
-Main specs are now updated. The change remains active - archive when implementation is complete.
+YAPI:
+- 已创建: GET /api/example (\`interface_id=<id>\`)
+- 已更新: POST /api/example (\`interface_id=<id>\`)
+- 一致性: 2/2 与代码/spec 一致
+- Mock: 默认成功响应已存在，空数据场景已新增
+- 待处理: POST /api/example 缺少 service_id，需 owner 确认
+
+变更仍保持 active。实现完成后可运行 /ovsx:archive。
 \`\`\`
 
-**Guardrails**
-- Read both delta and main specs before making changes
-- Preserve existing content not mentioned in delta
-- If something is unclear, ask for clarification
-- Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result`,
+**护栏**
+
+- 修改主 specs 前必须同时读取 delta spec 和现有主 spec。
+- 保留 delta 未提及的现有内容。
+- 不清楚时先询问或明确标注未知，不要编造 owner、reviewer 或消费者。
+- 同步摘要必须保留 team/API 结构化字段的状态，未知字段写 unknown/TBD，不能省略。
+- API/interface contract 相关 capability 必须输出 YAPI 状态；不能同步时要说明缺失的 \`program_name/service_id/interface_id/method + path\`。
+- YAPI 写入后要重新拉取 interface info 做一致性核对，并做 audit 或质量检查；无法检查时说明原因。
+- Sync 阶段必须再次确认 YAPI 与代码/spec 是否一致，发现差异要逐项列出，不要把 specs 已同步等同于 YAPI 已一致。
+- 涉及 mock 的接口必须检查 advmock；缺少默认成功响应或 spec 指定场景时，要补充或标记阻塞。
+- 展示你正在改什么。
+- 保持幂等，避免重复 requirement 或 scenario。`;
+
+export function getSyncSpecsSkillTemplate(): SkillTemplate {
+  return {
+    name: 'ovsespec-sync-specs',
+    description: '把变更中的 delta specs 同步到主 specs；团队场景会补充 owner、reviewer、消费者和契约风险摘要。',
+    instructions: SYNC_INSTRUCTIONS,
     license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    compatibility: 'Requires ovsespec CLI.',
+    metadata: { author: 'ovsespec', version: '1.0' },
   };
 }
 
-export function getOpsxSyncCommandTemplate(): CommandTemplate {
+export function getOvsxSyncCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Sync',
-    description: 'Sync delta specs from a change to main specs',
+    name: 'OVSX: Sync',
+    description: '把 delta specs 合并到主 specs，并输出团队评审和影响范围摘要',
     category: 'Workflow',
-    tags: ['workflow', 'specs', 'experimental'],
-    content: `Sync delta specs from a change to main specs.
-
-This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
-
-**Input**: Optionally specify a change name after \`/opsx:sync\` (e.g., \`/opsx:sync add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
-
-**Steps**
-
-1. **If no change name provided, prompt for selection**
-
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
-
-   Show changes that have delta specs (under \`specs/\` directory).
-
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
-
-2. **Find delta specs**
-
-   Look for delta spec files in \`openspec/changes/<name>/specs/*/spec.md\`.
-
-   Each delta spec file contains sections like:
-   - \`## ADDED Requirements\` - New requirements to add
-   - \`## MODIFIED Requirements\` - Changes to existing requirements
-   - \`## REMOVED Requirements\` - Requirements to remove
-   - \`## RENAMED Requirements\` - Requirements to rename (FROM:/TO: format)
-
-   If no delta specs found, inform user and stop.
-
-3. **For each delta spec, apply changes to main specs**
-
-   For each capability with a delta spec at \`openspec/changes/<name>/specs/<capability>/spec.md\`:
-
-   a. **Read the delta spec** to understand the intended changes
-
-   b. **Read the main spec** at \`openspec/specs/<capability>/spec.md\` (may not exist yet)
-
-   c. **Apply changes intelligently**:
-
-      **ADDED Requirements:**
-      - If requirement doesn't exist in main spec → add it
-      - If requirement already exists → update it to match (treat as implicit MODIFIED)
-
-      **MODIFIED Requirements:**
-      - Find the requirement in main spec
-      - Apply the changes - this can be:
-        - Adding new scenarios (don't need to copy existing ones)
-        - Modifying existing scenarios
-        - Changing the requirement description
-      - Preserve scenarios/content not mentioned in the delta
-
-      **REMOVED Requirements:**
-      - Remove the entire requirement block from main spec
-
-      **RENAMED Requirements:**
-      - Find the FROM requirement, rename to TO
-
-   d. **Create new main spec** if capability doesn't exist yet:
-      - Create \`openspec/specs/<capability>/spec.md\`
-      - Add Purpose section (can be brief, mark as TBD)
-      - Add Requirements section with the ADDED requirements
-
-4. **Show summary**
-
-   After applying all changes, summarize:
-   - Which capabilities were updated
-   - What changes were made (requirements added/modified/removed/renamed)
-
-**Delta Spec Format Reference**
-
-\`\`\`markdown
-## ADDED Requirements
-
-### Requirement: New Feature
-The system SHALL do something new.
-
-#### Scenario: Basic case
-- **WHEN** user does X
-- **THEN** system does Y
-
-## MODIFIED Requirements
-
-### Requirement: Existing Feature
-#### Scenario: New scenario to add
-- **WHEN** user does A
-- **THEN** system does B
-
-## REMOVED Requirements
-
-### Requirement: Deprecated Feature
-
-## RENAMED Requirements
-
-- FROM: \`### Requirement: Old Name\`
-- TO: \`### Requirement: New Name\`
-\`\`\`
-
-**Key Principle: Intelligent Merging**
-
-Unlike programmatic merging, you can apply **partial updates**:
-- To add a scenario, just include that scenario under MODIFIED - don't copy existing scenarios
-- The delta represents *intent*, not a wholesale replacement
-- Use your judgment to merge changes sensibly
-
-**Output On Success**
-
-\`\`\`
-## Specs Synced: <change-name>
-
-Updated main specs:
-
-**<capability-1>**:
-- Added requirement: "New Feature"
-- Modified requirement: "Existing Feature" (added 1 scenario)
-
-**<capability-2>**:
-- Created new spec file
-- Added requirement: "Another Feature"
-
-Main specs are now updated. The change remains active - archive when implementation is complete.
-\`\`\`
-
-**Guardrails**
-- Read both delta and main specs before making changes
-- Preserve existing content not mentioned in delta
-- If something is unclear, ask for clarification
-- Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result`
+    tags: ['workflow', 'specs', 'team'],
+    content: SYNC_INSTRUCTIONS,
   };
 }

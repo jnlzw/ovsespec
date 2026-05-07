@@ -15,8 +15,8 @@ export class ZshInstaller {
    * Markers for .zshrc configuration management
    */
   private readonly ZSHRC_MARKERS = {
-    start: '# OPENSPEC:START',
-    end: '# OPENSPEC:END',
+    start: '# OVSESPEC:START',
+    end: '# OVSESPEC:END',
   };
 
   constructor(homeDir: string = os.homedir()) {
@@ -29,9 +29,19 @@ export class ZshInstaller {
    * @returns true if Oh My Zsh is detected via $ZSH env var or directory exists
    */
   async isOhMyZshInstalled(): Promise<boolean> {
-    // First check for $ZSH environment variable (standard OMZ setup)
     if (process.env.ZSH) {
-      return true;
+      const zshPath = path.resolve(process.env.ZSH);
+      const homePath = path.resolve(this.homeDir);
+      const zshIsUnderHome = zshPath === homePath || zshPath.startsWith(`${homePath}${path.sep}`);
+
+      if (zshIsUnderHome) {
+        try {
+          const stat = await fs.stat(zshPath);
+          return stat.isDirectory();
+        } catch {
+          return false;
+        }
+      }
     }
 
     // Fall back to checking for ~/.oh-my-zsh directory
@@ -56,13 +66,13 @@ export class ZshInstaller {
     if (isOhMyZsh) {
       // Oh My Zsh custom completions directory
       return {
-        path: path.join(this.homeDir, '.oh-my-zsh', 'custom', 'completions', '_openspec'),
+        path: path.join(this.homeDir, '.oh-my-zsh', 'custom', 'completions', '_ovsespec'),
         isOhMyZsh: true,
       };
     } else {
       // Standard Zsh completions directory
       return {
-        path: path.join(this.homeDir, '.zsh', 'completions', '_openspec'),
+        path: path.join(this.homeDir, '.zsh', 'completions', '_ovsespec'),
         isOhMyZsh: false,
       };
     }
@@ -105,7 +115,7 @@ export class ZshInstaller {
    */
   private generateZshrcConfig(completionsDir: string): string {
     return [
-      '# OpenSpec shell completions configuration',
+      '# OvseSpec shell completions configuration',
       `fpath=("${completionsDir}" $fpath)`,
       'autoload -Uz compinit',
       'compinit',
@@ -121,7 +131,7 @@ export class ZshInstaller {
    */
   async configureZshrc(completionsDir: string): Promise<boolean> {
     // Check if auto-configuration is disabled
-    if (process.env.OPENSPEC_NO_AUTO_CONFIG === '1') {
+    if (process.env.OVSESPEC_NO_AUTO_CONFIG === '1') {
       return false;
     }
 
@@ -152,7 +162,7 @@ export class ZshInstaller {
   }
 
   /**
-   * Check if .zshrc has OpenSpec configuration markers
+   * Check if .zshrc has OvseSpec configuration markers
    *
    * @returns true if .zshrc exists and has markers
    */
@@ -410,7 +420,7 @@ export class ZshInstaller {
         messages.push(`Completion script removed from ${targetPath}`);
       }
       if (zshrcCleaned && !isOhMyZsh) {
-        messages.push('Removed OpenSpec configuration from ~/.zshrc');
+        messages.push('Removed OvseSpec configuration from ~/.zshrc');
       }
 
       return {

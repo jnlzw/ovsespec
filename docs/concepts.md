@@ -1,10 +1,10 @@
 # Concepts
 
-This guide explains the core ideas behind OpenSpec and how they fit together. For practical usage, see [Getting Started](getting-started.md) and [Workflows](workflows.md).
+This guide explains the core ideas behind OvseSpec and how they fit together. For practical usage, see [Getting Started](getting-started.md) and [Workflows](workflows.md).
 
 ## Philosophy
 
-OpenSpec is built around four principles:
+OvseSpec is built around four principles:
 
 ```
 fluid not rigid         — no phase gates, work on what makes sense
@@ -15,21 +15,21 @@ brownfield-first        — works with existing codebases, not just greenfield
 
 ### Why These Principles Matter
 
-**Fluid not rigid.** Traditional spec systems lock you into phases: first you plan, then you implement, then you're done. OpenSpec is more flexible — you can create artifacts in any order that makes sense for your work.
+**Fluid not rigid.** Traditional spec systems lock you into phases: first you plan, then you implement, then you're done. OvseSpec is more flexible — you can create artifacts in any order that makes sense for your work.
 
-**Iterative not waterfall.** Requirements change. Understanding deepens. What seemed like a good approach at the start might not hold up after you see the codebase. OpenSpec embraces this reality.
+**Iterative not waterfall.** Requirements change. Understanding deepens. What seemed like a good approach at the start might not hold up after you see the codebase. OvseSpec embraces this reality.
 
-**Easy not complex.** Some spec frameworks require extensive setup, rigid formats, or heavyweight processes. OpenSpec stays out of your way. Initialize in seconds, start working immediately, customize only if you need to.
+**Easy not complex.** Some spec frameworks require extensive setup, rigid formats, or heavyweight processes. OvseSpec stays out of your way. Initialize in seconds, start working immediately, customize only if you need to.
 
-**Brownfield-first.** Most software work isn't building from scratch — it's modifying existing systems. OpenSpec's delta-based approach makes it easy to specify changes to existing behavior, not just describe new systems.
+**Brownfield-first.** Most software work isn't building from scratch — it's modifying existing systems. OvseSpec's delta-based approach makes it easy to specify changes to existing behavior, not just describe new systems.
 
 ## The Big Picture
 
-OpenSpec organizes your work into two main areas:
+OvseSpec organizes your work into two main areas:
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                        openspec/                                   │
+│                        ovsespec/                                   │
 │                                                                    │
 │   ┌─────────────────────┐      ┌───────────────────────────────┐   │
 │   │       specs/        │      │         changes/              │   │
@@ -55,7 +55,7 @@ Workspace support is under active development and is not ready for use yet. Do n
 
 The commands below provide the first setup flow for planning across linked repos or folders.
 
-Repo-local OpenSpec projects are the right default when one repo owns the planning, implementation, and archive flow. Some work spans several repos or folders. For that case, an OpenSpec coordination workspace is the durable planning home.
+Repo-local OvseSpec projects are the right default when one repo owns the planning, implementation, and archive flow. Some work spans several repos or folders. For that case, an OvseSpec coordination workspace is the durable planning home.
 
 The workspace mental model is:
 
@@ -70,26 +70,26 @@ A workspace has a different shape from a repo-local project:
 ```text
 workspace-folder/
 ├── changes/                       # Workspace-level planning
-└── .openspec-workspace/
+└── .ovsespec-workspace/
     ├── workspace.yaml             # Shared workspace identity and link names
     └── local.yaml                 # This machine's local paths
 ```
 
-Repo-local OpenSpec state keeps the existing shape:
+Repo-local OvseSpec state keeps the existing shape:
 
 ```text
 repo-root/
-└── openspec/
+└── ovsespec/
     ├── specs/
     └── changes/
 ```
 
-That distinction matters. The workspace folder is a coordination surface for planning across linked repos or folders. Each repo's `openspec/` directory remains the home for repo-owned specs, repo-local changes, and implementation planning. Users do not need to run repo-local `openspec init` inside a workspace folder.
+That distinction matters. The workspace folder is a coordination surface for planning across linked repos or folders. Each repo's `ovsespec/` directory remains the home for repo-owned specs, repo-local changes, and implementation planning. Users do not need to run repo-local `ovsespec init` inside a workspace folder.
 
-Stable link names are how workspace planning refers to repos and folders. The shared workspace state keeps names such as `api`, `web`, or `checkout`; each machine maps those names to its own local paths in `.openspec-workspace/local.yaml`.
+Stable link names are how workspace planning refers to repos and folders. The shared workspace state keeps names such as `api`, `web`, or `checkout`; each machine maps those names to its own local paths in `.ovsespec-workspace/local.yaml`.
 
 ```yaml
-# .openspec-workspace/workspace.yaml
+# .ovsespec-workspace/workspace.yaml
 version: 1
 name: platform
 links:
@@ -98,16 +98,16 @@ links:
 ```
 
 ```yaml
-# .openspec-workspace/local.yaml
+# .ovsespec-workspace/local.yaml
 version: 1
 paths:
   api: /repos/api
   web: /repos/web
 ```
 
-OpenSpec-created workspaces exclude `.openspec-workspace/local.yaml` from portable collaboration state by default. `.openspec-workspace/workspace.yaml` remains portable because it stores the workspace name and stable link names, not one user's absolute checkout paths.
+OvseSpec-created workspaces exclude `.ovsespec-workspace/local.yaml` from portable collaboration state by default. `.ovsespec-workspace/workspace.yaml` remains portable because it stores the workspace name and stable link names, not one user's absolute checkout paths.
 
-Linked paths can be full repos, folders inside a large monorepo, or other existing folders. They do not need repo-local `openspec/` state before they can participate in workspace planning. Later implementation, verify, or archive workflows may require more repo readiness, but planning visibility starts with the link.
+Linked paths can be full repos, folders inside a large monorepo, or other existing folders. They do not need repo-local `ovsespec/` state before they can participate in workspace planning. Later implementation, verify, or archive workflows may require more repo readiness, but planning visibility starts with the link.
 
 ```text
 multi-repo:
@@ -119,64 +119,64 @@ large monorepo:
   checkout -> /repos/platform/apps/checkout
 ```
 
-Managed workspaces live under the standard OpenSpec data directory:
+Managed workspaces live under the standard OvseSpec data directory:
 
 ```text
 getGlobalDataDir()/workspaces
 ```
 
-That means `$XDG_DATA_HOME/openspec/workspaces` when `XDG_DATA_HOME` is set, `~/.local/share/openspec/workspaces` on Unix-style fallback, and `%LOCALAPPDATA%\openspec\workspaces` on native Windows fallback. Native Windows shells, PowerShell, and WSL2 each keep the path strings for the runtime running OpenSpec. This foundation does not translate between `D:\repo`, `/mnt/d/repo`, and UNC WSL paths.
+That means `$XDG_DATA_HOME/ovsespec/workspaces` when `XDG_DATA_HOME` is set, `~/.local/share/ovsespec/workspaces` on Unix-style fallback, and `%LOCALAPPDATA%\ovsespec\workspaces` on native Windows fallback. Native Windows shells, PowerShell, and WSL2 each keep the path strings for the runtime running OvseSpec. This foundation does not translate between `D:\repo`, `/mnt/d/repo`, and UNC WSL paths.
 
-OpenSpec also keeps a machine-local registry at:
+OvseSpec also keeps a machine-local registry at:
 
 ```text
 getGlobalDataDir()/workspaces/registry.yaml
 ```
 
-The registry maps workspace names to workspace locations so later global commands can list or select known workspaces from anywhere. It is only an index. Each workspace folder remains authoritative for its own `.openspec-workspace/workspace.yaml` and `.openspec-workspace/local.yaml`, so stale registry records can be reported and repaired without redefining the workspace itself.
+The registry maps workspace names to workspace locations so later global commands can list or select known workspaces from anywhere. It is only an index. Each workspace folder remains authoritative for its own `.ovsespec-workspace/workspace.yaml` and `.ovsespec-workspace/local.yaml`, so stale registry records can be reported and repaired without redefining the workspace itself.
 
-Workspace visibility is not change commitment. Set up a workspace when OpenSpec should know which repos or folders are relevant; create a change later when you are ready to plan a feature, fix, project, or other piece of work.
+Workspace visibility is not change commitment. Set up a workspace when OvseSpec should know which repos or folders are relevant; create a change later when you are ready to plan a feature, fix, project, or other piece of work.
 
 Useful commands:
 
 ```bash
 # Guided setup
-openspec workspace setup
+ovsespec workspace setup
 
 # Automation-friendly setup
-openspec workspace setup --no-interactive --name platform --link /repos/api --link web=/repos/web
-openspec workspace setup --no-interactive --name platform --link /repos/api --opener codex
+ovsespec workspace setup --no-interactive --name platform --link /repos/api --link web=/repos/web
+ovsespec workspace setup --no-interactive --name platform --link /repos/api --opener codex
 
 # See known workspaces from the local registry
-openspec workspace list
-openspec workspace ls
+ovsespec workspace list
+ovsespec workspace ls
 
 # Add or repair links for the selected workspace
-openspec workspace link /repos/api
-openspec workspace link api-service /repos/api
-openspec workspace relink api-service /new/path/to/api
+ovsespec workspace link /repos/api
+ovsespec workspace link api-service /repos/api
+ovsespec workspace relink api-service /new/path/to/api
 
 # Check what this machine can resolve
-openspec workspace doctor
-openspec workspace doctor --workspace platform
+ovsespec workspace doctor
+ovsespec workspace doctor --workspace platform
 
 # Open the linked working set
-openspec workspace open
-openspec workspace open platform --agent github-copilot
-openspec workspace open --editor
+ovsespec workspace open
+ovsespec workspace open platform --agent github-copilot
+ovsespec workspace open --editor
 ```
 
 `workspace setup` always creates the workspace in the standard workspace location, records it in the local registry, shows the workspace location, and requires at least one linked repo or folder. Interactive setup asks for a preferred opener. Non-interactive setup stores one only when `--opener codex`, `--opener claude`, `--opener github-copilot`, or `--opener editor` is provided.
 
-OpenSpec also maintains root workspace open files: an OpenSpec-managed guidance block in `AGENTS.md`, a machine-local `<workspace-name>.code-workspace` file for VS Code and GitHub Copilot-in-VS-Code opens, and a specific ignore entry for that maintained `.code-workspace` file. User-authored `*.code-workspace` files remain trackable because the ignore rule targets only the maintained file.
+OvseSpec also maintains root workspace open files: an OvseSpec-managed guidance block in `AGENTS.md`, a machine-local `<workspace-name>.code-workspace` file for VS Code and GitHub Copilot-in-VS-Code opens, and a specific ignore entry for that maintained `.code-workspace` file. User-authored `*.code-workspace` files remain trackable because the ignore rule targets only the maintained file.
 
 The maintained VS Code workspace includes the coordination root as `.` plus valid linked repos or folders as additional roots. VS Code displays those entries as a multi-root workspace.
 
 `workspace open` opens the linked working set with the stored preferred opener unless `--agent <tool>` or `--editor` is passed for that one session. Passing both opener overrides is an error. Root workspace open makes linked repos and folders visible for exploration and planning; implementation starts after the user explicitly asks for implementation work.
 
-`workspace link` and `workspace relink` record existing folders only; they do not create, copy, move, initialize, or edit the linked repo or folder. After a successful link or relink, OpenSpec refreshes the managed guidance, VS Code workspace file, and ignore rule.
+`workspace link` and `workspace relink` record existing folders only; they do not create, copy, move, initialize, or edit the linked repo or folder. After a successful link or relink, OvseSpec refreshes the managed guidance, VS Code workspace file, and ignore rule.
 
-Workspace commands that need one workspace can run from anywhere with `--workspace <name>`. If you run them inside a workspace folder or subdirectory, OpenSpec uses that current workspace. If several known workspaces are available and you do not pass `--workspace <name>`, human commands show a picker; `--json` and `--no-interactive` fail with a structured status error instead of prompting.
+Workspace commands that need one workspace can run from anywhere with `--workspace <name>`. If you run them inside a workspace folder or subdirectory, OvseSpec uses that current workspace. If several known workspaces are available and you do not pass `--workspace <name>`, human commands show a picker; `--json` and `--no-interactive` fail with a structured status error instead of prompting.
 
 Direct workspace commands support JSON output for scripts. JSON responses keep primary data in `workspace`, `workspaces`, or `link` objects and report warnings or errors in `status` arrays. Healthy objects use `status: []`.
 
@@ -187,7 +187,7 @@ Specs describe your system's behavior using structured requirements and scenario
 ### Structure
 
 ```
-openspec/specs/
+ovsespec/specs/
 ├── auth/
 │   └── spec.md           # Authentication behavior
 ├── payments/
@@ -285,7 +285,7 @@ Quick test:
 
 ### Keep It Lightweight: Progressive Rigor
 
-OpenSpec aims to avoid bureaucracy. Use the lightest level that still makes the change verifiable.
+OvseSpec aims to avoid bureaucracy. Use the lightest level that still makes the change verifiable.
 
 **Lite spec (default):**
 - Short behavior-first requirements
@@ -317,11 +317,11 @@ A change is a proposed modification to your system, packaged as a folder with ev
 ### Change Structure
 
 ```
-openspec/changes/add-dark-mode/
+ovsespec/changes/add-dark-mode/
 ├── proposal.md           # Why and what
 ├── design.md             # How (technical approach)
 ├── tasks.md              # Implementation checklist
-├── .openspec.yaml        # Change metadata (optional)
+├── .ovsespec.yaml        # Change metadata (optional)
 └── specs/                # Delta specs
     └── ui/
         └── spec.md       # What's changing in ui/spec.md
@@ -476,7 +476,7 @@ Tasks are the **implementation checklist** — concrete steps with checkboxes.
 
 ## Delta Specs
 
-Delta specs are the key concept that makes OpenSpec work for brownfield development. They describe **what's changing** rather than restating the entire spec.
+Delta specs are the key concept that makes OvseSpec work for brownfield development. They describe **what's changing** rather than restating the entire spec.
 
 ### The Format
 
@@ -542,7 +542,7 @@ Schemas define the artifact types and their dependencies for a workflow.
 ### How Schemas Work
 
 ```yaml
-# openspec/schemas/spec-driven/schema.yaml
+# ovsespec/schemas/spec-driven/schema.yaml
 name: spec-driven
 artifacts:
   - id: proposal
@@ -603,16 +603,16 @@ Create custom schemas for your team's workflow:
 
 ```bash
 # Create from scratch
-openspec schema init research-first
+ovsespec schema init research-first
 
 # Or fork an existing one
-openspec schema fork spec-driven research-first
+ovsespec schema fork spec-driven research-first
 ```
 
 **Example custom schema:**
 
 ```yaml
-# openspec/schemas/research-first/schema.yaml
+# ovsespec/schemas/research-first/schema.yaml
 name: research-first
 artifacts:
   - id: research
@@ -639,7 +639,7 @@ Archiving completes a change by merging its delta specs into the main specs and 
 ```
 Before archive:
 
-openspec/
+ovsespec/
 ├── specs/
 │   └── auth/
 │       └── spec.md ◄────────────────┐
@@ -655,7 +655,7 @@ openspec/
 
 After archive:
 
-openspec/
+ovsespec/
 ├── specs/
 │   └── auth/
 │       └── spec.md        # Now includes 2FA requirements
@@ -690,30 +690,30 @@ openspec/
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                              OPENSPEC FLOW                                   │
+│                              OVSESPEC FLOW                                   │
 │                                                                              │
 │   ┌────────────────┐                                                         │
-│   │  1. START      │  /opsx:propose (core) or /opsx:new (expanded)           │
+│   │  1. START      │  /ovsx:propose (core) or /ovsx:new (expanded)           │
 │   │     CHANGE     │                                                         │
 │   └───────┬────────┘                                                         │
 │           │                                                                  │
 │           ▼                                                                  │
 │   ┌────────────────┐                                                         │
-│   │  2. CREATE     │  /opsx:ff or /opsx:continue (expanded workflow)         │
+│   │  2. CREATE     │  /ovsx:ff or /ovsx:continue (expanded workflow)         │
 │   │     ARTIFACTS  │  Creates proposal → specs → design → tasks              │
 │   │                │  (based on schema dependencies)                         │
 │   └───────┬────────┘                                                         │
 │           │                                                                  │
 │           ▼                                                                  │
 │   ┌────────────────┐                                                         │
-│   │  3. IMPLEMENT  │  /opsx:apply                                            │
+│   │  3. IMPLEMENT  │  /ovsx:apply                                            │
 │   │     TASKS      │  Work through tasks, checking them off                  │
 │   │                │◄──── Update artifacts as you learn                      │
 │   └───────┬────────┘                                                         │
 │           │                                                                  │
 │           ▼                                                                  │
 │   ┌────────────────┐                                                         │
-│   │  4. VERIFY     │  /opsx:verify (optional)                                │
+│   │  4. VERIFY     │  /ovsx:verify (optional)                                │
 │   │     WORK       │  Check implementation matches specs                     │
 │   └───────┬────────┘                                                         │
 │           │                                                                  │
@@ -749,7 +749,7 @@ openspec/
 | **Scenario** | A concrete example of a requirement, typically in Given/When/Then format |
 | **Schema** | A definition of artifact types and their dependencies |
 | **Spec** | A specification describing system behavior, containing requirements and scenarios |
-| **Source of truth** | The `openspec/specs/` directory, containing the current agreed-upon behavior |
+| **Source of truth** | The `ovsespec/specs/` directory, containing the current agreed-upon behavior |
 
 ## Next Steps
 

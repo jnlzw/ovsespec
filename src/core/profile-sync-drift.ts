@@ -12,17 +12,18 @@ type WorkflowId = (typeof ALL_WORKFLOWS)[number];
  * Maps workflow IDs to their skill directory names.
  */
 export const WORKFLOW_TO_SKILL_DIR: Record<WorkflowId, string> = {
-  'explore': 'openspec-explore',
-  'new': 'openspec-new-change',
-  'continue': 'openspec-continue-change',
-  'apply': 'openspec-apply-change',
-  'ff': 'openspec-ff-change',
-  'sync': 'openspec-sync-specs',
-  'archive': 'openspec-archive-change',
-  'bulk-archive': 'openspec-bulk-archive-change',
-  'verify': 'openspec-verify-change',
-  'onboard': 'openspec-onboard',
-  'propose': 'openspec-propose',
+  'explore': 'ovsespec-explore',
+  'new': 'ovsespec-new-change',
+  'continue': 'ovsespec-continue-change',
+  'apply': 'ovsespec-apply-change',
+  'ff': 'ovsespec-ff-change',
+  'sync': 'ovsespec-sync-specs',
+  'archive': 'ovsespec-archive-change',
+  'bulk-archive': 'ovsespec-bulk-archive-change',
+  'verify': 'ovsespec-verify-change',
+  'onboard': 'ovsespec-onboard',
+  'propose': 'ovsespec-propose',
+  'paas-test-deploy': 'ovsespec-paas-test-deploy',
 };
 
 function toKnownWorkflows(workflows: readonly string[]): WorkflowId[] {
@@ -33,7 +34,7 @@ function toKnownWorkflows(workflows: readonly string[]): WorkflowId[] {
 }
 
 /**
- * Checks whether a tool has at least one generated OpenSpec command file.
+ * Checks whether a tool has at least one generated OvseSpec command file.
  */
 export function toolHasAnyConfiguredCommand(projectPath: string, toolId: string): boolean {
   const adapter = CommandAdapterRegistry.get(toolId);

@@ -19,8 +19,8 @@ start here
 Read these files in order:
 
 1. `WORKSPACE_REIMPLEMENTATION_DIRECTION.md`
-2. `openspec/changes/workspace-reimplementation-roadmap/README.md`
-3. `openspec/changes/workspace-reimplementation-roadmap/POC_REFERENCE_GUIDE.md`
+2. `ovsespec/changes/workspace-reimplementation-roadmap/README.md`
+3. `ovsespec/changes/workspace-reimplementation-roadmap/POC_REFERENCE_GUIDE.md`
 4. The proposal for the next implementation slice
 
 The POC reference commit is:
@@ -33,7 +33,7 @@ Use the POC as research material. Do not merge it into an implementation branch.
 
 ## Implementation Order
 
-Implement these flat OpenSpec changes in order:
+Implement these flat OvseSpec changes in order:
 
 1. `workspace-foundation`
 2. `workspace-create-and-register-repos`
@@ -64,4 +64,4 @@ Open design questions:
 - ...
 ```
 
-Capture durable findings in the relevant OpenSpec artifact so future sessions do not depend on chat history.
+Capture durable findings in the relevant OvseSpec artifact so future sessions do not depend on chat history.
