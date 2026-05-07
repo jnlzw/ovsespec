@@ -9,10 +9,10 @@
     "ai",
     "development"
   ],
-  "homepage": "https://github.com/Fission-AI/OvseSpec",
+  "homepage": "https://github.com/jnlzw/ovsespec",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Fission-AI/OvseSpec"
+    "url": "https://github.com/jnlzw/ovsespec"
   },
   "license": "MIT",
   "author": "OvseSpec Contributors",
