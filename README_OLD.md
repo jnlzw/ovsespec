@@ -11,8 +11,8 @@
 <p align="center">Spec-driven development for AI coding assistants.</p>
 <p align="center">
   <a href="https://github.com/Fission-AI/OvseSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Fission-AI/OvseSpec/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@jnlzw/ovsespec"><img alt="npm version" src="https://img.shields.io/npm/v/@jnlzw/ovsespec?style=flat-square" /></a>
-  <a href="https://nodejs.org/"><img alt="node version" src="https://img.shields.io/node/v/@jnlzw/ovsespec?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@jn-lzw/ovsespec"><img alt="npm version" src="https://img.shields.io/npm/v/@jn-lzw/ovsespec?style=flat-square" /></a>
+  <a href="https://nodejs.org/"><img alt="node version" src="https://img.shields.io/node/v/@jn-lzw/ovsespec?style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
   <a href="https://conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square" /></a>
   <a href="https://discord.gg/YctCnvvshC"><img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white&style=flat-square" /></a>
@@ -143,7 +143,7 @@ These tools automatically read workflow instructions from `ovsespec/AGENTS.md`. 
 **Option A: Using npm**
 
 ```bash
-npm install -g @jnlzw/ovsespec@latest
+npm install -g @jn-lzw/ovsespec@latest
 ```
 
 Verify installation:
@@ -403,7 +403,7 @@ Run `ovsespec update` whenever someone switches tools so your agents pick up the
 
 1. **Upgrade the package**
    ```bash
-   npm install -g @jnlzw/ovsespec@latest
+   npm install -g @jn-lzw/ovsespec@latest
    ```
 2. **Refresh agent instructions**
    - Run `ovsespec update` inside each project to regenerate AI guidance and ensure the latest slash commands are active.

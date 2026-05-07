@@ -9,19 +9,19 @@
 ### npm
 
 ```bash
-npm install -g @jnlzw/ovsespec@latest
+npm install -g @jn-lzw/ovsespec@latest
 ```
 
 ### pnpm
 
 ```bash
-pnpm add -g @jnlzw/ovsespec@latest
+pnpm add -g @jn-lzw/ovsespec@latest
 ```
 
 ### yarn
 
 ```bash
-yarn global add @jnlzw/ovsespec@latest
+yarn global add @jn-lzw/ovsespec@latest
 ```
 
 ### bun
@@ -30,7 +30,7 @@ Bun can install OvseSpec globally, but OvseSpec currently runs on Node.js.
 You still need Node.js 20.19.0 or higher available on `PATH`.
 
 ```bash
-bun add -g @jnlzw/ovsespec@latest
+bun add -g @jn-lzw/ovsespec@latest
 ```
 
 ## Nix

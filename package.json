@@ -1,5 +1,5 @@
 {
-  "name": "@jnlzw/ovsespec",
+  "name": "@jn-lzw/ovsespec",
   "version": "1.3.1",
   "description": "AI-native system for spec-driven development",
   "keywords": [
@@ -12,7 +12,7 @@
   "homepage": "https://github.com/jnlzw/ovsespec",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jnlzw/ovsespec"
+    "url": "git+https://github.com/jnlzw/ovsespec.git"
   },
   "license": "MIT",
   "author": "OvseSpec Contributors",
@@ -27,7 +27,7 @@
     }
   },
   "bin": {
-    "ovsespec": "./bin/ovsespec.js"
+    "ovsespec": "bin/ovsespec.js"
   },
   "files": [
     "dist",

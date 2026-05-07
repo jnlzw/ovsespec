@@ -1,4 +1,4 @@
-# @jnlzw/ovsespec
+# @jn-lzw/ovsespec
 
 ## 1.3.1
 
