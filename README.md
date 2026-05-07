@@ -15,10 +15,13 @@ OvseSpec 是基于 OpenSpec 二次开发的团队版 spec-driven development 工
 
 要求 Node.js `20.19.0` 或更高版本。
 
-当前可直接从 GitHub 安装：
+当前可从 GitHub 拉取源码后安装：
 
 ```bash
-npm install -g https://github.com/jnlzw/ovsespec/archive/refs/heads/main.tar.gz
+git clone https://github.com/jnlzw/ovsespec.git
+cd ovsespec
+npm install
+npm install -g .
 ```
 
 发布到 npm registry 后，可使用 npm 包名安装：
@@ -27,7 +30,7 @@ npm install -g https://github.com/jnlzw/ovsespec/archive/refs/heads/main.tar.gz
 npm install -g @jn-lzw/ovsespec@latest
 ```
 
-本地开发时也可以在仓库目录内安装当前版本：
+已有本地源码时，直接在仓库目录内安装当前版本：
 
 ```bash
 npm install -g .

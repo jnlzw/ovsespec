@@ -4,12 +4,15 @@
 
 - **Node.js 20.19.0 or higher** — Check your version: `node --version`
 
-## GitHub Install
+## GitHub Source Install
 
-OvseSpec can be installed directly from the GitHub repository:
+OvseSpec can be installed from the GitHub source repository:
 
 ```bash
-npm install -g https://github.com/jnlzw/ovsespec/archive/refs/heads/main.tar.gz
+git clone https://github.com/jnlzw/ovsespec.git
+cd ovsespec
+npm install
+npm install -g .
 ```
 
 ## Package Managers
