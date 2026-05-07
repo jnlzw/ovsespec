@@ -159,7 +159,7 @@ ovsespec update [path] [options]
 
 ```bash
 # Update instruction files after npm upgrade
-npm update @ths-oversea/ovsespec
+npm update @jnlzw/ovsespec
 ovsespec update
 ```
 
@@ -883,7 +883,7 @@ ovsespec schema which spec-driven
 
 ```
 spec-driven resolves from: package
-  Source: /usr/local/lib/node_modules/@ths-oversea/ovsespec/schemas/spec-driven
+  Source: /usr/local/lib/node_modules/@jnlzw/ovsespec/schemas/spec-driven
 ```
 
 **Schema precedence:**
