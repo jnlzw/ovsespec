@@ -18,13 +18,7 @@ OvseSpec 是基于 OpenSpec 二次开发的团队版 spec-driven development 工
 当前可直接从 GitHub 安装：
 
 ```bash
-npm install -g github:jnlzw/ovsespec
-```
-
-也可以固定到 `main` 分支：
-
-```bash
-npm install -g github:jnlzw/ovsespec#main
+npm install -g https://github.com/jnlzw/ovsespec/archive/refs/heads/main.tar.gz
 ```
 
 发布到 npm registry 后，可使用 npm 包名安装：

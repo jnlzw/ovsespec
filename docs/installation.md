@@ -9,13 +9,7 @@
 OvseSpec can be installed directly from the GitHub repository:
 
 ```bash
-npm install -g github:jnlzw/ovsespec
-```
-
-To pin the current main branch explicitly:
-
-```bash
-npm install -g github:jnlzw/ovsespec#main
+npm install -g https://github.com/jnlzw/ovsespec/archive/refs/heads/main.tar.gz
 ```
 
 ## Package Managers
