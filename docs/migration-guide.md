@@ -592,5 +592,5 @@ project/
 ## Getting Help
 
 - **Discord**: [discord.gg/YctCnvvshC](https://discord.gg/YctCnvvshC)
-- **GitHub Issues**: [github.com/Fission-AI/OvseSpec/issues](https://github.com/Fission-AI/OvseSpec/issues)
+- **GitHub Issues**: [github.com/jnlzw/ovsespec/issues](https://github.com/jnlzw/ovsespec/issues)
 - **Documentation**: [docs/ovsx.md](ovsx.md) for the full OVSX reference

@@ -87,7 +87,7 @@ function formatBody(bodyText) {
  * Generate a pre-filled GitHub issue URL for manual submission
  */
 function generateManualSubmissionUrl(title, body) {
-    const repo = 'Fission-AI/OvseSpec';
+    const repo = 'jnlzw/ovsespec';
     const encodedTitle = encodeURIComponent(title);
     const encodedBody = encodeURIComponent(body);
     const encodedLabels = encodeURIComponent('feedback');
@@ -114,7 +114,7 @@ function submitViaGhCli(title, body) {
             'issue',
             'create',
             '--repo',
-            'Fission-AI/OvseSpec',
+            'jnlzw/ovsespec',
             '--title',
             title,
             '--body',

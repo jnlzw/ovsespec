@@ -7,6 +7,8 @@ const PROPOSE_INSTRUCTIONS = `创建一个新的 OvseSpec 变更，并一次性�
 - design.md：怎么做、关键取舍
 - tasks.md：实现步骤
 
+生成的长期产物默认主要使用中文书写；代码标识、API path、字段名、错误码、枚举、命令、文件路径、YAPI 字段和 schema 固定标题可以保留原文。只有用户明确要求英文或当前 schema/template 有强制语言要求时，才偏离这个默认约定。
+
 准备实现时，运行 /ovsx:apply
 
 ---

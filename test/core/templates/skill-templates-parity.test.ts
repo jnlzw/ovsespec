@@ -53,8 +53,8 @@ const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
   getOvsxOnboardCommandTemplate: '2d77c77ae1493a22ba6d5a5daae4ceb0dc10834ef0bba785d1a6da25a3b20c47',
   getOvsxBulkArchiveCommandTemplate: '3e166d832330ebcc97cdca053ca6456fff79a372949dcae0faa889370b33a97d',
   getOvsxVerifyCommandTemplate: '87f53867f4e783b7a91758593d8637145ffa48cea98b749298e6551eacc08eee',
-  getOvsxProposeSkillTemplate: 'd5ba20fa3bfdc734232e70c5dcb6ab742f929cc4d9bfd790bc412f93268e316b',
-  getOvsxProposeCommandTemplate: 'dc30bb644a1592a76b00a90bf0861c3d506b0efced8a43e3c350a7c67a1e1db3',
+  getOvsxProposeSkillTemplate: '60b26e180f3d9bc623977145d6e9018fe1a43ac6e4b41e80c6e554d8738a128c',
+  getOvsxProposeCommandTemplate: '88ce4804422eba88b78ea504ab719d9c2480661d5d72c0a37ad8da0b61930a25',
   getPaasTestDeploySkillTemplate: '6fb430bf63ca1aa7f3bfa848418aa3122de2260d2bd3485ccc67a23500130fe9',
   getOvsxPaasTestDeployCommandTemplate: '291743c69939c6d7c8c19506deebeb8484bf996f1bd66de1a1f74aa0d3a720c2',
   getFeedbackSkillTemplate: '99faf4b968e497afdc1ac250192a9e7254239a0c3c790bda6a4b4a499e19d2ab',
@@ -71,7 +71,7 @@ const EXPECTED_GENERATED_SKILL_CONTENT_HASHES: Record<string, string> = {
   'ovsespec-bulk-archive-change': '3a20835abe49f51e4a916084dd508cf300b8ae8242a909d0906a34f65481d5e4',
   'ovsespec-verify-change': '7d8e1f38d3ffa2be9a9d65fe8e153bc561201493bfec373900fe8e0683f4cfcd',
   'ovsespec-onboard': '330157f612153a68ff1a6712845084169322489dfec2f316e1f94b5cef1d77bd',
-  'ovsespec-propose': 'e9a0cafb0064cb95f6be4a2bbef5148e99de2cc6c6536c0cf66a0912bbbae872',
+  'ovsespec-propose': 'b4e282f8db302ba4912ddd0140c89f010e384abd12fbb909d5175803a0352852',
   'ovsespec-paas-test-deploy': 'be95c74e0a5a0b8c5e211d0fa117e9e802ef9198779abd26679a8f74dc3bba0c',
 };
 
@@ -171,6 +171,7 @@ describe('skill templates split parity', () => {
     const paasDeploy = getOvsxPaasTestDeployCommandTemplate().content;
 
     expect(propose).toContain('结构化 API/YAPI 清单');
+    expect(propose).toContain('生成的长期产物默认主要使用中文');
     expect(propose).toContain('owner、reviewer、acceptance、rollback、handoff');
     expect(propose).toContain('method + path');
     expect(propose).toContain('YAPI create/update、Mock/advmock、audit');

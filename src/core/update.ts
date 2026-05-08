@@ -274,7 +274,7 @@ export class UpdateCommand {
       console.log('  /ovsx:continue  Create the next artifact');
       console.log('  /ovsx:apply     Implement tasks');
       console.log();
-      console.log(`Learn more: ${chalk.cyan('https://github.com/Fission-AI/OvseSpec')}`);
+      console.log(`Learn more: ${chalk.cyan('https://github.com/jnlzw/ovsespec')}`);
     }
 
     const configuredAndNewTools = [...new Set([...configuredTools, ...newlyConfiguredTools])];
