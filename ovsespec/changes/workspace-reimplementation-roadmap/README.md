@@ -2,7 +2,7 @@
 
 This change is the continuity layer for reimplementing workspace support across multiple sessions and branches.
 
-Root entry point for fresh agents: `WORKSPACE_REIMPLEMENTATION_START_HERE.md`.
+Fresh agents should start with this README, then read `POC_REFERENCE_GUIDE.md`.
 
 The user journey we are implementing is:
 
@@ -21,7 +21,7 @@ The POC branch is reference material only:
 workspace-poc @ 79a45ac043f414e63d13e08b9da83b135cb20a39
 ```
 
-Use it to understand behavior, tests, and lessons learned. Do not merge it or preserve its architecture by default. The full source direction document from that branch is copied at the repository root as `WORKSPACE_REIMPLEMENTATION_DIRECTION.md`.
+Use it to understand behavior, tests, and lessons learned. Do not merge it or preserve its architecture by default. The source direction document from that branch remains available from the pinned POC commit; use `POC_REFERENCE_GUIDE.md` for exact `git show` commands.
 
 Fresh agents should read `POC_REFERENCE_GUIDE.md` before implementing any slice. That guide explains how to inspect the pinned POC commit, which files to read for each slice, and what findings to bring back into the OvseSpec artifacts.
 
