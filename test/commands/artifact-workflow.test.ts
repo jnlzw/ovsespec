@@ -716,10 +716,9 @@ artifacts:
       const stat = await fs.stat(skillFile);
       expect(stat.isFile()).toBe(true);
 
-      // Verify commands were created with Cursor format
+      // Default delivery is skills-only, so prompt commands are not created.
       const commandFile = path.join(tempDir, '.cursor', 'commands', 'ovsx-explore.md');
-      const content = await fs.readFile(commandFile, 'utf-8');
-      expect(content).toContain('name: /ovsx-explore');
+      await expect(fs.access(commandFile)).rejects.toMatchObject({ code: 'ENOENT' });
     });
 
     it('creates skills for Windsurf tool', async () => {

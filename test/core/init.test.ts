@@ -117,7 +117,7 @@ describe('InitCommand', () => {
       }
     });
 
-    it('should create core profile commands for Claude Code by default', async () => {
+    it('should not create prompt commands for Claude Code by default', async () => {
       const initCommand = new InitCommand({ tools: 'claude', force: true });
 
       await initCommand.execute(testDir);
@@ -133,10 +133,10 @@ describe('InitCommand', () => {
 
       for (const cmdName of coreCommandNames) {
         const cmdFile = path.join(testDir, '.claude', 'commands', cmdName);
-        expect(await fileExists(cmdFile)).toBe(true);
+        expect(await fileExists(cmdFile)).toBe(false);
       }
 
-      // Non-core commands should NOT be created
+      // Non-core commands should NOT be created either
       const nonCoreCommandNames = [
         'ovsx/new.md',
         'ovsx/continue.md',
@@ -383,6 +383,10 @@ describe('InitCommand', () => {
   });
 
   describe('command generation', () => {
+    beforeEach(() => {
+      saveGlobalConfig({ featureFlags: {}, profile: 'core', delivery: 'both' });
+    });
+
     it('should generate Claude Code commands with correct format', async () => {
       const initCommand = new InitCommand({ tools: 'claude', force: true });
       await initCommand.execute(testDir);
@@ -439,6 +443,10 @@ describe('InitCommand', () => {
   });
 
   describe('tool-specific adapters', () => {
+    beforeEach(() => {
+      saveGlobalConfig({ featureFlags: {}, profile: 'core', delivery: 'both' });
+    });
+
     it('should generate Gemini CLI commands as TOML files', async () => {
       const initCommand = new InitCommand({ tools: 'gemini', force: true });
       await initCommand.execute(testDir);
@@ -575,9 +583,9 @@ describe('InitCommand - profile and detection features', () => {
     // Legacy files should be cleaned up automatically
     expect(await fileExists(path.join(legacyDir, 'ovsx-propose.md'))).toBe(false);
 
-    // New commands should be at the correct plural path
+    // Default delivery is skills-only, so no new commands should be created.
     const newCommandsDir = path.join(testDir, '.opencode', 'commands');
-    expect(await directoryExists(newCommandsDir)).toBe(true);
+    expect(await directoryExists(newCommandsDir)).toBe(false);
   });
 
   it('should preselect configured tools but not directory-detected tools in extend mode', async () => {

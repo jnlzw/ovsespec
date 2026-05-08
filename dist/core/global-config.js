@@ -8,7 +8,7 @@ export const GLOBAL_DATA_DIR_NAME = 'ovsespec';
 const DEFAULT_CONFIG = {
     featureFlags: {},
     profile: 'core',
-    delivery: 'both',
+    delivery: 'skills',
 };
 /**
  * Gets the global configuration directory path following XDG Base Directory Specification.

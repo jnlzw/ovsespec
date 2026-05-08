@@ -73,7 +73,7 @@ These options work with all commands:
 
 Initialize OvseSpec in your project. Creates the folder structure and configures AI tool integrations.
 
-Default behavior uses global config defaults: profile `core`, delivery `both`, workflows `propose, explore, apply, sync, archive`.
+Default behavior uses global config defaults: profile `core`, delivery `skills`, workflows `propose, explore, apply, sync, archive`.
 
 ```
 ovsespec init [path] [options]
@@ -129,7 +129,7 @@ ovsespec/
 
 .claude/skills/         # Claude Code skills (if claude selected)
 .cursor/skills/         # Cursor skills (if cursor selected)
-.cursor/commands/       # Cursor OVSX commands (if delivery includes commands)
+.cursor/commands/       # Cursor OVSX commands only if delivery includes commands
 ... (other tool configs)
 ```
 

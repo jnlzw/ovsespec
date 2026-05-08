@@ -9,6 +9,8 @@ For each selected tool, OvseSpec can install:
 1. **Skills** (if delivery includes skills): `.../skills/ovsespec-*/SKILL.md`
 2. **Commands** (if delivery includes commands): tool-specific `ovsx-*` command files
 
+The default delivery is `skills`, so `ovsespec init` does not create prompt/slash command files unless you explicitly configure delivery as `both` or `commands`.
+
 By default, OvseSpec uses the `core` profile, which includes:
 - `propose`
 - `explore`

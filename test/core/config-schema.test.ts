@@ -329,6 +329,7 @@ describe('config-schema', () => {
     it('should provide defaults for missing featureFlags', () => {
       const result = GlobalConfigSchema.parse({});
       expect(result.featureFlags).toEqual({});
+      expect(result.delivery).toBe('skills');
     });
   });
 

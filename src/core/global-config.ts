@@ -22,7 +22,7 @@ export interface GlobalConfig {
 const DEFAULT_CONFIG: GlobalConfig = {
   featureFlags: {},
   profile: 'core',
-  delivery: 'both',
+  delivery: 'skills',
 };
 
 /**

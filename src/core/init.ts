@@ -513,7 +513,7 @@ export class InitCommand {
     // Read global config for profile and delivery settings (use --profile override if set)
     const globalConfig = getGlobalConfig();
     const profile: Profile = this.resolveProfileOverride() ?? globalConfig.profile ?? 'core';
-    const delivery: Delivery = globalConfig.delivery ?? 'both';
+    const delivery: Delivery = globalConfig.delivery ?? 'skills';
     const workflows = getProfileWorkflows(profile, globalConfig.workflows);
 
     // Get skill and command templates filtered by profile workflows
@@ -654,7 +654,7 @@ export class InitCommand {
     if (successfulTools.length > 0) {
       const globalConfig = getGlobalConfig();
       const profile: Profile = (this.profileOverride as Profile) ?? globalConfig.profile ?? 'core';
-      const delivery: Delivery = globalConfig.delivery ?? 'both';
+      const delivery: Delivery = globalConfig.delivery ?? 'skills';
       const workflows = getProfileWorkflows(profile, globalConfig.workflows);
       const toolDirs = [...new Set(successfulTools.map((t) => t.skillsDir))].join(', ');
       const skillCount = delivery !== 'commands' ? getSkillTemplates(workflows).length : 0;
@@ -697,17 +697,22 @@ export class InitCommand {
       console.log(chalk.dim(`Config: skipped (non-interactive mode)`));
     }
 
-    // Getting started (task 7.6: show propose if in profile)
     const globalCfg = getGlobalConfig();
     const activeProfile: Profile = (this.profileOverride as Profile) ?? globalCfg.profile ?? 'core';
+    const activeDelivery: Delivery = globalCfg.delivery ?? 'skills';
     const activeWorkflows = [...getProfileWorkflows(activeProfile, globalCfg.workflows)];
+    const commandsAvailable = activeDelivery !== 'skills';
     console.log();
     if (activeWorkflows.includes('propose')) {
       console.log(chalk.bold('Getting started:'));
-      console.log('  Start your first change: /ovsx:propose "your idea"');
+      console.log(commandsAvailable
+        ? '  Start your first change: /ovsx:propose "your idea"'
+        : '  Start your first change with the ovsespec-propose skill.');
     } else if (activeWorkflows.includes('new')) {
       console.log(chalk.bold('Getting started:'));
-      console.log('  Start your first change: /ovsx:new "your idea"');
+      console.log(commandsAvailable
+        ? '  Start your first change: /ovsx:new "your idea"'
+        : '  Start your first change with the ovsespec-new-change skill.');
     } else {
       console.log("Done. Run 'ovsespec config profile' to configure your workflows.");
     }
@@ -719,8 +724,11 @@ export class InitCommand {
 
     // Restart instruction if any tools were configured
     if (results.createdTools.length > 0 || results.refreshedTools.length > 0) {
+      const restartTarget = activeDelivery === 'skills'
+        ? 'skills'
+        : activeDelivery === 'commands' ? 'slash commands' : 'skills and slash commands';
       console.log();
-      console.log(chalk.white('Restart your IDE for slash commands to take effect.'));
+      console.log(chalk.white(`Restart your IDE for ${restartTarget} to take effect.`));
     }
 
     console.log();

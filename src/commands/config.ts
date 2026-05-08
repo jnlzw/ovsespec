@@ -104,7 +104,7 @@ function isPromptCancellationError(error: unknown): boolean {
  */
 export function resolveCurrentProfileState(config: GlobalConfig): ProfileState {
   const profile = config.profile || 'core';
-  const delivery = config.delivery || 'both';
+  const delivery = config.delivery || 'skills';
   const workflows = [
     ...getProfileWorkflows(profile, config.workflows ? [...config.workflows] : undefined),
   ];

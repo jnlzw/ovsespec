@@ -50,7 +50,7 @@ ovsespec --version
 ovsespec init
 ```
 
-初始化后会生成 `ovsespec/` 目录、配置文件、schema/templates，并根据你选择的 AI 工具生成对应的 skills / commands。
+初始化后会生成 `ovsespec/` 目录、配置文件、schema/templates，并根据你选择的 AI 工具生成对应的 skills。只有显式把 delivery 配成 `both` 或 `commands` 时才会生成 prompt command。
 
 常见命令：
 

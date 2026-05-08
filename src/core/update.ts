@@ -97,7 +97,7 @@ export class UpdateCommand {
     // 3. Read global config for profile/delivery
     const globalConfig = getGlobalConfig();
     const profile = globalConfig.profile ?? 'core';
-    const delivery: Delivery = globalConfig.delivery ?? 'both';
+    const delivery: Delivery = globalConfig.delivery ?? 'skills';
     const profileWorkflows = getProfileWorkflows(profile, globalConfig.workflows);
     const desiredWorkflows = profileWorkflows.filter((workflow): workflow is (typeof ALL_WORKFLOWS)[number] =>
       (ALL_WORKFLOWS as readonly string[]).includes(workflow)
@@ -270,9 +270,19 @@ export class UpdateCommand {
     if (newlyConfiguredTools.length > 0) {
       console.log();
       console.log(chalk.bold('Getting started:'));
-      console.log('  /ovsx:new       Start a new change');
-      console.log('  /ovsx:continue  Create the next artifact');
-      console.log('  /ovsx:apply     Implement tasks');
+      if (delivery === 'skills') {
+        if (desiredWorkflows.includes('propose')) {
+          console.log('  Start your first change with the ovsespec-propose skill.');
+        } else if (desiredWorkflows.includes('new')) {
+          console.log('  Start your first change with the ovsespec-new-change skill.');
+        } else {
+          console.log('  Open your AI assistant and use the configured OvseSpec skills.');
+        }
+      } else {
+        console.log('  /ovsx:new       Start a new change');
+        console.log('  /ovsx:continue  Create the next artifact');
+        console.log('  /ovsx:apply     Implement tasks');
+      }
       console.log();
       console.log(`Learn more: ${chalk.cyan('https://github.com/jnlzw/ovsespec')}`);
     }
@@ -293,7 +303,10 @@ export class UpdateCommand {
     }
 
     console.log();
-    console.log(chalk.dim('Restart your IDE for changes to take effect.'));
+    const restartTarget = delivery === 'skills'
+      ? 'skills'
+      : delivery === 'commands' ? 'slash commands' : 'skills and slash commands';
+    console.log(chalk.dim(`Restart your IDE for ${restartTarget} to take effect.`));
   }
 
   /**
