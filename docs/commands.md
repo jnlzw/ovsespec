@@ -329,9 +329,9 @@ Validate that implementation matches your change artifacts. Checks completeness,
 | `change-name` | No | Which change to verify (inferred from context if not provided) |
 
 **What it does:**
-- Checks three dimensions of implementation quality
+- Checks implementation against tasks, specs, and design.md when present
 - Searches codebase for implementation evidence
-- Reports issues categorized as CRITICAL, WARNING, or SUGGESTION
+- Reports only actionable CRITICAL and WARNING issues
 - Does not block archive, but surfaces issues
 
 **Verification dimensions:**

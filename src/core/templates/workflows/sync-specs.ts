@@ -8,21 +8,21 @@ import type { SkillTemplate, CommandTemplate } from '../types.js';
 
 const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs。
 
-保留原命令意图：这是一次 agent-driven 的 specs 合并操作。你需要读取变更里的 delta spec，并直接编辑主 spec，把新增、修改、删除、重命名的需求合并进去。团队版增强只是在同步时补充影响范围、owner/reviewer 和契约风险说明，不改变“同步 specs”的核心职责。
+保留原命令意图：这是一次 agent-driven 的 specs 合并操作。你需要读取变更里的 delta spec，并直接编辑主 spec，把新增、修改、删除、重命名的需求合并进去。同步摘要只保留能力变化、技术影响和契约状态，不默认生成团队交接字段。
 
 **输入**：可以指定变更名，例如 \`/ovsx:sync add-auth\`。如果省略，先尝试从上下文推断；如果模糊，必须让用户选择。
 
-**团队协作增强**
+**同步与契约约束**
 
-- 同步前识别每个 capability 的 owner、reviewer、影响模块、契约消费者和发布/迁移风险；证据不足时明确标注未知或询问用户。
-- 优先读取 proposal/specs/tasks 以及按需存在的 design.md 中的结构化团队字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff；同步摘要里保留这些字段的当前状态。
-- 对跨团队 shared contract、API、数据模型、权限、计费、兼容性等变更，合并时保留意图，不要把 delta 当成整段覆盖。
+- 同步前识别每个 capability 的影响模块、接口/契约消费者、发布/迁移和兼容性风险；证据不足时明确标注未知或询问用户。
+- 优先读取 proposal/specs/tasks 以及按需存在的 design.md 中的技术影响范围、API/YAPI 清单、迁移/兼容性风险和验证口径。不要补写 owner、reviewer、handoff、meeting、approval 或项目管理字段。
+- 对 shared contract、API、数据模型、权限、计费、兼容性等变更，合并时保留意图，不要把 delta 当成整段覆盖。
 - 如果 capability 涉及 Controller、API route、request/response schema、错误包装、advmock 或外部消费者，必须把 YAPI 同步纳入本次 sync 摘要。
-- YAPI 同步需要识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、分类、owner/reviewer 和文档质量状态。证据不足时标注 unknown 或询问用户，不要猜。
+- YAPI 同步需要识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\` 和文档质量状态。同步摘要必须保留这些结构化字段，证据不足的字段值写 \`unknown\`，不要省略字段或猜测。
 - 如果 change artifacts 已有 API/YAPI 清单，必须用它作为核对入口；如果代码/spec 与清单不一致，先在 sync 摘要列出差异，不能静默覆盖。
 - 同步阶段必须再次执行 YAPI sync 或生成明确的 YAPI sync plan，并核对 YAPI 与代码/spec 是否一致；不能只说“需要同步”。
 - 不要把机器本地路径写入主 specs；使用 capability、仓库名、服务名、模块名或 workspace link 名。
-- 同步结果要便于评审：说明哪些 capability 变了、为什么变、谁可能需要 review，以及哪些 YAPI 接口已同步、需审计或被阻塞。
+- 同步结果要便于核对：说明哪些 capability 变了、为什么变，以及哪些 YAPI 接口已同步、需审计或被阻塞。
 
 **步骤**
 
@@ -90,13 +90,13 @@ const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs�
       - 添加简洁 Purpose
       - 添加 ADDED requirements
 
-   e. 如果该 capability 影响其他团队或消费者，在合并结果中保留清晰语义，并在最终摘要中标出 review 建议。
+   e. 如果该 capability 影响外部消费者或其他服务，在合并结果中保留清晰语义，并在最终摘要中标出契约风险。
 
 4. **同步或规划 YAPI 文档**
 
    对每个涉及 API/interface contract 的 capability：
    - 从 delta spec、主 spec、design、tasks 和代码中提取接口变化。
-   - 读取 proposal/specs/tasks 以及按需存在的 design.md 中的 API/YAPI 清单，核对是否覆盖所有受影响接口；缺字段时标注 unknown/TBD 和确认对象。
+   - 读取 proposal/specs/tasks 以及按需存在的 design.md 中的 API/YAPI 清单，核对是否覆盖所有受影响接口；缺字段时在同步摘要中保留字段名，并把字段值写为 \`unknown\`。
    - 定位对应 Controller/handler、DTO、request/response、错误包装和 auth/permission 行为。
    - 定位 YAPI 目标：\`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`。
    - 如果当前环境有 YAPI tooling（例如 yapi-mcp 或等价能力），再次执行本地代码到 YAPI 的 sync：按 \`method + path\` 不存在则创建接口，存在则更新接口，并在写入后做 audit/质量检查。
@@ -125,9 +125,10 @@ const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs�
    - 更新了哪些 capabilities
    - 新增/修改/移除/重命名了哪些 requirements
    - 是否创建了新的主 spec
-   - 如适用，列出 owner/reviewer、影响消费者、契约或发布风险
-   - 如适用，列出 acceptance、rollback、handoff 和 PaaS test deploy 是否需要单独执行
-   - 如适用，列出 YAPI 状态：已创建、已更新、已审计、一致性核对结果、Mock/advmock 状态、待同步、阻塞原因、涉及的 \`service_id/interface_id/method + path\`
+   - 如适用，列出影响消费者、契约、迁移、兼容性或发布风险
+   - 如适用，列出 PaaS test deploy 是否需要单独执行
+   - 如适用，按接口列出 YAPI 状态；每个接口必须保留结构化字段：\`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、\`sync_status\`、\`audit_status\`、\`mock_status\`、\`blocker\`。未知字段写 \`unknown\`，不能省略；不要输出 \`location\`、\`position\` 或本地路径字段。
+   不要输出额外项目管理摘要、交接说明、审批状态或与实现无关的长篇背景。
 
 **Delta spec 格式参考**
 
@@ -175,18 +176,29 @@ The system SHALL do something new.
 **<capability-1>**
 - 新增 requirement: "New Feature"
 - 修改 requirement: "Existing Feature"（新增 1 个 scenario）
-- 评审: <owner/reviewer 或未知>
+- 技术影响: <受影响模块、接口或消费者>
 
 **<capability-2>**
 - 创建新的 spec 文件
 - 新增 requirement: "Another Feature"
 
 YAPI:
-- 已创建: GET /api/example (\`interface_id=<id>\`)
-- 已更新: POST /api/example (\`interface_id=<id>\`)
-- 一致性: 2/2 与代码/spec 一致
-- Mock: 默认成功响应已存在，空数据场景已新增
-- 待处理: POST /api/example 缺少 service_id，需 owner 确认
+- \`program_name\`: example-service
+  \`service_id\`: 330000
+  \`interface_id\`: 880000
+  \`method + path\`: GET /api/example
+  \`sync_status\`: updated
+  \`audit_status\`: code/spec consistent
+  \`mock_status\`: default success exists
+  \`blocker\`: none
+- \`program_name\`: example-service
+  \`service_id\`: unknown
+  \`interface_id\`: unknown
+  \`method + path\`: POST /api/example
+  \`sync_status\`: blocked
+  \`audit_status\`: pending
+  \`mock_status\`: pending
+  \`blocker\`: missing service_id
 
 变更仍保持 active。实现完成后可运行 /ovsx:archive。
 \`\`\`
@@ -195,9 +207,9 @@ YAPI:
 
 - 修改主 specs 前必须同时读取 delta spec 和现有主 spec。
 - 保留 delta 未提及的现有内容。
-- 不清楚时先询问或明确标注未知，不要编造 owner、reviewer 或消费者。
-- 同步摘要必须保留 team/API 结构化字段的状态，未知字段写 unknown/TBD，不能省略。
-- API/interface contract 相关 capability 必须输出 YAPI 状态；不能同步时要说明缺失的 \`program_name/service_id/interface_id/method + path\`。
+- 不清楚时先询问或明确标注未知，不要编造消费者、接口目标或契约状态。
+- 同步摘要必须保留 API/YAPI 结构化字段的状态，未知字段写 \`unknown\`，不能省略；不要写 \`location\`、\`position\` 或本地路径字段。
+- API/interface contract 相关 capability 必须输出 YAPI 状态；不能同步时也要保留 \`program_name/service_id/interface_id/method + path/sync_status/audit_status/mock_status/blocker\` 字段，并把未知值写为 \`unknown\`。
 - YAPI 写入后要重新拉取 interface info 做一致性核对，并做 audit 或质量检查；无法检查时说明原因。
 - Sync 阶段必须再次确认 YAPI 与代码/spec 是否一致，发现差异要逐项列出，不要把 specs 已同步等同于 YAPI 已一致。
 - 涉及 mock 的接口必须检查 advmock；缺少默认成功响应或 spec 指定场景时，要补充或标记阻塞。
@@ -207,7 +219,7 @@ YAPI:
 export function getSyncSpecsSkillTemplate(): SkillTemplate {
   return {
     name: 'ovsespec-sync-specs',
-    description: '把变更中的 delta specs 同步到主 specs；团队场景会补充 owner、reviewer、消费者和契约风险摘要。',
+    description: '把变更中的 delta specs 同步到主 specs；补充技术影响、消费者和契约风险摘要。',
     instructions: SYNC_INSTRUCTIONS,
     license: 'MIT',
     compatibility: 'Requires ovsespec CLI.',
@@ -218,9 +230,9 @@ export function getSyncSpecsSkillTemplate(): SkillTemplate {
 export function getOvsxSyncCommandTemplate(): CommandTemplate {
   return {
     name: 'OVSX: Sync',
-    description: '把 delta specs 合并到主 specs，并输出团队评审和影响范围摘要',
+    description: '把 delta specs 合并到主 specs，并输出技术影响和契约状态摘要',
     category: 'Workflow',
-    tags: ['workflow', 'specs', 'team'],
+    tags: ['workflow', 'specs', 'contract'],
     content: SYNC_INSTRUCTIONS,
   };
 }

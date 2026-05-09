@@ -1,27 +1,19 @@
-## Context
+## Decision
 
-<!-- Background and current state -->
+<!-- The technical decision that must be recorded before implementation. -->
 
-## Goals / Non-Goals
+## Approach
 
-**Goals:**
-<!-- What this design aims to achieve -->
+<!-- The implementation approach, including only the modules, APIs, data/config, or dependencies that matter. -->
 
-**Non-Goals:**
-<!-- What is explicitly out of scope -->
+## Trade-offs
 
-## Decisions
+<!-- Real alternatives considered and why this approach is acceptable. Omit if there is no meaningful trade-off. -->
 
-<!-- Key design decisions and rationale -->
+## Risks
 
-## Risks / Trade-offs
+<!-- Migration, compatibility, data, security, performance, or rollback risks if they actually exist. -->
 
-<!-- Known risks and trade-offs -->
+## Validation
 
-## Migration Plan
-
-<!-- Deployment, migration, compatibility, rollback, and recovery steps if applicable -->
-
-## Open Questions
-
-<!-- Decisions or missing technical details that must be resolved before implementation -->
+<!-- Specific tests, checks, or rollout verification required for this design. -->

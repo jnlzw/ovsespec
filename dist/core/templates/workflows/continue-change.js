@@ -36,7 +36,6 @@ export function getContinueChangeSkillTemplate() {
    ---
 
    **If all artifacts are complete (\`isComplete: true\`)**:
-   - Congratulate the user
    - Show final status including the schema used
    - Suggest: "All artifacts created! You can now implement this change or archive it."
    - STOP
@@ -91,11 +90,11 @@ The artifact types and their purpose depend on the schema. Use the \`instruction
 Common artifact patterns:
 
 **spec-driven schema** (proposal → specs → tasks, with design.md on demand):
-- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
+- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Technical Impact, and conditional API/YAPI only when there is a public interface change.
   - The Capabilities section is critical - each capability listed will need a spec file.
 - **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **tasks.md**: Break down implementation into checkboxed tasks.
-- **design.md**: Create only when the change needs explicit technical decisions, architectural trade-offs, external dependencies, migration, security, or performance planning.
+- **tasks.md**: Break down implementation into concrete checkboxed tasks. Do not create generic research, coordination, approval, handoff, or rollback sections unless the artifacts prove that work is required.
+- **design.md**: Create only when the change needs explicit technical decisions, architectural trade-offs, external dependencies, migration, security, or performance planning. Keep it to decision, approach, trade-offs, risks, and validation.
 
 For other schemas, follow the \`instruction\` field from the CLI output.
 
@@ -106,6 +105,7 @@ For other schemas, follow the \`instruction\` field from the CLI output.
 - If context is unclear, ask the user before creating
 - Verify the artifact file exists after writing before marking progress
 - Use the schema's artifact sequence, don't assume specific artifact names
+- Remove empty placeholders instead of filling them with "None", "TBD", or generic prose.
 - **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
   - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
   - These guide what you write, but should never appear in the output`,
@@ -159,6 +159,7 @@ export function getOvsxContinueCommandTemplate() {
 - 当前进度
 - 解锁了哪些后续产物
 - 提示：“运行 \`/ovsx:continue\` 创建下一个产物。”
+不要额外生成总结文档或把长期产物改成会议纪要、审批单、交接文档。
 
 **护栏**
 - 每次只创建一个产物。
@@ -167,6 +168,7 @@ export function getOvsxContinueCommandTemplate() {
 - 上下文不清楚时先问。
 - 写完后确认文件存在。
 - 使用 schema 返回的产物序列，不要假设固定文件名。
+- 只写对开发有帮助的内容：行为契约、技术影响、实现任务、验证任务。删除空占位和泛泛说明。
 - \`context\` 和 \`rules\` 是给你的约束，不是产物内容。`
     };
 }

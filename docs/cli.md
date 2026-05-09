@@ -461,7 +461,7 @@ ovsespec validate --all --strict --concurrency 12
 Validating add-dark-mode...
   ✓ proposal.md valid
   ✓ specs/ui/spec.md valid
-  ⚠ design.md: missing "Technical Approach" section
+  ⚠ design.md: missing "Decision" section
 
 1 warning found
 ```
@@ -476,7 +476,7 @@ Validating add-dark-mode...
       {
         "name": "add-dark-mode",
         "valid": true,
-        "warnings": ["design.md: missing 'Technical Approach' section"]
+        "warnings": ["design.md: missing 'Decision' section"]
       }
     ]
   },

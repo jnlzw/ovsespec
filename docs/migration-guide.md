@@ -191,12 +191,11 @@ context: |
 
 rules:
   proposal:
-    - Include rollback plan for risky changes
+    - Keep Technical Impact limited to concrete repo/module/API/data/test scope
+    - Do not add owner, reviewer, handoff, meeting, or approval fields
   specs:
     - Use Given/When/Then format for scenarios
     - Reference existing patterns before inventing new ones
-  design:
-    - Include sequence diagrams for complex flows
 ```
 
 ### Key Differences
@@ -455,11 +454,9 @@ context: |
 # Only injected into matching artifacts
 rules:
   proposal:
-    - Include rollback plan
+    - Keep Technical Impact limited to concrete repo/module/API/data/test scope
   specs:
     - Use Given/When/Then format
-  design:
-    - Document fallback strategies
   tasks:
     - Break into 2-hour maximum chunks
 ```

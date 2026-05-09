@@ -18,6 +18,8 @@
      Use existing spec names from ovsespec/specs/. Leave empty if no requirement changes. -->
 - `<existing-name>`: <what requirement is changing>
 
-## Impact
+## Technical Impact
 
-<!-- Affected code, APIs, dependencies, systems -->
+<!-- Only list concrete technical impact: affected repo/module/service, API/dependency, data/config, and test scope.
+     Do not include owner, reviewer, handoff, meeting, approval, or project-management fields.
+     Include rollback only when the change introduces migration, release, compatibility, or data risk. -->

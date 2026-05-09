@@ -400,44 +400,40 @@ Delta specs describe **what's changing** relative to the current specs. See [Del
 
 #### Design (`design.md`)
 
-The design captures **technical approach** and **architecture decisions**.
+The design captures only the technical decision that must be recorded before implementation. It is optional and should stay short.
 
 ````markdown
 # Design: Add Dark Mode
 
-## Technical Approach
-Theme state managed via React Context to avoid prop drilling.
-CSS custom properties enable runtime switching without class toggling.
+## Decision
+Use React Context for theme state and CSS custom properties for runtime theme switching.
 
-## Architecture Decisions
+## Approach
 
-### Decision: Context over Redux
-Using React Context for theme state because:
+Theme state is managed through a `ThemeProvider`. The selected theme is persisted to localStorage and applied to `:root` as CSS variables.
+
+## Trade-offs
+
+React Context is enough here because:
 - Simple binary state (light/dark)
 - No complex state transitions
 - Avoids adding Redux dependency
 
-### Decision: CSS Custom Properties
-Using CSS variables instead of CSS-in-JS because:
+CSS variables are preferred over CSS-in-JS because:
 - Works with existing stylesheet
 - No runtime overhead
 - Browser-native solution
 
-## Data Flow
-```
-ThemeProvider (context)
-       │
-       ▼
-ThemeToggle ◄──► localStorage
-       │
-       ▼
-CSS Variables (applied to :root)
-```
+## Risks
 
-## File Changes
-- `src/contexts/ThemeContext.tsx` (new)
-- `src/components/ThemeToggle.tsx` (new)
-- `src/styles/globals.css` (modified)
+Existing hard-coded colors may not respond to theme variables.
+
+## Validation
+
+- Toggle theme in settings and header.
+- Reload page and confirm persisted theme.
+- Verify key pages use CSS variables instead of fixed colors.
+```
 ````
 
 **When to update the design:**

@@ -38,8 +38,8 @@ context: |
 
 rules:
   proposal:
-    - Include rollback plan
-    - Identify affected teams
+    - Keep Technical Impact limited to concrete repo/module/API/data/test scope
+    - Do not add owner, reviewer, handoff, meeting, or approval fields
   specs:
     - Use Given/When/Then format
     - Reference existing patterns before inventing new ones
@@ -68,8 +68,8 @@ Tech stack: TypeScript, React, Node.js, PostgreSQL
 </context>
 
 <rules>
-- Include rollback plan
-- Identify affected teams
+- Keep Technical Impact limited to concrete repo/module/API/data/test scope
+- Do not add owner, reviewer, handoff, meeting, or approval fields
 </rules>
 
 <template>
@@ -211,9 +211,9 @@ Templates are markdown files that guide the AI. They're injected into the prompt
 
 <!-- Describe what will change. Be specific about new capabilities or modifications. -->
 
-## Impact
+## Technical Impact
 
-<!-- Affected code, APIs, dependencies, systems -->
+<!-- Concrete technical scope only: affected repo/module/service, API/dependency, data/config, and test scope -->
 ```
 
 Templates can include:

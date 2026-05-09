@@ -277,8 +277,8 @@ context: |
           `schema: spec-driven
 rules:
   proposal:
-    - Include rollback plan
-    - Identify affected teams
+    - Keep Technical Impact scoped
+    - Prefer concise proposal wording
   specs:
     - Use Given/When/Then format
 `
@@ -288,8 +288,8 @@ rules:
 
         // Check proposal artifact has its rules
         const proposalInstructions = generateInstructions(context, 'proposal', tempDir);
-        expect(proposalInstructions.rules).toEqual(['Include rollback plan', 'Identify affected teams']);
-        expect(proposalInstructions.template).not.toContain('rollback plan');
+        expect(proposalInstructions.rules).toEqual(['Keep Technical Impact scoped', 'Prefer concise proposal wording']);
+        expect(proposalInstructions.template).not.toContain('Prefer concise proposal wording');
 
         // Check specs artifact has its rules
         const specsInstructions = generateInstructions(context, 'specs', tempDir);
@@ -306,7 +306,7 @@ rules:
           `schema: spec-driven
 rules:
   proposal:
-    - Include rollback plan
+    - Keep Technical Impact scoped
 `
         );
 

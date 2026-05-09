@@ -35,8 +35,8 @@ context: |
   API style: RESTful
 rules:
   proposal:
-    - Include rollback plan
-    - Identify affected teams
+    - Keep Technical Impact scoped
+    - Avoid project-management fields
   specs:
     - Use Given/When/Then format
 `
@@ -48,7 +48,7 @@ rules:
           schema: 'spec-driven',
           context: 'Tech stack: TypeScript, React\nAPI style: RESTful\n',
           rules: {
-            proposal: ['Include rollback plan', 'Identify affected teams'],
+            proposal: ['Keep Technical Impact scoped', 'Avoid project-management fields'],
             specs: ['Use Given/When/Then format'],
           },
         });

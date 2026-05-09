@@ -8,18 +8,18 @@ import type { SkillTemplate, CommandTemplate } from '../types.js';
 
 const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
 
-保留原命令意图：读取 change 的上下文和任务列表，按任务逐步实现，并及时更新 tasks.md。团队版增强只是在实现前后补充协作边界、影响范围和交接信息，不改变“执行任务”的核心职责。
+保留原命令意图：读取 change 的上下文和任务列表，按任务逐步实现，并及时更新 tasks.md。重点是按产物约束完成实现、测试和接口契约处理，不把执行过程扩展成项目管理交接文档。
 
 **输入**：可以指定变更名，例如 \`/ovsx:apply add-auth\`。如果省略，先尝试从对话上下文推断；如果模糊或有多个候选，必须让用户选择。
 
-**团队协作增强**
+**实现与契约约束**
 
-- 开始实现前，识别任务影响的仓库、模块、服务、owner/reviewer、接口契约和发布顺序。
-- 优先从 proposal/specs/tasks 以及按需存在的 design.md 中读取团队结构化字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff。缺失时补充到本轮输出或暂停询问，不要靠口头记忆推进。
+- 开始实现前，识别任务影响的仓库、模块、服务、接口契约和必要发布顺序。
+- 优先从 proposal/specs/tasks 以及按需存在的 design.md 中读取技术影响范围、API/YAPI 清单、迁移/兼容性风险和验证口径。不要补写 owner、reviewer、handoff、meeting、approval 或项目管理字段。
 - 如果变更涉及 workspace 或多仓，先读取可用 workspace 状态：\`ovsespec workspace list --json\` 和 \`ovsespec workspace doctor --json\`。只在用户明确要求实现时修改 linked repo 中的代码。
 - 不要把所有 linked repo 当成可任意修改的范围；只修改任务、产物或用户明确指向的代码位置。
-- 对跨团队契约、迁移、数据变更、兼容性风险，先确认实现顺序和验收方式。
-- 如果任务涉及 Controller、API route、DTO、request/response schema、错误包装、advmock 或接口契约，必须把 YAPI 纳入实现范围：识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、owner/reviewer 和文档同步方式。
+- 对跨服务/跨仓契约、迁移、数据变更、兼容性风险，先确认实现顺序和验证方式。
+- 如果任务涉及 Controller、API route、DTO、request/response schema、错误包装、advmock 或接口契约，必须把 YAPI 纳入实现范围：识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\` 和文档同步方式。
 - 如果 proposal/specs/tasks 或按需存在的 design.md 中已有 API/YAPI 清单，以清单作为 source of truth；实现发现接口、schema、错误包装或 Mock 场景变化时，先更新或报告产物差异，再继续写 YAPI。
 - YAPI 目标不明确时不要猜。优先从 artifacts、代码注解、已有 YAPI URL、接口列表或项目配置中取证；证据不足就暂停询问。
 - 实现阶段如果新增了公开接口，且 YAPI 中按 \`method + path\` 查不到对应接口，必须创建 YAPI 接口；如果已存在，必须更新接口文档。
@@ -71,8 +71,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
    如果上下文中出现 YAPI、接口文档、\`interface_id\`、\`service_id\`、\`program_name\`、advmock、Controller 或 API capability，额外建立 YAPI checklist：
    - 受影响接口的 \`method + path\`
    - 对应 Controller/handler、DTO、request/response、错误包装
-   - YAPI 项目、服务标识、分类和接口 ID
-   - owner/reviewer、acceptance、rollback、handoff
+   - YAPI 项目、服务标识和接口 ID
    - 需要新增、更新、审计或 mock 的事项
    - 需要的 Mock 场景：默认成功、空数据、错误码、权限失败、边界参数或 spec 指定场景
 
@@ -82,7 +81,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
    - 使用的 schema
    - 进度，例如 “3/7 个任务完成”
    - 剩余任务概览
-   - 如适用，团队影响范围：仓库/模块、owner/reviewer、交接点、契约或发布风险
+   - 如适用，技术影响范围：仓库/模块、接口契约、迁移/兼容性或发布风险
    - 如适用，YAPI 状态：目标接口、service_id/interface_id 是否已知、是否需要 sync/audit/mock
    - CLI 返回的动态指令
 
@@ -92,7 +91,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
    - 说明正在处理哪个任务。
    - 做最小、聚焦的代码修改。
    - 如果是多仓任务，先说明当前修改哪个仓库或模块，以及为什么。
-   - 如果 team/API 结构化字段缺失，先把缺口写入输出并尽量从代码或 artifacts 补证；缺关键写入目标时暂停。
+   - 如果 API/YAPI 关键信息缺失，先尽量从代码或 artifacts 补证；缺关键写入目标时暂停。
    - 如果修改公开 API、Controller、DTO、请求/响应 schema 或错误包装，同步更新对应测试和 YAPI 文档计划；能访问 YAPI tooling 时执行 sync/audit，不能访问时把精确待办写入输出。
    - API 代码实现完成后，按 \`method + path\` 查询 YAPI：不存在则创建接口，存在则更新接口；新增/更新前必须确认写入目标 \`service_id/mcp_sid\`，不能依赖隐式 token 默认目标。
    - YAPI 接口新增/更新成功后，拉取接口详情确认 method、path、service_id、request/response schema 和错误包装与代码一致；不一致时不要勾选任务，先报告差异。
@@ -106,7 +105,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
    **以下情况必须暂停：**
    - 任务描述不清楚。
    - 实现中发现设计、契约、迁移方案有问题。
-   - 需要其他团队/owner 确认。
+   - 关键业务、契约、发布或写入目标信息缺失。
    - 发生错误或阻塞。
    - 用户中断。
 
@@ -161,7 +160,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
 **进度:** 4/7 个任务完成
 
 ### 阻塞点
-<说明问题、影响范围、需要谁确认>
+<说明问题、影响范围、需要确认的信息>
 
 ### 可选下一步
 1. <选项 1>
@@ -174,10 +173,10 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
 - 开始前必须读取 CLI 返回的上下文文件。
 - 按任务推进，除非完成、阻塞或用户中断。
 - 任务不清楚时先问，不要猜。
-- 跨团队或跨仓修改必须保持边界清晰，只改任务需要的范围。
+- 跨仓或跨模块修改必须保持边界清晰，只改任务需要的范围。
 - API 相关任务完成前必须处理 YAPI 状态：已 sync/audit，或明确记录为什么无法处理以及下一步。
 - API 相关任务不能只完成代码；tasks.md 中的 YAPI create/update、Mock/advmock、audit/一致性核对也必须完成或明确阻塞。
-- YAPI 同步不清楚时先问，不要猜 \`program_name\`、\`service_id\`、\`interface_id\`、分类或包装语义。
+- YAPI 同步不清楚时先问，不要猜 \`program_name\`、\`service_id\`、\`interface_id\` 或包装语义。
 - 新增 API 没有 YAPI 接口时必须创建接口；已有接口必须更新文档；除非 YAPI tooling 或权限不可用，并且输出明确阻塞。
 - YAPI Mock 数据是 API 实现完成条件的一部分：至少默认成功响应，必要时包含空数据、错误码、权限失败和边界场景。
 - 发现产物错误时，暂停并建议更新产物，而不是绕开产物继续。
@@ -187,7 +186,7 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
 export function getApplyChangeSkillTemplate(): SkillTemplate {
   return {
     name: 'ovsespec-apply-change',
-    description: '实现 OvseSpec 变更中的任务；团队场景会明确影响范围、owner、交接点和跨仓边界。',
+    description: '实现 OvseSpec 变更中的任务；明确技术影响范围、接口契约和跨仓边界。',
     instructions: APPLY_INSTRUCTIONS,
     license: 'MIT',
     compatibility: 'Requires ovsespec CLI.',
@@ -198,9 +197,9 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
 export function getOvsxApplyCommandTemplate(): CommandTemplate {
   return {
     name: 'OVSX: Apply',
-    description: '实现变更任务，并在团队场景中处理影响范围、owner、交接和跨仓边界',
+    description: '实现变更任务，并处理技术影响范围、接口契约和跨仓边界',
     category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'team'],
+    tags: ['workflow', 'artifacts', 'implementation'],
     content: APPLY_INSTRUCTIONS,
   };
 }

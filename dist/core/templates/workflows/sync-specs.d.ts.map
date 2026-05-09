@@ -1,1 +1,1 @@
-{"version":3,"file":"sync-specs.d.ts","sourceRoot":"","sources":["../../../../src/core/templates/workflows/sync-specs.ts"],"names":[],"mappings":"AAAA;;;;;GAKG;AACH,OAAO,KAAK,EAAE,aAAa,EAAE,eAAe,EAAE,MAAM,aAAa,CAAC;AAwMlE,wBAAgB,yBAAyB,IAAI,aAAa,CASzD;AAED,wBAAgB,0BAA0B,IAAI,eAAe,CAQ5D"}
+{"version":3,"file":"sync-specs.d.ts","sourceRoot":"","sources":["../../../../src/core/templates/workflows/sync-specs.ts"],"names":[],"mappings":"AAAA;;;;;GAKG;AACH,OAAO,KAAK,EAAE,aAAa,EAAE,eAAe,EAAE,MAAM,aAAa,CAAC;AAoNlE,wBAAgB,yBAAyB,IAAI,aAAa,CASzD;AAED,wBAAgB,0BAA0B,IAAI,eAAe,CAQ5D"}

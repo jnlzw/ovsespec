@@ -91,12 +91,10 @@ context: |
 
 rules:
   proposal:
-    - Include rollback plan
-    - Identify affected teams
+    - Keep Technical Impact limited to concrete repo/module/API/data/test scope
+    - Do not add owner, reviewer, handoff, meeting, or approval fields
   specs:
     - Use Given/When/Then format for scenarios
-  design:
-    - Include sequence diagrams for complex flows
 ```
 
 ### Config Fields

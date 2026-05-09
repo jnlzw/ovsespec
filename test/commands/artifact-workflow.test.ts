@@ -790,8 +790,8 @@ context: |
   API style: RESTful
 rules:
   proposal:
-    - Include rollback plan
-    - Identify affected teams
+    - Keep Technical Impact scoped
+    - Avoid project-management fields
 `
         );
 
@@ -810,8 +810,8 @@ rules:
         expect(result.stdout).toContain('API style: RESTful');
 
         // Verify rules are injected for proposal
-        expect(result.stdout).toContain('Include rollback plan');
-        expect(result.stdout).toContain('Identify affected teams');
+        expect(result.stdout).toContain('Keep Technical Impact scoped');
+        expect(result.stdout).toContain('Avoid project-management fields');
       }, 60000);
 
       it('does not inject rules for non-matching artifact', async () => {
@@ -822,7 +822,7 @@ rules:
           `schema: spec-driven
 rules:
   proposal:
-    - Include rollback plan
+    - Keep Technical Impact scoped
 `
         );
 
@@ -837,7 +837,7 @@ rules:
         expect(result.exitCode).toBe(0);
 
         // Verify rules are NOT injected for specs
-        expect(result.stdout).not.toContain('Include rollback plan');
+        expect(result.stdout).not.toContain('Keep Technical Impact scoped');
       }, 60000);
     });
 

@@ -42,14 +42,14 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
    This returns the change directory and \`contextFiles\` (artifact ID -> array of concrete file paths). Read all available artifacts from \`contextFiles\`.
 
-4. **Initialize verification report structure**
+4. **Initialize verification result**
 
-   Create a report structure with three dimensions:
+   Keep verification output short and actionable. Track only:
    - **Completeness**: Track tasks and spec coverage
    - **Correctness**: Track requirement implementation and scenario coverage
-   - **Coherence**: Track design adherence and pattern consistency
+   - **Coherence**: Track design adherence only when design.md exists
 
-   Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
+   Use only CRITICAL or WARNING by default. Do not add suggestions unless they point to a concrete file or missing test.
 
 5. **Verify Completeness**
 
@@ -102,54 +102,34 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
    - If no design.md: Skip design adherence check, note "No design.md to verify against"
 
    **Code Pattern Consistency**:
-   - Review new code for consistency with project patterns
-   - Check file naming, directory structure, coding style
-   - If significant deviations found:
-     - Add SUGGESTION: "Code pattern deviation: <details>"
-     - Recommendation: "Consider following project pattern: <example>"
+   - Only report significant pattern deviations that can break maintainability or behavior.
+   - Do not nitpick style or create generic improvement suggestions.
 
-8. **Generate Verification Report**
+8. **Generate Verification Result**
 
-   **Summary Scorecard**:
+   Output a compact result, not a long audit document:
    \`\`\`
-   ## Verification Report: <change-name>
+   ## Verification: <change-name>
 
-   ### Summary
-   | Dimension    | Status           |
-   |--------------|------------------|
-   | Completeness | X/Y tasks, N reqs|
-   | Correctness  | M/N reqs covered |
-   | Coherence    | Followed/Issues  |
+   Result: pass / blocked / pass with warnings
+   Checked: tasks X/Y, requirements M/N, scenarios P/Q
+
+   Critical:
+   - <must fix before archive, with file reference>
+
+   Warnings:
+   - <specific issue, with file reference>
+
+   Skipped:
+   - <check skipped because artifact/tooling was absent>
    \`\`\`
-
-   **Issues by Priority**:
-
-   1. **CRITICAL** (Must fix before archive):
-      - Incomplete tasks
-      - Missing requirement implementations
-      - Each with specific, actionable recommendation
-
-   2. **WARNING** (Should fix):
-      - Spec/design divergences
-      - Missing scenario coverage
-      - Each with specific recommendation
-
-   3. **SUGGESTION** (Nice to fix):
-      - Pattern inconsistencies
-      - Minor improvements
-      - Each with specific recommendation
-
-   **Final Assessment**:
-   - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive."
 
 **Verification Heuristics**
 
 - **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
 - **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
 - **Coherence**: Look for glaring inconsistencies, don't nitpick style
-- **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
+- **False Positives**: When uncertain, prefer not reporting it. If the uncertainty matters, report a WARNING with exact missing evidence.
 - **Actionability**: Every issue must have a specific recommendation with file/line references where applicable
 
 **Graceful Degradation**
@@ -161,12 +141,14 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
 **Output Format**
 
-Use clear markdown with:
-- Table for summary scorecard
-- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
+Use concise markdown with:
+- One result line
+- Counts for tasks, requirements, and scenarios
+- Grouped lists for CRITICAL/WARNING only
 - Code references in format: \`file.ts:123\`
 - Specific, actionable recommendations
-- No vague suggestions like "consider reviewing"`,
+- No vague suggestions like "consider reviewing"
+- Do not write a separate verification file unless the user explicitly asks`,
     license: 'MIT',
     compatibility: 'Requires ovsespec CLI.',
     metadata: { author: 'ovsespec', version: '1.0' },
@@ -197,10 +179,10 @@ export function getOvsxVerifyCommandTemplate(): CommandTemplate {
    ovsespec instructions apply --change "<name>" --json
    \`\`\`
 
-4. 建立三个维度的校验报告：
+4. 建立简洁校验结果：
    - **完整性**：任务完成度、spec 覆盖度
    - **正确性**：requirement 和 scenario 是否有实现证据
-   - **一致性**：实现是否符合 design 和项目模式
+   - **一致性**：仅在 design.md 存在时检查关键设计是否被违反
 
 5. 校验完整性：
    - 读取 tasks，统计 \`- [ ]\` 和 \`- [x]\`。
@@ -213,22 +195,17 @@ export function getOvsxVerifyCommandTemplate(): CommandTemplate {
 
 7. 校验一致性：
    - 如果存在 design，检查关键决策是否被实现遵守。
-   - 检查新代码是否明显偏离项目模式。
-   - 对不确定但有价值的问题记录 SUGGESTION。
+   - 只记录会影响行为、可维护性或契约的一致性问题；不要输出泛泛风格建议。
 
 **输出格式**
 
-用中文输出 markdown 报告：
+用中文输出简洁 markdown 结果，不写独立校验文档：
 
 \`\`\`
-## 校验报告：<change-name>
+## 校验结果：<change-name>
 
-### 摘要
-| 维度 | 状态 |
-| --- | --- |
-| 完整性 | X/Y 个任务，N 个 requirements |
-| 正确性 | M/N 个 requirements 已覆盖 |
-| 一致性 | 已遵守 / 有问题 |
+结论：pass / blocked / pass with warnings
+检查：tasks X/Y，requirements M/N，scenarios P/Q
 
 ### CRITICAL
 - <必须归档前处理的问题，带具体建议>
@@ -236,11 +213,8 @@ export function getOvsxVerifyCommandTemplate(): CommandTemplate {
 ### WARNING
 - <建议处理的问题，带文件引用>
 
-### SUGGESTION
-- <可选改进>
-
-### 最终评估
-<是否可以归档，以及原因>
+### Skipped
+- <因为产物或工具缺失而跳过的检查>
 \`\`\`
 
 **护栏**
@@ -248,6 +222,7 @@ export function getOvsxVerifyCommandTemplate(): CommandTemplate {
 - 每个问题都要有具体建议。
 - 有文件证据时使用 \`file.ts:123\` 格式引用。
 - 如果某类产物不存在，说明跳过了哪些检查以及原因。
-- 不要输出模糊建议，例如“考虑再审查一下”。`
+- 不要输出模糊建议，例如“考虑再审查一下”。
+- 不要生成新的 md 文件，除非用户明确要求。`
   };
 }

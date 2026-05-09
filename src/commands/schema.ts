@@ -945,9 +945,10 @@ function createDefaultTemplate(artifactId: string): string {
 ### Modified Capabilities
 <!-- List modified capabilities -->
 
-## Impact
+## Technical Impact
 
-<!-- Describe the impact on existing functionality -->
+<!-- Only list concrete technical impact: affected repo/module/service, API/dependency, data/config, and test scope.
+     Do not include owner, reviewer, handoff, meeting, approval, or project-management fields. -->
 `;
 
     case 'specs':

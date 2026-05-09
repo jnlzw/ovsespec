@@ -61,7 +61,7 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 **Output**
 
 After completing the steps, summarize:
-- Change name and location
+- Change name
 - Schema/workflow being used and its artifact sequence
 - Current status (0/N artifacts complete)
 - The template for the first artifact

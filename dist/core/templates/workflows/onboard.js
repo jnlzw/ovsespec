@@ -229,7 +229,7 @@ Here's a draft proposal:
 ### Modified Capabilities
 <!-- If modifying existing behavior -->
 
-## Impact
+## Technical Impact
 
 - \`src/path/to/file.ts\`: [what changes]
 - [other files if applicable]

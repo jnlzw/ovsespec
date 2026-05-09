@@ -60,6 +60,8 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
       - Read any completed dependency files for context
       - Create the artifact file using \`template\` as the structure
       - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
+      - Keep generated artifacts lean. Remove empty placeholders instead of writing "None", "TBD", or generic filler.
+      - Do not add coordination, approval, handoff, owner/reviewer, or meeting-style content unless the schema explicitly requires it.
       - Show brief progress: "✓ Created <artifact-id>"
 
    b. **Continue until all \`applyRequires\` artifacts are complete**
@@ -79,7 +81,7 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
 **Output**
 
 After completing all artifacts, summarize:
-- Change name and location
+- Change name
 - List of artifacts created with brief descriptions
 - What's ready: "All artifacts created! Ready for implementation."
 - Prompt: "Run \`/ovsx:apply\` or ask me to implement to start working on the tasks."
@@ -90,6 +92,8 @@ After completing all artifacts, summarize:
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use \`template\` as the structure for your output file - fill in its sections
+- For spec-driven artifacts, write only content that helps implementation: change intent, observable requirements, technical scope, concrete tasks, conditional API/YAPI sync work, and verification.
+- Do not create design.md for simple local changes. If design.md is needed, keep it to decision, approach, trade-offs, risks, and validation.
 - **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
   - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
   - These guide what you write, but should never appear in the output
@@ -155,10 +159,11 @@ export function getOvsxFfCommandTemplate(): CommandTemplate {
 **输出**
 
 用中文总结：
-- 变更名和位置
+- 变更名
 - 已创建产物列表
 - 当前已实现就绪
 - 提示：“运行 \`/ovsx:apply\` 开始实现。”
+不要额外生成独立总结文档，也不要在长期产物里写项目管理、审批或交接内容。
 
 **护栏**
 
@@ -166,6 +171,7 @@ export function getOvsxFfCommandTemplate(): CommandTemplate {
 - 创建新产物前必须读取依赖产物。
 - 上下文关键不清楚时先问。
 - 同名变更已存在时询问是继续还是换名。
-- 每个产物写完后确认文件存在。`
+- 每个产物写完后确认文件存在。
+- 删除空占位和泛泛段落；只保留能指导开发、测试、契约同步或验证的内容。`
   };
 }

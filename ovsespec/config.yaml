@@ -19,6 +19,9 @@ context: |
   - Consider case sensitivity differences in file systems
 
 rules:
+  proposal:
+    - Keep Technical Impact limited to concrete repo/module/API/data/test scope
+    - Do not add owner, reviewer, handoff, meeting, approval, or project-management fields
   specs:
     - Include scenarios for Windows path handling when dealing with file paths
     - Requirements involving paths must specify cross-platform behavior
@@ -28,9 +31,3 @@ rules:
   tasks:
     - Add Windows CI verification as a task when changes involve file paths
     - Include cross-platform testing considerations
-  design:
-    - Document any platform-specific behavior or limitations
-    - Prefer Node.js path module over string manipulation for paths
-    - Use existing constants and lists - don't invent detection mechanisms
-    - Prefer explicit lookups over pattern matching or regex
-    - If we generate it, we track it by name in a constant
