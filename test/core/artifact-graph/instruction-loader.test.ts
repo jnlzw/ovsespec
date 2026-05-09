@@ -177,9 +177,9 @@ describe('instruction-loader', () => {
       const context = loadChangeContext(tempDir, 'my-change');
       const instructions = generateInstructions(context, 'proposal');
 
-      // proposal unlocks specs and design
+      // proposal unlocks specs
       expect(instructions.unlocks).toContain('specs');
-      expect(instructions.unlocks).toContain('design');
+      expect(instructions.unlocks).not.toContain('design');
     });
 
     it('should have empty dependencies for root artifact', () => {
@@ -312,9 +312,9 @@ rules:
 
         const context = loadChangeContext(tempDir, 'my-change');
 
-        // Check design artifact (no rules configured) has undefined rules
-        const designInstructions = generateInstructions(context, 'design', tempDir);
-        expect(designInstructions.rules).toBeUndefined();
+        // Check specs artifact (no rules configured) has undefined rules
+        const specsInstructions = generateInstructions(context, 'specs', tempDir);
+        expect(specsInstructions.rules).toBeUndefined();
       });
 
       it('should return undefined rules when empty array', () => {
@@ -469,7 +469,7 @@ rules:
           // Call multiple times
           generateInstructions(context, 'proposal', freshTempDir);
           generateInstructions(context, 'specs', freshTempDir);
-          generateInstructions(context, 'design', freshTempDir);
+          generateInstructions(context, 'tasks', freshTempDir);
 
           // Warning should be shown only once (deduplication works)
           // Note: We may have gotten warnings from other tests, so check that
@@ -571,7 +571,6 @@ rules:
       // Create all required files for spec-driven schema
       fs.writeFileSync(path.join(changeDir, 'proposal.md'), '# Proposal');
       fs.writeFileSync(path.join(changeDir, 'specs', 'test.md'), '# Spec');
-      fs.writeFileSync(path.join(changeDir, 'design.md'), '# Design');
       fs.writeFileSync(path.join(changeDir, 'tasks.md'), '# Tasks');
 
       const context = loadChangeContext(tempDir, 'my-change');
@@ -585,11 +584,11 @@ rules:
       const context = loadChangeContext(tempDir, 'my-change');
       const status = formatChangeStatus(context);
 
-      // tasks requires specs and design
+      // tasks requires specs
       const tasks = status.artifacts.find(a => a.id === 'tasks');
       expect(tasks?.status).toBe('blocked');
       expect(tasks?.missingDeps).toContain('specs');
-      expect(tasks?.missingDeps).toContain('design');
+      expect(tasks?.missingDeps).not.toContain('design');
     });
 
     it('should sort artifacts in build order', () => {

@@ -83,7 +83,7 @@ describe('artifact-workflow CLI commands', () => {
       const result = await runCLI(['status', '--change', 'scaffolded-change'], { cwd: tempDir });
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('scaffolded-change');
-      expect(result.stdout).toContain('0/4 artifacts complete');
+      expect(result.stdout).toContain('0/3 artifacts complete');
     });
 
     it('shows status for a change with proposal only', async () => {
@@ -94,20 +94,20 @@ describe('artifact-workflow CLI commands', () => {
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('minimal-change');
       expect(result.stdout).toContain('spec-driven');
-      expect(result.stdout).toContain('1/4 artifacts complete');
+      expect(result.stdout).toContain('1/3 artifacts complete');
     });
 
-    it('shows status for a change with proposal and design', async () => {
+    it('does not count on-demand design.md as a default artifact', async () => {
       await createTestChange('partial-change', ['proposal', 'design']);
 
       const result = await runCLI(['status', '--change', 'partial-change'], { cwd: tempDir });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('2/4 artifacts complete');
+      expect(result.stdout).toContain('1/3 artifacts complete');
       expect(result.stdout).toContain('[x]');
     });
 
     it('outputs JSON when --json flag is used', async () => {
-      await createTestChange('json-change', ['proposal', 'design']);
+      await createTestChange('json-change', ['proposal']);
 
       const result = await runCLI(['status', '--change', 'json-change', '--json'], {
         cwd: tempDir,
@@ -120,18 +120,18 @@ describe('artifact-workflow CLI commands', () => {
       expect(json.schemaName).toBe('spec-driven');
       expect(json.isComplete).toBe(false);
       expect(Array.isArray(json.artifacts)).toBe(true);
-      expect(json.artifacts).toHaveLength(4);
+      expect(json.artifacts).toHaveLength(3);
 
       const proposalArtifact = json.artifacts.find((a: any) => a.id === 'proposal');
       expect(proposalArtifact.status).toBe('done');
     });
 
     it('shows complete status when all artifacts are done', async () => {
-      await createTestChange('complete-change', ['proposal', 'design', 'specs', 'tasks']);
+      await createTestChange('complete-change', ['proposal', 'specs', 'tasks']);
 
       const result = await runCLI(['status', '--change', 'complete-change'], { cwd: tempDir });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('4/4 artifacts complete');
+      expect(result.stdout).toContain('3/3 artifacts complete');
       expect(result.stdout).toContain('All artifacts complete!');
     });
 
@@ -229,20 +229,20 @@ describe('artifact-workflow CLI commands', () => {
       expect(result.stdout).toContain('<template>');
     });
 
-    it('shows instructions for design artifact', async () => {
+    it('shows instructions for specs artifact', async () => {
       await createTestChange('instr-change');
 
-      const result = await runCLI(['instructions', 'design', '--change', 'instr-change'], {
+      const result = await runCLI(['instructions', 'specs', '--change', 'instr-change'], {
         cwd: tempDir,
       });
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain('<artifact id="design"');
-      expect(result.stdout).toContain('design.md');
+      expect(result.stdout).toContain('<artifact id="specs"');
+      expect(result.stdout).toContain('specs/**/*.md');
       expect(result.stdout).toContain('<template>');
     });
 
     it('shows blocked warning for artifact with unmet dependencies', async () => {
-      // tasks depends on design and specs, which are not done yet
+      // tasks depends on specs, which are not done yet
       await createTestChange('blocked-change');
 
       const result = await runCLI(['instructions', 'tasks', '--change', 'blocked-change'], {
@@ -256,15 +256,15 @@ describe('artifact-workflow CLI commands', () => {
     it('outputs JSON for instructions', async () => {
       await createTestChange('json-instr', ['proposal']);
 
-      const result = await runCLI(['instructions', 'design', '--change', 'json-instr', '--json'], {
+      const result = await runCLI(['instructions', 'specs', '--change', 'json-instr', '--json'], {
         cwd: tempDir,
       });
       expect(result.exitCode).toBe(0);
       expect(result.stderr).toBe('');
 
       const json = JSON.parse(result.stdout);
-      expect(json.artifactId).toBe('design');
-      expect(json.outputPath).toContain('design.md');
+      expect(json.artifactId).toBe('specs');
+      expect(json.outputPath).toContain('specs/**/*.md');
       expect(typeof json.template).toBe('string');
       expect(Array.isArray(json.dependencies)).toBe(true);
     });
@@ -298,7 +298,6 @@ describe('artifact-workflow CLI commands', () => {
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Schema: spec-driven');
       expect(result.stdout).toContain('proposal:');
-      expect(result.stdout).toContain('design:');
       expect(result.stdout).toContain('specs:');
       expect(result.stdout).toContain('tasks:');
     });
@@ -308,7 +307,7 @@ describe('artifact-workflow CLI commands', () => {
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Schema: spec-driven');
       expect(result.stdout).toContain('proposal:');
-      expect(result.stdout).toContain('design:');
+      expect(result.stdout).toContain('specs:');
     });
 
     it('outputs JSON mapping of templates', async () => {
@@ -830,14 +829,14 @@ rules:
         // Create a test change
         await createTestChange('non-matching-test');
 
-        // Get instructions for design (not proposal)
+        // Get instructions for specs (not proposal)
         const result = await runCLI(
-          ['instructions', 'design', '--change', 'non-matching-test'],
+          ['instructions', 'specs', '--change', 'non-matching-test'],
           { cwd: tempDir, timeoutMs: 30000 }
         );
         expect(result.exitCode).toBe(0);
 
-        // Verify rules are NOT injected for design
+        // Verify rules are NOT injected for specs
         expect(result.stdout).not.toContain('Include rollback plan');
       }, 60000);
     });
@@ -858,7 +857,7 @@ rules:
 
         // Instructions command should work
         const instrResult = await runCLI(
-          ['instructions', 'design', '--change', 'no-config-change'],
+          ['instructions', 'specs', '--change', 'no-config-change'],
           { cwd: tempDir, timeoutMs: 30000 }
         );
         expect(instrResult.exitCode).toBe(0);

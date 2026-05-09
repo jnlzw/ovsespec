@@ -336,13 +336,13 @@ Each change is self-contained. It has:
 
 Packaging a change as a folder has several benefits:
 
-1. **Everything together.** Proposal, design, tasks, and specs live in one place. No hunting through different locations.
+1. **Everything together.** Proposal, tasks, specs, and any needed design record live in one place. No hunting through different locations.
 
 2. **Parallel work.** Multiple changes can exist simultaneously without conflicting. Work on `add-dark-mode` while `fix-auth-bug` is also in progress.
 
 3. **Clean history.** When archived, changes move to `changes/archive/` with their full context preserved. You can look back and understand not just what changed, but why.
 
-4. **Review-friendly.** A change folder is easy to review — open it, read the proposal, check the design, see the spec deltas.
+4. **Review-friendly.** A change folder is easy to review — open it, read the proposal, check the tasks, see the spec deltas, and inspect design.md when one was needed.
 
 ## Artifacts
 
@@ -351,13 +351,14 @@ Artifacts are the documents within a change that guide the work.
 ### The Artifact Flow
 
 ```
-proposal ──────► specs ──────► design ──────► tasks ──────► implement
-    │               │             │              │
-   why            what           how          steps
- + scope        changes       approach      to take
+proposal ──────► specs ──────► tasks ──────► implement
+    │               │             │
+   why            what          steps
+ + scope        changes       to take
 ```
 
 Artifacts build on each other. Each artifact provides context for the next.
+Create design.md only when a change needs explicit technical decisions.
 
 ### Artifact Types
 
@@ -592,7 +593,7 @@ artifacts:
 The standard workflow for spec-driven development:
 
 ```
-proposal → specs → design → tasks → implement
+proposal → specs → tasks → implement
 ```
 
 Best for: Most feature work where you want to agree on specs before implementation.
@@ -625,7 +626,7 @@ artifacts:
 
   - id: tasks
     generates: tasks.md
-    requires: [proposal]   # Skip specs/design, go straight to tasks
+    requires: [proposal]   # Skip specs and optional design, go straight to tasks
 ```
 
 See [Customization](customization.md) for full details on creating and using custom schemas.
@@ -682,7 +683,7 @@ ovsespec/
 
 **Clean state.** Active changes (`changes/`) shows only work in progress. Completed work moves out of the way.
 
-**Audit trail.** The archive preserves the full context of every change — not just what changed, but the proposal explaining why, the design explaining how, and the tasks showing the work done.
+**Audit trail.** The archive preserves the full context of every change — not just what changed, but the proposal explaining why, the tasks showing the work done, and design.md when technical decisions needed to be recorded.
 
 **Spec evolution.** Specs grow organically as changes are archived. Each archive merges its deltas, building up a comprehensive specification over time.
 
@@ -700,7 +701,7 @@ ovsespec/
 │           ▼                                                                  │
 │   ┌────────────────┐                                                         │
 │   │  2. CREATE     │  /ovsx:ff or /ovsx:continue (expanded workflow)         │
-│   │     ARTIFACTS  │  Creates proposal → specs → design → tasks              │
+│   │     ARTIFACTS  │  Creates proposal → specs → tasks                      │
 │   │                │  (based on schema dependencies)                         │
 │   └───────┬────────┘                                                         │
 │           │                                                                  │

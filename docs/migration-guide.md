@@ -477,7 +477,7 @@ When determining which schema to use, OVSX checks in order:
 
 | Schema | Artifacts | Best For |
 |--------|-----------|----------|
-| `spec-driven` | proposal → specs → design → tasks | Most projects |
+| `spec-driven` | proposal → specs → tasks | Most projects |
 
 List all available schemas:
 
@@ -521,7 +521,7 @@ Restart your IDE. Skills are detected at startup.
 
 Check that your `rules:` keys match your schema's artifact IDs:
 
-- **spec-driven**: `proposal`, `specs`, `design`, `tasks`
+- **spec-driven**: `proposal`, `specs`, `tasks`
 
 Run this to see valid artifact IDs:
 

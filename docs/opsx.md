@@ -53,7 +53,9 @@ You're "in planning phase", then "in implementation phase", then "done". But rea
 - **Dependencies are enablers** — they show what's possible, not what's required next
 
 ```
-  proposal ──→ specs ──→ design ──→ tasks ──→ implement
+  proposal ──→ specs ──→ tasks ──→ implement
+                  │
+                  └── design.md only when needed
 ```
 
 ## Setup
@@ -353,7 +355,8 @@ Examples in this section use the expanded command set (`new`, `continue`, etc.);
 │              └────────────────────────────────────────────┘                 │
 │                                                                             │
 │   • Create artifacts one at a time OR fast-forward                         │
-│   • Update specs/design/tasks during implementation                        │
+│   • Update specs/tasks during implementation                               │
+│   • Update design.md only if one exists for this change                    │
 │   • Dependencies enable progress, phases don't exist                       │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -625,7 +628,7 @@ artifacts:
 
 Schemas define what artifacts exist and their dependencies. Currently available:
 
-- **spec-driven** (default): proposal → specs → design → tasks
+- **spec-driven** (default): proposal → specs → tasks
 
 ```bash
 # List available schemas

@@ -577,12 +577,11 @@ ovsespec status --change add-dark-mode --json
 ```
 Change: add-dark-mode
 Schema: spec-driven
-Progress: 2/4 artifacts complete
+Progress: 2/3 artifacts complete
 
 [x] proposal
-[ ] design
 [x] specs
-[-] tasks (blocked by: design)
+[ ] tasks
 ```
 
 **Output (JSON):**
@@ -595,9 +594,8 @@ Progress: 2/4 artifacts complete
   "applyRequires": ["tasks"],
   "artifacts": [
     {"id": "proposal", "outputPath": "proposal.md", "status": "done"},
-    {"id": "design", "outputPath": "design.md", "status": "ready"},
     {"id": "specs", "outputPath": "specs/**/*.md", "status": "done"},
-    {"id": "tasks", "outputPath": "tasks.md", "status": "blocked", "missingDeps": ["design"]}
+    {"id": "tasks", "outputPath": "tasks.md", "status": "ready"}
   ]
 }
 ```
@@ -689,7 +687,6 @@ Schema: spec-driven
 Templates:
   proposal  → ~/.ovsespec/schemas/spec-driven/templates/proposal.md
   specs     → ~/.ovsespec/schemas/spec-driven/templates/specs.md
-  design    → ~/.ovsespec/schemas/spec-driven/templates/design.md
   tasks     → ~/.ovsespec/schemas/spec-driven/templates/tasks.md
 ```
 
@@ -722,7 +719,7 @@ Available schemas:
 
   spec-driven (package)
     The default spec-driven development workflow
-    Flow: proposal → specs → design → tasks
+    Flow: proposal → specs → tasks
 
   my-custom (project)
     Custom workflow for this project
@@ -754,7 +751,7 @@ ovsespec schema init <name> [options]
 | Option | Description |
 |--------|-------------|
 | `--description <text>` | Schema description |
-| `--artifacts <list>` | Comma-separated artifact IDs (default: `proposal,specs,design,tasks`) |
+| `--artifacts <list>` | Comma-separated artifact IDs (default: `proposal,specs,tasks`) |
 | `--default` | Set as project default schema |
 | `--no-default` | Don't prompt to set as default |
 | `--force` | Overwrite existing schema |
@@ -781,7 +778,6 @@ ovsespec/schemas/<name>/
 └── templates/
     ├── proposal.md       # Template for each artifact
     ├── specs.md
-    ├── design.md
     └── tasks.md
 ```
 

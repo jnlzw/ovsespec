@@ -22,14 +22,6 @@
 
 <!-- Deployment, migration, compatibility, rollback, and recovery steps if applicable -->
 
-## Team Workflow
-
-<!-- Optional for small single-owner changes. For team/API work, capture owner, reviewer, acceptance, rollback, and handoff. -->
-
-## API / YAPI Contract Plan
-
-<!-- Required when API/interface contracts are affected. Record method + path, program_name, service_id, interface_id, Controller/handler, DTOs, wrapper, Mock/advmock scenarios, and sync/audit plan. -->
-
 ## Open Questions
 
-<!-- Decisions or missing ownership/YAPI/deploy details that must be resolved before implementation -->
+<!-- Decisions or missing technical details that must be resolved before implementation -->

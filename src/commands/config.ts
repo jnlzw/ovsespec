@@ -44,7 +44,7 @@ interface WorkflowPromptMeta {
 const WORKFLOW_PROMPT_META: Record<string, WorkflowPromptMeta> = {
   propose: {
     name: 'Propose change',
-    description: 'Create proposal, design, and tasks from a request',
+    description: 'Create proposal, specs, and tasks from a request',
   },
   explore: {
     name: 'Explore ideas',
@@ -88,7 +88,7 @@ const WORKFLOW_PROMPT_META: Record<string, WorkflowPromptMeta> = {
   },
   'paas-test-deploy': {
     name: 'PaaS test deploy',
-    description: 'Run a team-aware PaaS test deploy workflow',
+    description: 'Run a PaaS test deploy workflow',
   },
 };
 

@@ -18,7 +18,9 @@ Traditional (phase-locked):
 
 OVSX (fluid actions):
 
-  proposal ──► specs ──► design ──► tasks ──► implement
+  proposal ──► specs ──► tasks ──► implement
+                  │
+                  └── design.md only when needed
 ```
 
 **Key principles:**
@@ -288,7 +290,6 @@ AI:  Archiving add-auth...
      Artifact status:
      ✓ proposal.md exists
      ✓ specs/ exists
-     ✓ design.md exists
      ✓ tasks.md exists (12/12 tasks complete)
 
      Delta specs: Not yet synced to main

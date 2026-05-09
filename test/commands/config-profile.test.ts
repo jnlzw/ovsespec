@@ -257,7 +257,7 @@ describe('config profile interactive flow', () => {
       expect.objectContaining({
         value: 'propose',
         name: 'Propose change',
-        description: 'Create proposal, design, and tasks from a request',
+        description: 'Create proposal, specs, and tasks from a request',
       }),
       expect.objectContaining({
         value: 'verify',

@@ -105,7 +105,7 @@ export function getOvsxFfCommandTemplate() {
         tags: ['workflow', 'artifacts'],
         content: `快速推进产物创建，一次生成开始实现前所需的全部产物。
 
-保留原命令意图：这是 expanded workflow 的快速路径，等价于创建 change 后连续执行产物生成，直到满足 \`apply.requires\`。如果用户需要默认团队版一键提案，优先使用 \`/ovsx:propose\`。
+保留原命令意图：这是 expanded workflow 的快速路径，等价于创建 change 后连续执行产物生成，直到满足 \`apply.requires\`。如果用户需要默认一键提案，优先使用 \`/ovsx:propose\`。
 
 **输入**：\`/ovsx:ff\` 后面可以是 kebab-case 变更名，也可以是用户想构建或修复的描述。
 

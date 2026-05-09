@@ -21,27 +21,3 @@
 ## Impact
 
 <!-- Affected code, APIs, dependencies, systems -->
-
-## Team Coordination
-
-<!-- Optional for small single-owner changes. For team/API work, keep these fields explicit. -->
-- Repo / module / service: <name or unknown>
-- Owner: <owner or unknown>
-- Reviewer: <reviewer or unknown>
-- Acceptance: <how this will be accepted>
-- Rollback: <rollback path or N/A>
-- Handoff: <who needs to know, and when>
-
-## API / YAPI Contracts
-
-<!-- Required when this change touches public API, Controller, route, DTO, request/response schema, error wrapper, or advmock. -->
-- `method + path`: <GET /api/example or unknown>
-- `program_name`: <program name or unknown>
-- `service_id`: <service id or unknown>
-- `interface_id`: <interface id, new, or unknown>
-- Category: <YAPI category or unknown>
-- Owner / reviewer: <owner / reviewer>
-- Controller / handler: <code location or unknown>
-- Request / response / wrapper: <contract summary>
-- Mock / advmock: <default success, empty data, error code, permission failure, boundary cases>
-- Sync status: <create/update/audit/blocker>

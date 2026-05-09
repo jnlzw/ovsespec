@@ -90,12 +90,12 @@ The artifact types and their purpose depend on the schema. Use the \`instruction
 
 Common artifact patterns:
 
-**spec-driven schema** (proposal → specs → design → tasks):
+**spec-driven schema** (proposal → specs → tasks, with design.md on demand):
 - **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
   - The Capabilities section is critical - each capability listed will need a spec file.
 - **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **design.md**: Document technical decisions, architecture, and implementation approach.
 - **tasks.md**: Break down implementation into checkboxed tasks.
+- **design.md**: Create only when the change needs explicit technical decisions, architectural trade-offs, external dependencies, migration, security, or performance planning.
 
 For other schemas, follow the \`instruction\` field from the CLI output.
 

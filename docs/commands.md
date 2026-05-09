@@ -49,7 +49,7 @@ Create a new change and generate planning artifacts in one step. This is the def
 
 **What it does:**
 - Creates `ovsespec/changes/<change-name>/`
-- Generates artifacts needed before implementation (for `spec-driven`: proposal, specs, design, tasks)
+- Generates artifacts needed before implementation (for `spec-driven`: proposal, specs, tasks; design.md on demand)
 - Stops when the change is ready for `/ovsx:apply`
 
 **Example:**
@@ -59,7 +59,6 @@ You: /ovsx:propose add-dark-mode
 AI:  Created ovsespec/changes/add-dark-mode/
      ✓ proposal.md
      ✓ specs/ui/spec.md
-     ✓ design.md
      ✓ tasks.md
      Ready for implementation. Run /ovsx:apply.
 ```
@@ -470,7 +469,6 @@ AI:  Archiving add-dark-mode...
      Artifact status:
      ✓ proposal.md exists
      ✓ specs/ exists
-     ✓ design.md exists
      ✓ tasks.md exists (8/8 tasks complete)
 
      Delta specs: Not yet synced
@@ -633,7 +631,7 @@ These commands use the older "all-at-once" workflow. They still work but OVSX co
 
 | Command | What it does |
 |---------|--------------|
-| `/ovsespec:proposal` | Create all artifacts at once (proposal, specs, design, tasks) |
+| `/ovsespec:proposal` | Create implementation-ready artifacts at once (proposal, specs, tasks; design.md on demand) |
 | `/ovsespec:apply` | Implement the change |
 | `/ovsespec:archive` | Archive the change |
 

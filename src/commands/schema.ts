@@ -284,6 +284,8 @@ const DEFAULT_ARTIFACTS: Array<{
   },
 ];
 
+const DEFAULT_SCHEMA_ARTIFACT_IDS = ['proposal', 'specs', 'tasks'];
+
 /**
  * Register the schema command and all its subcommands.
  */
@@ -667,7 +669,7 @@ export function registerSchemaCommand(program: Command): void {
     .description('Create a new project-local schema')
     .option('--json', 'Output as JSON')
     .option('--description <text>', 'Schema description')
-    .option('--artifacts <list>', 'Comma-separated artifact IDs (proposal,specs,design,tasks)')
+    .option('--artifacts <list>', 'Comma-separated artifact IDs (default: proposal,specs,tasks; optional: design)')
     .option('--default', 'Set as project default schema')
     .option('--no-default', 'Do not prompt to set as default')
     .option('--force', 'Overwrite existing schema')
@@ -744,7 +746,7 @@ export function registerSchemaCommand(program: Command): void {
           const artifactChoices = DEFAULT_ARTIFACTS.map((a) => ({
             name: a.id,
             value: a.id,
-            checked: true,
+            checked: DEFAULT_SCHEMA_ARTIFACT_IDS.includes(a.id),
           }));
 
           selectedArtifactIds = await checkbox({
@@ -795,8 +797,7 @@ export function registerSchemaCommand(program: Command): void {
               }
             }
           } else {
-            // Default to all artifacts
-            selectedArtifactIds = DEFAULT_ARTIFACTS.map((a) => a.id);
+            selectedArtifactIds = [...DEFAULT_SCHEMA_ARTIFACT_IDS];
           }
         }
 

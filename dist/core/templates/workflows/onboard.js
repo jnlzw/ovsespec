@@ -44,7 +44,7 @@ I'll walk you through a complete change cycle—from idea to implementation—us
 1. Pick a small, real task in your codebase
 2. Explore the problem briefly
 3. Create a change (the container for our work)
-4. Build the artifacts: proposal → specs → design → tasks
+4. Build the artifacts: proposal → specs → tasks (design.md only if needed)
 5. Implement the tasks
 6. Archive the completed change
 
@@ -167,7 +167,7 @@ Now let's create a change to hold our work.
 \`\`\`
 ## Creating a Change
 
-A "change" in OvseSpec is a container for all the thinking and planning around a piece of work. It lives in \`ovsespec/changes/<name>/\` and holds your artifacts—proposal, specs, design, tasks.
+A "change" in OvseSpec is a container for all the thinking and planning around a piece of work. It lives in \`ovsespec/changes/<name>/\` and holds your artifacts—proposal, specs, tasks, plus design.md only when the change needs explicit design decisions.
 
 Let me create one for our task.
 \`\`\`
@@ -185,9 +185,9 @@ The folder structure:
 \`\`\`
 ovsespec/changes/<name>/
 ├── proposal.md    ← Why we're doing this (empty, we'll fill it)
-├── design.md      ← How we'll build it (empty)
 ├── specs/         ← Detailed requirements (empty)
-└── tasks.md       ← Implementation checklist (empty)
+├── tasks.md       ← Implementation checklist (empty)
+└── design.md      ← Optional, only if this task needs design decisions
 \`\`\`
 
 Now let's fill in the first artifact—the proposal.
@@ -302,48 +302,26 @@ Save to \`ovsespec/changes/<name>/specs/<capability>/spec.md\`.
 
 ---
 
-## Phase 7: Design
+## Phase 7: Optional Design Check
 
 **EXPLAIN:**
 \`\`\`
-## Design
+## Design Check
 
-The design captures **how** we'll build it—technical decisions, tradeoffs, approach.
+design.md is optional. We create it only when the change needs explicit technical decisions, architecture tradeoffs, external dependencies, migration planning, or security/performance risk analysis.
 
-For small changes, this might be brief. That's fine—not every change needs deep design discussion.
+For this onboarding task, I'll skip design.md unless we identify one of those needs.
 \`\`\`
 
-**DO:** Draft design.md:
+**DO:** Decide whether design.md is needed:
 
 \`\`\`
-Here's the design:
+Design needed: no
 
----
-
-## Context
-
-[Brief context about the current state]
-
-## Goals / Non-Goals
-
-**Goals:**
-- [What we're trying to achieve]
-
-**Non-Goals:**
-- [What's explicitly out of scope]
-
-## Decisions
-
-### Decision 1: [Key decision]
-
-[Explanation of approach and rationale]
-
----
-
-For a small task, this captures the key decisions without over-engineering.
+Reason: this is a small, local change with no new architecture, dependency, migration, or high-risk technical tradeoff.
 \`\`\`
 
-Save to \`ovsespec/changes/<name>/design.md\`.
+If design is needed, create \`ovsespec/changes/<name>/design.md\` before tasks. Otherwise continue without it.
 
 ---
 
@@ -358,7 +336,7 @@ Finally, we break the work into implementation tasks—checkboxes that drive the
 These should be small, clear, and in logical order.
 \`\`\`
 
-**DO:** Generate tasks based on specs and design:
+**DO:** Generate tasks based on specs and optional design:
 
 \`\`\`
 Here are the implementation tasks:
@@ -391,14 +369,14 @@ Save to \`ovsespec/changes/<name>/tasks.md\`.
 \`\`\`
 ## Implementation
 
-Now we implement each task, checking them off as we go. I'll announce each one and occasionally note how the specs/design informed the approach.
+Now we implement each task, checking them off as we go. I'll announce each one and occasionally note how the specs informed the approach.
 \`\`\`
 
 **DO:** For each task:
 
 1. Announce: "Working on task N: [description]"
 2. Implement the change in the codebase
-3. Reference specs/design naturally: "The spec says X, so I'm doing Y"
+3. Reference specs naturally: "The spec says X, so I'm doing Y"
 4. Mark complete in tasks.md: \`- [ ]\` → \`- [x]\`
 5. Brief status: "✓ Task N complete"
 

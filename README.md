@@ -1,8 +1,8 @@
 # OvseSpec
 
-OvseSpec 是基于 OpenSpec 二次开发的团队版 spec-driven development 工具。它保留原 OpenSpec 的核心原意：先用 proposal / specs / design / tasks 明确变更，再由 AI coding agent 按任务实现、校验、同步和归档。
+OvseSpec 是基于 OpenSpec 二次开发的 spec-driven development 工具。它保留原 OpenSpec 的核心原意：先用 proposal / specs / tasks 明确变更，再由 AI coding agent 按任务实现、校验、同步和归档；`design.md` 只在确有设计决策需要时按需创建。
 
-本项目在原流程上增加了团队协作、YAPI 接口契约、Mock/advmock、PaaS test deploy 和中文工作流指令，适合多人协作的业务研发场景。
+本项目增加了中文工作流指令，并把 YAPI 接口契约、Mock/advmock 和 PaaS test deploy 改为条件触发：只有接口新增/变更或部署验证确实相关时才写入产物。
 
 ## 仓库与包
 
@@ -69,7 +69,7 @@ ovsespec update
 
 ## 核心工作流
 
-默认团队版核心流程：
+默认轻量核心流程：
 
 ```text
 /ovsx:propose -> /ovsx:apply -> /ovsx:sync -> /ovsx:archive
@@ -91,26 +91,28 @@ ovsespec update
 | 命令 | 作用 |
 | --- | --- |
 | `/ovsx:explore` | 探索想法、调查问题、澄清需求，不直接创建变更。 |
-| `/ovsx:propose` | 创建新变更，并生成 proposal、specs、design、tasks；团队场景补充 owner、reviewer、影响范围、迁移、交接和 API/YAPI 计划。 |
-| `/ovsx:apply` | 按 tasks 实现变更；实现阶段需要处理新增接口、Mock 数据、YAPI 接口创建/更新和回读 audit。 |
-| `/ovsx:sync` | 将 delta specs 同步到主 specs；同步阶段需要再次核对代码、spec、YAPI、Mock/advmock 是否一致。 |
-| `/ovsx:archive` | 归档已完成变更；归档前检查 specs、任务、owner、交接、发布风险和契约状态。 |
+| `/ovsx:propose` | 创建新变更，并默认生成 proposal、specs、tasks；API/YAPI、PaaS 和 `design.md` 按条件触发。 |
+| `/ovsx:apply` | 按 tasks 实现变更；如果 tasks 包含接口/YAPI 任务，需要同步处理代码、接口文档、Mock/advmock 和回读 audit。 |
+| `/ovsx:sync` | 将 delta specs 同步到主 specs；接口相关变更需要再次核对代码、spec、YAPI、Mock/advmock 是否一致。 |
+| `/ovsx:archive` | 归档已完成变更；归档前检查 specs、任务、发布风险和契约状态。 |
 | `/ovsx:new` | 只创建变更骨架，适合想分步骤补齐 artifact 的场景。 |
 | `/ovsx:continue` | 按 artifact 依赖顺序继续创建下一个产物。 |
 | `/ovsx:ff` | 一次性创建实现前所需的 planning artifacts。 |
-| `/ovsx:verify` | 归档前校验实现是否匹配 proposal/specs/design/tasks。 |
+| `/ovsx:verify` | 归档前校验实现是否匹配 proposal/specs/tasks，以及按需创建的 design.md。 |
 | `/ovsx:bulk-archive` | 批量归档多个已完成变更，并输出冲突、跳过和失败摘要。 |
 | `/ovsx:onboard` | 引导式跑通一次 OvseSpec 工作流。 |
-| `/ovsx:paas-test-deploy` | 执行团队版 PaaS test deploy，覆盖部署前检查、部署确认、验证、rollback 和交接。 |
+| `/ovsx:paas-test-deploy` | 执行 PaaS test deploy，覆盖部署前检查、部署确认、验证和 rollback。 |
 
-## 团队版增强
+## 默认产物策略
 
-OvseSpec 的团队版模板会在原 OpenSpec artifact 基础上增加这些信息：
+默认产物保持轻量，避免生成无关 markdown：
 
-- Team Coordination：owner、reviewer、stakeholder、交接点、并行开发风险。
-- API / YAPI Contracts：接口列表、`interface_id`、请求/响应契约、Mock/advmock 状态。
-- Team Workflow：评审、测试、发布、rollback、跨仓依赖和消费者影响。
-- Coordination / Contracts：归档或同步时保留协作和契约结论。
+- `proposal.md`：只记录为什么做、做什么、能力变化和影响范围；不再默认包含团队协作段。
+- `specs/**/spec.md`：只描述需求级行为变化。
+- `tasks.md`：默认从 `## 1.` 开始，不再默认生成 `0. Coordination / Contracts`。
+- `design.md`：仅在跨模块架构决策、外部依赖、数据模型/迁移、安全/性能风险或复杂技术取舍存在时创建。
+- API/YAPI：只有新增或变更 public API、Controller、route、DTO、请求/响应 schema、错误包装或 advmock 期望时，才写入 proposal 和 tasks。
+- PaaS：只有用户要求部署验证、任务依赖测试环境，或变更需要上线前环境验证时，才写入 tasks。
 
 ## YAPI 与 Mock 规则
 
@@ -129,7 +131,6 @@ OvseSpec 的团队版模板会在原 OpenSpec artifact 基础上增加这些信�
 - 部署执行：明确 deploy command 或 PaaS tool action。
 - 部署后验证：接口、日志、监控、关键业务路径。
 - rollback：记录 rollback command/path 或准备好的回滚方案。
-- 团队交接：owner、验证人、风险和后续事项。
 
 ## CLI 常用命令
 

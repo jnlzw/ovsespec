@@ -87,7 +87,7 @@ export function getOvsxNewCommandTemplate(): CommandTemplate {
     tags: ['workflow', 'artifacts'],
     content: `创建一个新的 OvseSpec 变更骨架，但不生成任何产物。
 
-保留原命令意图：只创建 change，并展示当前 schema 下第一个可创建产物的说明。不要越过边界直接写 proposal/design/tasks。
+保留原命令意图：只创建 change，并展示当前 schema 下第一个可创建产物的说明。不要越过边界直接写 planning artifacts。
 
 **输入**：\`/ovsx:new\` 后面可以是 kebab-case 变更名，也可以是用户想构建或修复的描述。
 

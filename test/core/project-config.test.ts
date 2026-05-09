@@ -487,9 +487,9 @@ rules:
       const rules = {
         proposal: ['Rule 1'],
         specs: ['Rule 2'],
-        design: ['Rule 3'],
+        tasks: ['Rule 3'],
       };
-      const validIds = new Set(['proposal', 'specs', 'design', 'tasks']);
+      const validIds = new Set(['proposal', 'specs', 'tasks']);
 
       const warnings = validateConfigRules(rules, validIds, 'spec-driven');
 
@@ -502,13 +502,13 @@ rules:
         testplan: ['Rule 2'], // Invalid
         documentation: ['Rule 3'], // Invalid
       };
-      const validIds = new Set(['proposal', 'specs', 'design', 'tasks']);
+      const validIds = new Set(['proposal', 'specs', 'tasks']);
 
       const warnings = validateConfigRules(rules, validIds, 'spec-driven');
 
       expect(warnings).toHaveLength(2);
       expect(warnings[0]).toContain('Unknown artifact ID in rules: "testplan"');
-      expect(warnings[0]).toContain('Valid IDs for schema "spec-driven": design, proposal, specs, tasks');
+      expect(warnings[0]).toContain('Valid IDs for schema "spec-driven": proposal, specs, tasks');
       expect(warnings[1]).toContain('Unknown artifact ID in rules: "documentation"');
     });
 

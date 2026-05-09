@@ -15,7 +15,7 @@ const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs�
 **团队协作增强**
 
 - 同步前识别每个 capability 的 owner、reviewer、影响模块、契约消费者和发布/迁移风险；证据不足时明确标注未知或询问用户。
-- 优先读取 proposal/design/tasks 中的结构化团队字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff；同步摘要里保留这些字段的当前状态。
+- 优先读取 proposal/specs/tasks 以及按需存在的 design.md 中的结构化团队字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff；同步摘要里保留这些字段的当前状态。
 - 对跨团队 shared contract、API、数据模型、权限、计费、兼容性等变更，合并时保留意图，不要把 delta 当成整段覆盖。
 - 如果 capability 涉及 Controller、API route、request/response schema、错误包装、advmock 或外部消费者，必须把 YAPI 同步纳入本次 sync 摘要。
 - YAPI 同步需要识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、分类、owner/reviewer 和文档质量状态。证据不足时标注 unknown 或询问用户，不要猜。
@@ -96,7 +96,7 @@ const SYNC_INSTRUCTIONS = `把某个变更中的 delta specs 同步到主 specs�
 
    对每个涉及 API/interface contract 的 capability：
    - 从 delta spec、主 spec、design、tasks 和代码中提取接口变化。
-   - 读取 proposal/design/tasks 中的 API/YAPI 清单，核对是否覆盖所有受影响接口；缺字段时标注 unknown/TBD 和确认对象。
+   - 读取 proposal/specs/tasks 以及按需存在的 design.md 中的 API/YAPI 清单，核对是否覆盖所有受影响接口；缺字段时标注 unknown/TBD 和确认对象。
    - 定位对应 Controller/handler、DTO、request/response、错误包装和 auth/permission 行为。
    - 定位 YAPI 目标：\`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`。
    - 如果当前环境有 YAPI tooling（例如 yapi-mcp 或等价能力），再次执行本地代码到 YAPI 的 sync：按 \`method + path\` 不存在则创建接口，存在则更新接口，并在写入后做 audit/质量检查。

@@ -9,7 +9,7 @@ import { hasProjectConfigDrift } from '../core/profile-sync-drift.js';
 const WORKFLOW_PROMPT_META = {
     propose: {
         name: 'Propose change',
-        description: 'Create proposal, design, and tasks from a request',
+        description: 'Create proposal, specs, and tasks from a request',
     },
     explore: {
         name: 'Explore ideas',
@@ -53,7 +53,7 @@ const WORKFLOW_PROMPT_META = {
     },
     'paas-test-deploy': {
         name: 'PaaS test deploy',
-        description: 'Run a team-aware PaaS test deploy workflow',
+        description: 'Run a PaaS test deploy workflow',
     },
 };
 function isPromptCancellationError(error) {

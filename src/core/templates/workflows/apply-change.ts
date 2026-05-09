@@ -15,12 +15,12 @@ const APPLY_INSTRUCTIONS = `实现一个 OvseSpec 变更中的任务。
 **团队协作增强**
 
 - 开始实现前，识别任务影响的仓库、模块、服务、owner/reviewer、接口契约和发布顺序。
-- 优先从 proposal/design/tasks 中读取团队结构化字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff。缺失时补充到本轮输出或暂停询问，不要靠口头记忆推进。
+- 优先从 proposal/specs/tasks 以及按需存在的 design.md 中读取团队结构化字段：影响 repo/module/service、owner、reviewer、acceptance、rollback、handoff。缺失时补充到本轮输出或暂停询问，不要靠口头记忆推进。
 - 如果变更涉及 workspace 或多仓，先读取可用 workspace 状态：\`ovsespec workspace list --json\` 和 \`ovsespec workspace doctor --json\`。只在用户明确要求实现时修改 linked repo 中的代码。
 - 不要把所有 linked repo 当成可任意修改的范围；只修改任务、产物或用户明确指向的代码位置。
 - 对跨团队契约、迁移、数据变更、兼容性风险，先确认实现顺序和验收方式。
 - 如果任务涉及 Controller、API route、DTO、request/response schema、错误包装、advmock 或接口契约，必须把 YAPI 纳入实现范围：识别 \`program_name\`、\`service_id\`、\`interface_id\`、\`method + path\`、owner/reviewer 和文档同步方式。
-- 如果 proposal/design/tasks 中已有 API/YAPI 清单，以清单作为 source of truth；实现发现接口、schema、错误包装或 Mock 场景变化时，先更新或报告产物差异，再继续写 YAPI。
+- 如果 proposal/specs/tasks 或按需存在的 design.md 中已有 API/YAPI 清单，以清单作为 source of truth；实现发现接口、schema、错误包装或 Mock 场景变化时，先更新或报告产物差异，再继续写 YAPI。
 - YAPI 目标不明确时不要猜。优先从 artifacts、代码注解、已有 YAPI URL、接口列表或项目配置中取证；证据不足就暂停询问。
 - 实现阶段如果新增了公开接口，且 YAPI 中按 \`method + path\` 查不到对应接口，必须创建 YAPI 接口；如果已存在，必须更新接口文档。
 - API 实现完成时必须补齐 YAPI Mock 数据：至少准备默认成功响应；如果 change/spec 明确包含空数据、错误码、权限失败、边界条件等场景，要创建对应 advmock 期望。

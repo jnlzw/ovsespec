@@ -32,8 +32,8 @@ ovsespec/
 ├── changes/            # Proposed updates (one folder per change)
 │   └── <change-name>/
 │       ├── proposal.md
-│       ├── design.md
 │       ├── tasks.md
+│       ├── design.md     # Optional, only when technical design decisions are needed
 │       └── specs/      # Delta specs (what's changing)
 │           └── <domain>/
 │               └── spec.md
@@ -54,15 +54,17 @@ Each change folder contains artifacts that guide the work:
 |----------|---------|
 | `proposal.md` | The "why" and "what" - captures intent, scope, and approach |
 | `specs/` | Delta specs showing ADDED/MODIFIED/REMOVED requirements |
-| `design.md` | The "how" - technical approach and architecture decisions |
 | `tasks.md` | Implementation checklist with checkboxes |
+| `design.md` | Optional technical design record for complex decisions |
 
 **Artifacts build on each other:**
 
 ```
-proposal ──► specs ──► design ──► tasks ──► implement
-   ▲           ▲          ▲                    │
-   └───────────┴──────────┴────────────────────┘
+proposal ──► specs ──► tasks ──► implement
+   ▲           ▲          │
+   └───────────┴──────────┘
+
+design.md is created only when the change needs explicit technical decisions.
             update as you learn
 ```
 
@@ -128,7 +130,6 @@ You: /ovsx:propose add-dark-mode
 AI:  Created ovsespec/changes/add-dark-mode/
      ✓ proposal.md — why we're doing this, what's changing
      ✓ specs/       — requirements and scenarios
-     ✓ design.md    — technical approach
      ✓ tasks.md     — implementation checklist
      Ready for implementation!
 ```
